@@ -1,61 +1,51 @@
-import { type NextRequest, NextResponse } from "next/server"
+// app/api/qr-generate/route.ts
+import { type NextRequest, NextResponse } from "next/server";
+import QRCode from "qrcode";
 
 export async function POST(request: NextRequest) {
   try {
-    const { text, size = 256, type = "text" } = await request.json()
+    const { text, size = 256, type = "text" } = await request.json();
 
     if (!text) {
-      return NextResponse.json({ error: "Text is required" }, { status: 400 })
+      return NextResponse.json({ error: "Content is required" }, { status: 400 });
     }
 
-    // Demo response - replace with actual RapidAPI integration
-    if (process.env.NODE_ENV === "development" || !process.env.RAPIDAPI_KEY) {
-      // Return a placeholder QR code
-      return NextResponse.json({
-        success: true,
-        qrCode: `/placeholder.svg?height=${size}&width=${size}`,
-      })
+    let valueToEncode = text;
+
+    // Format content based on type
+    switch (type) {
+      case "url":
+        if (!/^https?:\/\//i.test(valueToEncode)) {
+          valueToEncode = `https://${valueToEncode}`;
+        }
+        break;
+      case "email":
+        valueToEncode = `mailto:${valueToEncode}`;
+        break;
+      case "phone":
+        valueToEncode = `tel:${valueToEncode}`;
+        break;
+      case "wifi":
+        // Assume text is already in proper WIFI format
+        break;
+      case "text":
+      default:
+        // No change
+        break;
     }
 
-    // RapidAPI QR Code Generator Integration
-    const options = {
-      method: "GET",
-      headers: {
-        "X-RapidAPI-Key": process.env.RAPIDAPI_KEY || "",
-        "X-RapidAPI-Host": "qr-code-generator26.p.rapidapi.com",
-      },
-    }
-
-    const encodedText = encodeURIComponent(text)
-    const apiUrl = `https://qr-code-generator26.p.rapidapi.com/qr?data=${encodedText}&size=${size}x${size}&format=png`
-
-    const response = await fetch(apiUrl, options)
-
-    if (!response.ok) {
-      throw new Error("Failed to generate QR code")
-    }
-
-    // If the API returns an image directly
-    if (response.headers.get("content-type")?.includes("image")) {
-      const imageBuffer = await response.arrayBuffer()
-      const base64Image = Buffer.from(imageBuffer).toString("base64")
-      const dataUrl = `data:image/png;base64,${base64Image}`
-
-      return NextResponse.json({
-        success: true,
-        qrCode: dataUrl,
-      })
-    }
-
-    // If the API returns JSON with image URL
-    const data = await response.json()
+    const qrCodeDataUrl = await QRCode.toDataURL(valueToEncode, {
+      width: size,
+      margin: 1,
+      errorCorrectionLevel: "H",
+    });
 
     return NextResponse.json({
       success: true,
-      qrCode: data.qr_code || data.url || data.image,
-    })
+      qrCode: qrCodeDataUrl,
+    });
   } catch (error: any) {
-    console.error("QR generation error:", error)
-    return NextResponse.json({ error: "Failed to generate QR code" }, { status: 500 })
+    console.error("QR code generation error:", error);
+    return NextResponse.json({ error: "Failed to generate QR code." }, { status: 500 });
   }
 }

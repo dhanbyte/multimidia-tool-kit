@@ -1,3 +1,4 @@
+// app/dashboard/qr-generator/page.tsx
 "use client"
 
 import { useState } from "react"
@@ -44,7 +45,7 @@ export default function QRGeneratorPage() {
 
   const handleGenerate = async () => {
     if (!text) {
-      setError("Please enter text or URL")
+      setError("Please enter content to generate QR code.")
       return
     }
 
@@ -62,21 +63,15 @@ export default function QRGeneratorPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to generate QR code")
+        throw new Error(data.error || "Failed to generate QR code.")
       }
 
       setQrCode(data.qrCode)
-      toast({
-        title: "Success!",
-        description: "QR code generated successfully",
-      })
+      toast({ title: "Success!", description: "QR code generated successfully." })
     } catch (err: any) {
+      console.error("Frontend QR generation error:", err)
       setError(err.message)
-      toast({
-        title: "Error",
-        description: err.message,
-        variant: "destructive",
-      })
+      toast({ title: "Error", description: err.message, variant: "destructive" })
     } finally {
       setLoading(false)
     }
@@ -85,15 +80,10 @@ export default function QRGeneratorPage() {
   const handleDemo = () => {
     setLoading(true)
     setError("")
-
     setTimeout(() => {
-      // Generate a demo QR code (placeholder)
-      setQrCode("/placeholder.svg?height=256&width=256")
+      setQrCode(`/placeholder.svg?height=${size}&width=${size}`)
       setLoading(false)
-      toast({
-        title: "Demo Complete!",
-        description: "This is a demo QR code. Enter real content for actual QR codes.",
-      })
+      toast({ title: "Demo Complete!", description: "This is a demo QR code. Enter real content for actual QR codes." })
     }, 1000)
   }
 
@@ -101,12 +91,10 @@ export default function QRGeneratorPage() {
     if (qrCode) {
       const link = document.createElement("a")
       link.href = qrCode
-      link.download = `qrcode-${Date.now()}.png`
+      const fileExtension = qrCode.startsWith("data:image/png") ? "png" : "jpg"
+      link.download = `qrcode-${Date.now()}.${fileExtension}`
       link.click()
-      toast({
-        title: "Downloaded!",
-        description: "QR code saved to your device",
-      })
+      toast({ title: "Downloaded!", description: "QR code saved to your device." })
     }
   }
 
@@ -114,7 +102,6 @@ export default function QRGeneratorPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center space-x-3">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/20">
           <QrCode className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -126,7 +113,6 @@ export default function QRGeneratorPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Generator */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
@@ -158,12 +144,7 @@ export default function QRGeneratorPage() {
             <div>
               <label className="text-sm font-medium mb-2 block">Content</label>
               {qrType === "text" || qrType === "wifi" ? (
-                <Textarea
-                  placeholder={currentType?.placeholder}
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  rows={3}
-                />
+                <Textarea placeholder={currentType?.placeholder} value={text} onChange={(e) => setText(e.target.value)} rows={3} />
               ) : (
                 <Input placeholder={currentType?.placeholder} value={text} onChange={(e) => setText(e.target.value)} />
               )}
@@ -187,13 +168,11 @@ export default function QRGeneratorPage() {
             <Button onClick={handleGenerate} disabled={loading} className="w-full">
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...
                 </>
               ) : (
                 <>
-                  <QrCode className="mr-2 h-4 w-4" />
-                  Generate QR Code
+                  <QrCode className="mr-2 h-4 w-4" /> Generate QR Code
                 </>
               )}
             </Button>
@@ -205,8 +184,7 @@ export default function QRGeneratorPage() {
             </div>
 
             <Button variant="outline" onClick={handleDemo} disabled={loading} className="w-full bg-transparent">
-              <Play className="mr-2 h-4 w-4" />
-              Try Demo
+              <Play className="mr-2 h-4 w-4" /> Try Demo
             </Button>
 
             {error && (
@@ -218,7 +196,6 @@ export default function QRGeneratorPage() {
           </CardContent>
         </Card>
 
-        {/* Preview */}
         <Card>
           <CardHeader>
             <CardTitle>Preview & Download</CardTitle>
@@ -236,14 +213,11 @@ export default function QRGeneratorPage() {
                   />
                 </div>
                 <div className="text-center space-y-2">
-                  <p className="text-sm text-muted-foreground">
-                    Size: {size}x{size} pixels
-                  </p>
+                  <p className="text-sm text-muted-foreground">Size: {size}x{size} pixels</p>
                   <p className="text-sm text-muted-foreground">Type: {currentType?.label}</p>
                 </div>
                 <Button onClick={downloadQR} className="w-full">
-                  <Download className="mr-2 h-4 w-4" />
-                  Download QR Code
+                  <Download className="mr-2 h-4 w-4" /> Download QR Code
                 </Button>
                 <Alert>
                   <CheckCircle className="h-4 w-4" />
@@ -261,44 +235,29 @@ export default function QRGeneratorPage() {
         </Card>
       </div>
 
-      {/* Instructions and Examples */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Instructions */}
         <Card>
           <CardHeader>
             <CardTitle>How to Use</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                {
-                  step: "1",
-                  title: "Choose Type",
-                  description: "Select the type of content you want to encode (text, URL, email, etc.)",
-                },
-                {
-                  step: "2",
-                  title: "Enter Content",
-                  description: "Type or paste your text, URL, or other content in the input field",
-                },
-                {
-                  step: "3",
-                  title: "Customize Size",
-                  description: "Choose the size that fits your needs (larger for printing, smaller for digital)",
-                },
-                {
-                  step: "4",
-                  title: "Generate & Download",
-                  description: "Click generate to create your QR code, then download it to your device",
-                },
-              ].map((instruction, index) => (
-                <div key={index} className="flex items-start space-x-3">
+              {["Choose Type", "Enter Content", "Customize Size", "Generate & Download"].map((title, i) => (
+                <div key={i} className="flex items-start space-x-3">
                   <Badge variant="outline" className="mt-1 h-6 w-6 rounded-full p-0 flex items-center justify-center">
-                    {instruction.step}
+                    {i + 1}
                   </Badge>
                   <div>
-                    <h4 className="font-medium text-sm">{instruction.title}</h4>
-                    <p className="text-sm text-muted-foreground">{instruction.description}</p>
+                    <h4 className="font-medium text-sm">{title}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {title === "Choose Type"
+                        ? "Select the type of content you want to encode (text, URL, email, etc.)"
+                        : title === "Enter Content"
+                        ? "Type or paste your text, URL, or other content in the input field"
+                        : title === "Customize Size"
+                        ? "Choose the size that fits your needs (larger for printing, smaller for digital)"
+                        : "Click generate to create your QR code, then download it to your device"}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -306,29 +265,25 @@ export default function QRGeneratorPage() {
           </CardContent>
         </Card>
 
-        {/* Examples and Tips */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <Info className="mr-2 h-4 w-4" />
-              Examples & Tips
+              <Info className="mr-2 h-4 w-4" /> Examples & Tips
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div>
                 <h4 className="font-medium text-sm mb-2">WiFi QR Code Format:</h4>
-                <code className="text-xs bg-muted p-2 rounded block">
-                  WIFI:T:WPA;S:MyNetwork;P:MyPassword;H:false;;
-                </code>
+                <code className="text-xs bg-muted p-2 rounded block">WIFI:T:WPA;S:NetworkName;P:Password;H:false;;</code>
               </div>
               <div>
                 <h4 className="font-medium text-sm mb-2">Email Format:</h4>
-                <code className="text-xs bg-muted p-2 rounded block">mailto:user@example.com?subject=Hello</code>
+                <code className="text-xs bg-muted p-2 rounded block">user@example.com</code>
               </div>
               <div>
                 <h4 className="font-medium text-sm mb-2">Phone Format:</h4>
-                <code className="text-xs bg-muted p-2 rounded block">tel:+1234567890</code>
+                <code className="text-xs bg-muted p-2 rounded block">+1234567890</code>
               </div>
               <Separator />
               <div className="space-y-2 text-sm text-muted-foreground">

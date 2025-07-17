@@ -1,14 +1,20 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Progress } from "@/components/ui/progress"
-import { useToast } from "@/hooks/use-toast"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
 import {
   Download,
   Video,
@@ -22,109 +28,125 @@ import {
   MessageCircle,
   Share,
   Info,
-} from "lucide-react"
+} from "lucide-react";
 
 export default function TikTokDownloaderPage() {
-  const [url, setUrl] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<any>(null)
-  const [error, setError] = useState("")
-  const [progress, setProgress] = useState(0)
-  const { toast } = useToast()
+  const [url, setUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<any>(null);
+  const [error, setError] = useState("");
+  const [progress, setProgress] = useState(0); // Progress for the API call
+  const { toast } = useToast();
 
-  const handleDownload = async () => {
+  const handleFetchAndDownload = async () => {
     if (!url) {
-      setError("Please enter a TikTok URL")
-      return
+      setError("Please enter a TikTok video URL.");
+      return;
     }
 
-    if (!url.includes("tiktok.com")) {
-      setError("Please enter a valid TikTok URL")
-      return
-    }
-
-    setLoading(true)
-    setError("")
-    setResult(null)
-    setProgress(0)
-
-    // Simulate progress
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) {
-          clearInterval(progressInterval)
-          return 90
-        }
-        return prev + 10
-      })
-    }, 200)
+    setLoading(true);
+    setError("");
+    setResult(null); // Clear previous results
+    setProgress(0); // Reset progress
 
     try {
-      const response = await fetch("/api/tiktok-download", {
+      // Step 1: Call your Next.js API route to get video information
+      const apiResponse = await fetch("/api/tiktok-download", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ url }),
-      })
+      });
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to download video")
+      if (!apiResponse.ok) {
+        const errorData = await apiResponse.json();
+        throw new Error(errorData.error || "Failed to fetch video details from API.");
       }
 
-      setProgress(100)
-      setResult(data.data)
+      const apiResult = await apiResponse.json();
+
+      if (!apiResult.success || !apiResult.data?.downloadUrl) {
+        throw new Error("Could not retrieve download URL from TikTok.");
+      }
+
+      setResult(apiResult.data);
+      setProgress(50); // Simulate progress after fetching info
+
+      // Step 2: Download the video using the downloadUrl from the API response
+      const videoDownloadResponse = await fetch(apiResult.data.downloadUrl);
+
+      if (!videoDownloadResponse.ok) {
+        throw new Error("Failed to download the video file.");
+      }
+
+      const blob = await videoDownloadResponse.blob();
+      const objectUrl = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = `${apiResult.data.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp4`; // Sanitize title for filename
+      document.body.appendChild(a);
+      a.click();
+
+      a.remove();
+      window.URL.revokeObjectURL(objectUrl);
+      setProgress(100); // Simulate completion
       toast({
-        title: "Success!",
-        description: "TikTok video processed successfully",
-      })
+        title: "Download Complete!",
+        description: "Your TikTok video has been downloaded.",
+      });
+
     } catch (err: any) {
-      setError(err.message)
+      console.error("Download process failed:", err);
+      setError(err.message || "An unexpected error occurred during download.");
+      setProgress(0); // Reset progress on error
       toast({
-        title: "Error",
-        description: err.message,
+        title: "Download Failed",
+        description: err.message || "Please try again later.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
-      clearInterval(progressInterval)
+      setLoading(false);
     }
-  }
+  };
 
   const handleDemo = () => {
-    setLoading(true)
-    setError("")
-    setProgress(0)
+    setLoading(true);
+    setError("");
+    setProgress(0);
+    setResult(null); // Clear any previous real results
 
     // Simulate demo download
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
-          clearInterval(progressInterval)
-          return 100
+          clearInterval(progressInterval);
+          return 100;
         }
-        return prev + 20
-      })
-    }, 300)
+        return prev + 20;
+      });
+    }, 300);
 
     setTimeout(() => {
       setResult({
         title: "Amazing Dance Video 🔥",
         author: "dance_queen_2024",
-        downloadUrl: "/placeholder.svg?height=400&width=300",
+        downloadUrl: "/placeholder.mp4", // A more appropriate placeholder for a video
         thumbnail: "/placeholder.svg?height=400&width=300",
         duration: "00:15",
         likes: "125.4K",
         comments: "8.2K",
         shares: "15.6K",
-      })
-      setLoading(false)
+      });
+      setLoading(false);
       toast({
         title: "Demo Complete!",
-        description: "This is a demo result. Use real TikTok URLs for actual downloads.",
-      })
-    }, 1500)
-  }
+        description:
+          "This is a demo result. Use real TikTok URLs for actual downloads.",
+      });
+    }, 1500);
+  };
 
   return (
     <div className="space-y-6">
@@ -135,7 +157,9 @@ export default function TikTokDownloaderPage() {
         </div>
         <div>
           <h1 className="text-3xl font-bold">TikTok Video Downloader</h1>
-          <p className="text-muted-foreground">Download TikTok videos without watermark in HD quality</p>
+          <p className="text-muted-foreground">
+            Download TikTok videos without watermark in HD quality
+          </p>
         </div>
       </div>
 
@@ -148,7 +172,9 @@ export default function TikTokDownloaderPage() {
                 <Download className="mr-2 h-5 w-5" />
                 Download TikTok Video
               </CardTitle>
-              <CardDescription>Paste the TikTok video URL below to download without watermark</CardDescription>
+              <CardDescription>
+                Paste the TikTok video URL below to download without watermark
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex space-x-2">
@@ -158,7 +184,8 @@ export default function TikTokDownloaderPage() {
                   onChange={(e) => setUrl(e.target.value)}
                   className="flex-1"
                 />
-                <Button onClick={handleDownload} disabled={loading}>
+                {/* Modified button to call handleFetchAndDownload */}
+                <Button onClick={handleFetchAndDownload} disabled={loading}>
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -179,7 +206,12 @@ export default function TikTokDownloaderPage() {
                 <Separator className="flex-1" />
               </div>
 
-              <Button variant="outline" onClick={handleDemo} disabled={loading} className="w-full bg-transparent">
+              <Button
+                variant="outline"
+                onClick={handleDemo}
+                disabled={loading}
+                className="w-full bg-transparent"
+              >
                 <Play className="mr-2 h-4 w-4" />
                 Try Demo
               </Button>
@@ -211,7 +243,9 @@ export default function TikTokDownloaderPage() {
                         className="h-20 w-16 rounded-lg object-cover"
                       />
                       <div className="flex-1 space-y-2">
-                        <h3 className="font-semibold text-sm">{result.title}</h3>
+                        <h3 className="font-semibold text-sm">
+                          {result.title}
+                        </h3>
                         <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                           <div className="flex items-center">
                             <User className="mr-1 h-3 w-3" />@{result.author}
@@ -235,7 +269,23 @@ export default function TikTokDownloaderPage() {
                             {result.shares}
                           </div>
                         </div>
-                        <Button size="sm" className="w-full">
+                        {/* This button will trigger the client-side download if `result.downloadUrl` exists */}
+                        <Button
+                          size="sm"
+                          className="w-full"
+                          onClick={() => {
+                            // This button should directly initiate download if result is already there
+                            // For simplicity, we can just use the downloadUrl from 'result'
+                            if (result.downloadUrl) {
+                              const a = document.createElement("a");
+                              a.href = result.downloadUrl;
+                              a.download = `${result.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp4`;
+                              document.body.appendChild(a);
+                              a.click();
+                              a.remove();
+                            }
+                          }}
+                        >
                           <Download className="mr-2 h-3 w-3" />
                           Download HD Video
                         </Button>
@@ -264,26 +314,36 @@ export default function TikTokDownloaderPage() {
                   {
                     step: "2",
                     title: "Paste URL",
-                    description: "Paste the copied URL in the input field above and click the download button",
+                    description:
+                      "Paste the copied URL in the input field above and click the download button",
                   },
                   {
                     step: "3",
                     title: "Download Video",
-                    description: "Wait for processing to complete, then download your watermark-free video",
+                    description:
+                      "Wait for processing to complete, then download your watermark-free video",
                   },
                   {
                     step: "4",
                     title: "Enjoy",
-                    description: "Your video is ready! Share it or save it to your device without any watermarks",
+                    description:
+                      "Your video is ready! Share it or save it to your device without any watermarks",
                   },
                 ].map((instruction, index) => (
                   <div key={index} className="flex items-start space-x-3">
-                    <Badge variant="outline" className="mt-1 h-6 w-6 rounded-full p-0 flex items-center justify-center">
+                    <Badge
+                      variant="outline"
+                      className="mt-1 h-6 w-6 rounded-full p-0 flex items-center justify-center"
+                    >
                       {instruction.step}
                     </Badge>
                     <div>
-                      <h4 className="font-medium text-sm">{instruction.title}</h4>
-                      <p className="text-sm text-muted-foreground">{instruction.description}</p>
+                      <h4 className="font-medium text-sm">
+                        {instruction.title}
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        {instruction.description}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -364,5 +424,5 @@ export default function TikTokDownloaderPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
