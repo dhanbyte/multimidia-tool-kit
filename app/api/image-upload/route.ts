@@ -1,61 +1,52 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData()
-    const file = formData.get("file") as File
+    const formData = await request.formData();
+    const file = formData.get("file") as File;
 
     if (!file) {
-      return NextResponse.json({ error: "Image file is required" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Image file is required" },
+        { status: 400 }
+      );
     }
 
-    // Demo response - replace with actual RapidAPI integration
-    if (process.env.NODE_ENV === "development" || !process.env.RAPIDAPI_KEY) {
-      return NextResponse.json({
-        success: true,
-        data: {
-          url: `/placeholder.svg?height=400&width=600&text=${encodeURIComponent(file.name)}`,
-          filename: file.name,
-          size: file.size,
-          type: file.type,
-          uploadedAt: new Date().toISOString(),
-        },
-      })
-    }
+    const arrayBuffer = await file.arrayBuffer();
+    const base64Image = Buffer.from(arrayBuffer).toString("base64");
 
-    // RapidAPI Image Hosting Integration
-    const imageFormData = new FormData()
-    imageFormData.append("image", file)
+    // API expects image as base64 in x-www-form-urlencoded format
+    const params = new URLSearchParams();
+    params.append("image", base64Image);
 
-    const options = {
+    const response = await fetch("https://upload-images-hosting-get-url.p.rapidapi.com/upload", {
       method: "POST",
       headers: {
-        "X-RapidAPI-Key": process.env.RAPIDAPI_KEY || "",
-        "X-RapidAPI-Host": "image-hosting-api.p.rapidapi.com",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-RapidAPI-Key": process.env.RAPIDAPI_KEY || "aa6e53de16msh79dc702fe84431bp17a1ccjsn5e96fc3dae68",
+        "X-RapidAPI-Host": "upload-images-hosting-get-url.p.rapidapi.com",
       },
-      body: imageFormData,
-    }
-
-    const response = await fetch("https://image-hosting-api.p.rapidapi.com/upload", options)
+      body: params.toString(),
+    });
 
     if (!response.ok) {
-      throw new Error("Failed to upload image")
+      throw new Error("Failed to upload image");
     }
 
-    const data = await response.json()
+    const data = await response.json();
 
     return NextResponse.json({
       success: true,
       data: {
-        url: data.url || data.image_url,
-        filename: file.name,
+        url: data?.data?.url || data?.data?.display_url,
+        filename: data?.data?.image?.filename || file.name,
         size: file.size,
         type: file.type,
         uploadedAt: new Date().toISOString(),
       },
-    })
+    });
   } catch (error: any) {
-    console.error("Image upload error:", error)
-    return NextResponse.json({ error: "Failed to upload image" }, { status: 500 })
+    console.error("Image upload error:", error);
+    return NextResponse.json({ error: "Failed to upload image" }, { status: 500 });
   }
 }

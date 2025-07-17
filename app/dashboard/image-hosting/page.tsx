@@ -82,72 +82,58 @@ export default function ImageHostingPage() {
   }
 
   const handleUpload = async () => {
-    if (files.length === 0) {
-      setError("Please select at least one image")
-      return
-    }
-
-    setLoading(true)
-    setError("")
-    setProgress(0)
-
-    // Simulate progress
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) {
-          clearInterval(progressInterval)
-          return 90
-        }
-        return prev + 10
-      })
-    }, 200)
-
-    try {
-      const uploadPromises = files.map(async (file, index) => {
-        const formData = new FormData()
-        formData.append("file", file)
-
-        const response = await fetch("/api/image-upload", {
-          method: "POST",
-          body: formData,
-        })
-
-        if (!response.ok) {
-          throw new Error(`Failed to upload ${file.name}`)
-        }
-
-        const data = await response.json()
-        return {
-          id: Date.now() + index,
-          name: file.name,
-          url: data.data?.url || `/placeholder.svg?height=200&width=300`,
-          size: file.size,
-          type: file.type,
-          uploadedAt: new Date().toISOString(),
-        }
-      })
-
-      const results = await Promise.all(uploadPromises)
-      setProgress(100)
-      setUploadedImages((prev) => [...prev, ...results])
-      setFiles([])
-
-      toast({
-        title: "Success!",
-        description: `${results.length} image(s) uploaded successfully`,
-      })
-    } catch (err: any) {
-      setError(err.message)
-      toast({
-        title: "Error",
-        description: err.message,
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
-      clearInterval(progressInterval)
-    }
+  if (files.length === 0) {
+    setError("Please select at least one image");
+    return;
   }
+
+  setLoading(true);
+  setError("");
+  setProgress(0);
+
+  try {
+    const uploadPromises = files.map(async (file, index) => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/image-upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      return {
+        id: Date.now() + index,
+        name: file.name,
+        url: data.data?.url || "/placeholder.svg",
+        size: file.size,
+        type: file.type,
+        uploadedAt: new Date().toISOString(),
+      };
+    });
+
+    const results = await Promise.all(uploadPromises);
+    setUploadedImages((prev) => [...prev, ...results]);
+    setFiles([]);
+    setProgress(100);
+
+    toast({
+      title: "Upload Complete",
+      description: `${results.length} image(s) uploaded successfully`,
+    });
+  } catch (err: any) {
+    setError(err.message || "Something went wrong");
+    toast({
+      title: "Upload Failed",
+      description: err.message || "Something went wrong",
+      variant: "destructive",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleDemo = () => {
     const demoImages = [
