@@ -12,8 +12,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
     }
 
-    const STABILITY_API_KEY = process.env.STABILITY_API_KEY;
-
+    const STABILITY_API_KEY = "sk-hLIGOJFTs2SGi7majOHYFJHauNbWbdii6EQMrrrCNOytk3F6"
     if (!STABILITY_API_KEY) {
       console.error("STABILITY_API_KEY is not set in environment variables.");
       return NextResponse.json(
