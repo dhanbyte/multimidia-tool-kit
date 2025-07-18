@@ -117,7 +117,10 @@ export async function POST(request: NextRequest) {
             { status: 500 }
         );
     }
+     
 
+
+    
     // Construct the data URL expected by your frontend
     const imageUrl = `data:image/png;base64,${base64Image}`;
 
