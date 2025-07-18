@@ -1,87 +1,61 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
+import FormData from "form-data";
+import https from "https";
+import { writeFile, unlink } from "fs/promises";
 
-export async function POST(request: NextRequest) {
+// POST /api/doc-to-pdf
+export async function POST(req: NextRequest) {
   try {
-    const formData = await request.formData()
-    const file = formData.get("file") as File
-    const quality = (formData.get("quality") as string) || "high"
-    const resolution = (formData.get("resolution") as string) || "300"
+    const formData = await req.formData();
+    const file = formData.get("file") as File;
 
     if (!file) {
-      return NextResponse.json({ error: "PDF file is required" }, { status: 400 })
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // Demo response - replace with actual RapidAPI integration
-    if (process.env.NODE_ENV === "development" || !process.env.RAPIDAPI_KEY) {
-      const demoImages = [
-        {
-          id: 1,
-          pageNumber: 1,
-          url: "/placeholder.svg?height=400&width=300&text=Page 1",
-          filename: "page-1.jpg",
-          size: 245760,
-        },
-        {
-          id: 2,
-          pageNumber: 2,
-          url: "/placeholder.svg?height=400&width=300&text=Page 2",
-          filename: "page-2.jpg",
-          size: 198432,
-        },
-        {
-          id: 3,
-          pageNumber: 3,
-          url: "/placeholder.svg?height=400&width=300&text=Page 3",
-          filename: "page-3.jpg",
-          size: 267891,
-        },
-      ]
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const fileName = `${uuidv4()}-${file.name}`;
+    const tempPath = path.join("/tmp", fileName);
 
-      return NextResponse.json({
-        success: true,
-        data: {
-          images: demoImages,
-          totalPages: demoImages.length,
-          quality: quality,
-          resolution: resolution,
-        },
-      })
-    }
+    await writeFile(tempPath, buffer); // Save temp file
 
-    // RapidAPI PDF to JPG Integration
-    const pdfFormData = new FormData()
-    pdfFormData.append("file", file)
-    pdfFormData.append("quality", quality)
-    pdfFormData.append("dpi", resolution)
+    const form = new FormData();
+    form.append("file", fs.createReadStream(tempPath));
 
     const options = {
       method: "POST",
+      hostname: "universal-document-to-pdf-converter.p.rapidapi.com",
+      path: "/convert",
       headers: {
-        "X-RapidAPI-Key": process.env.RAPIDAPI_KEY || "",
-        "X-RapidAPI-Host": "pdf-to-jpg-converter-api.p.rapidapi.com",
+        ...form.getHeaders(),
+        "X-RapidAPI-Key": "aa6e53de16msh79dc702fe84431bp17a1ccjsn5e96fc3dae68",
+        "X-RapidAPI-Host": "universal-document-to-pdf-converter.p.rapidapi.com",
       },
-      body: pdfFormData,
-    }
+    };
 
-    const response = await fetch("https://pdf-to-jpg-converter-api.p.rapidapi.com/convert", options)
+    const apiRes = await new Promise<string>((resolve, reject) => {
+      const req = https.request(options, (res) => {
+        let chunks: any[] = [];
+        res.on("data", (chunk) => chunks.push(chunk));
+        res.on("end", () => {
+          const body = Buffer.concat(chunks).toString();
+          resolve(body);
+        });
+      });
 
-    if (!response.ok) {
-      throw new Error("Failed to convert PDF to JPG")
-    }
+      req.on("error", (err) => reject(err));
+      form.pipe(req);
+    });
 
-    const data = await response.json()
+    await unlink(tempPath); // Cleanup
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        images: data.images || [],
-        totalPages: data.totalPages || 0,
-        quality: quality,
-        resolution: resolution,
-      },
-    })
-  } catch (error: any) {
-    console.error("PDF to JPG error:", error)
-    return NextResponse.json({ error: "Failed to convert PDF to JPG" }, { status: 500 })
+    return NextResponse.json({ success: true, data: JSON.parse(apiRes) });
+  } catch (err) {
+    console.error("Conversion failed:", err);
+    return NextResponse.json({ error: "Conversion failed" }, { status: 500 });
   }
 }
