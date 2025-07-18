@@ -27,6 +27,12 @@ import { Separator } from "@/components/ui/separator";
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 export default function PdfToJpgConverterPage() {
+
+   useEffect(() => {
+    const matrix = new DOMMatrix()
+    console.log(matrix)
+  }, [])
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [pdfPages, setPdfPages] = useState<HTMLCanvasElement[]>([]); // Array of canvas elements
   const [currentPage, setCurrentPage] = useState(0); // For single page preview (0-indexed)
