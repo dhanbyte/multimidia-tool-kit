@@ -141,7 +141,7 @@ export default function PDFToTextPage() {
   }
 
   const handleDemo = () => {
-    const demoFile = new File([""], "sample-document.pdf", { type: "application/pdf" })
+    const demoFile = new (window as any).File([""], "sample-document.pdf", { type: "application/pdf" })
     setFile(demoFile)
     setFileInfo({
       name: "sample-document.pdf",

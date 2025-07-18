@@ -24,7 +24,7 @@ import { Separator } from "@/components/ui/separator";
 
 // Set the workerSrc for pdf.js
 // Ensure pdf.worker.min.js is in your public directory
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 export default function PdfToJpgConverterPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
