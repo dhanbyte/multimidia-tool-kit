@@ -1,14 +1,15 @@
-"use client"
+// app/twitter-downloader/page.tsx
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Progress } from "@/components/ui/progress"
-import { useToast } from "@/hooks/use-toast"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
 import {
   Download,
   Twitter,
@@ -25,97 +26,115 @@ import {
   Info,
   Video,
   ImageIcon,
-} from "lucide-react"
+} from "lucide-react";
+
+// Result Data Interface (यह सुनिश्चित करता है कि डेटा का प्रकार सही है)
+interface TwitterResult {
+  title: string;
+  author: string;
+  username: string;
+  downloadUrl: string;
+  thumbnail: string;
+  type: "video" | "photo" | "animated_gif" | "unknown"; // RapidAPI से मिलने वाले प्रकार
+  duration?: string | null; // वीडियो/GIF के लिए
+  likes: string;
+  retweets: string;
+  comments: string;
+  createdAt: string;
+  verified: boolean;
+}
 
 export default function TwitterDownloaderPage() {
-  const [url, setUrl] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<any>(null)
-  const [error, setError] = useState("")
-  const [progress, setProgress] = useState(0)
-  const { toast } = useToast()
+  const [url, setUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<TwitterResult | null>(null);
+  const [error, setError] = useState("");
+  const [progress, setProgress] = useState(0);
+  const { toast } = useToast();
 
   const handleDownload = async () => {
     if (!url) {
-      setError("Please enter a Twitter URL")
-      return
+      setError("Please enter a Twitter/X URL");
+      toast({ title: "Error", description: "Please enter a Twitter/X URL", variant: "destructive" });
+      return;
     }
 
     if (!url.includes("twitter.com") && !url.includes("x.com")) {
-      setError("Please enter a valid Twitter/X URL")
-      return
+      setError("Please enter a valid Twitter/X URL");
+      toast({ title: "Error", description: "Please enter a valid Twitter/X URL", variant: "destructive" });
+      return;
     }
 
-    setLoading(true)
-    setError("")
-    setResult(null)
-    setProgress(0)
+    setLoading(true);
+    setError("");
+    setResult(null);
+    setProgress(0);
 
     // Simulate progress
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 90) {
-          clearInterval(progressInterval)
-          return 90
+          clearInterval(progressInterval);
+          return 90;
         }
-        return prev + 12
-      })
-    }, 250)
+        return prev + 12;
+      });
+    }, 250);
 
     try {
       const response = await fetch("/api/twitter-download", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to download Twitter content")
+        throw new Error(data.error || "Failed to download Twitter content");
       }
 
-      setProgress(100)
-      setResult(data.data)
+      setProgress(100);
+      setResult(data.data);
       toast({
         title: "Success!",
         description: "Twitter content processed successfully",
-      })
+      });
     } catch (err: any) {
-      setError(err.message)
+      setError(err.message);
       toast({
         title: "Error",
         description: err.message,
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
-      clearInterval(progressInterval)
+      setLoading(false);
+      clearInterval(progressInterval);
     }
-  }
+  };
 
   const handleDemo = () => {
-    setLoading(true)
-    setError("")
-    setProgress(0)
+    setLoading(true);
+    setError("");
+    setProgress(0);
 
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
-          clearInterval(progressInterval)
-          return 100
+          clearInterval(progressInterval);
+          return 100;
         }
-        return prev + 20
-      })
-    }, 300)
+        return prev + 20;
+      });
+    }, 300);
 
     setTimeout(() => {
       setResult({
         title: "Amazing tech announcement! 🚀 The future is here with our new AI-powered platform...",
         author: "TechInnovator",
         username: "@techinnovator",
-        downloadUrl: "/placeholder.svg?height=400&width=600",
-        thumbnail: "/placeholder.svg?height=400&width=600",
+        downloadUrl: "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4", // एक वास्तविक MP4 डेमो URL
+        thumbnail: "https://placehold.co/600x400/png?text=Demo+Video",
         type: "video",
         duration: "0:45",
         likes: "2.4K",
@@ -123,14 +142,14 @@ export default function TwitterDownloaderPage() {
         comments: "342",
         createdAt: "2024-01-15T10:30:00Z",
         verified: true,
-      })
-      setLoading(false)
+      });
+      setLoading(false);
       toast({
         title: "Demo Complete!",
-        description: "This is a demo result. Use real Twitter URLs for actual downloads.",
-      })
-    }, 1500)
-  }
+        description: "This is a demo result. Use real Twitter/X URLs for actual downloads.",
+      });
+    }, 1500);
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -139,8 +158,8 @@ export default function TwitterDownloaderPage() {
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -151,7 +170,7 @@ export default function TwitterDownloaderPage() {
         </div>
         <div>
           <h1 className="text-3xl font-bold">Twitter Downloader</h1>
-          <p className="text-muted-foreground">Download Twitter videos, GIFs, and images easily</p>
+          <p className="text-muted-foreground">Download Twitter/X videos, GIFs, and images easily</p>
         </div>
       </div>
 
@@ -162,9 +181,9 @@ export default function TwitterDownloaderPage() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Download className="mr-2 h-5 w-5" />
-                Download Twitter Content
+                Download Twitter/X Content
               </CardTitle>
-              <CardDescription>Paste the Twitter post URL to download videos, GIFs, or images</CardDescription>
+              <CardDescription>Paste the Twitter/X post URL to download videos, GIFs, or images</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex space-x-2">
@@ -240,22 +259,45 @@ export default function TwitterDownloaderPage() {
 
                       {/* Media Preview */}
                       <div className="relative">
-                        <img
-                          src={result.thumbnail || "/placeholder.svg"}
-                          alt="Twitter media"
-                          className="w-full h-48 object-cover rounded-lg"
-                        />
+                        {result.type === "video" || result.type === "animated_gif" ? (
+                          <video
+                            src={result.downloadUrl}
+                            poster={result.thumbnail || ""}
+                            controls
+                            className="w-full h-auto max-h-96 object-contain rounded-lg bg-black"
+                          >
+                            Your browser does not support the video tag.
+                          </video>
+                        ) : result.type === "photo" ? (
+                          <img
+                            src={result.downloadUrl} // इमेज के लिए downloadUrl का उपयोग करें
+                            alt="Twitter media"
+                            className="w-full h-auto max-h-96 object-contain rounded-lg"
+                          />
+                        ) : (
+                          <img
+                            src={result.thumbnail || "/placeholder.svg"}
+                            alt="Twitter media"
+                            className="w-full h-auto max-h-96 object-contain rounded-lg"
+                          />
+                        )}
+
                         <div className="absolute top-2 left-2 flex space-x-1">
                           <Badge variant="secondary" className="text-xs">
-                            {result.type === "video" ? (
+                            {result.type === "video" || result.type === "animated_gif" ? (
                               <>
                                 <Video className="mr-1 h-3 w-3" />
-                                Video
+                                Video/GIF
                               </>
-                            ) : (
+                            ) : result.type === "photo" ? (
                               <>
                                 <ImageIcon className="mr-1 h-3 w-3" />
                                 Image
+                              </>
+                            ) : (
+                              <>
+                                <Info className="mr-1 h-3 w-3" />
+                                Media
                               </>
                             )}
                           </Badge>
@@ -287,10 +329,12 @@ export default function TwitterDownloaderPage() {
                       </div>
 
                       {/* Download Button */}
-                      <Button className="w-full">
-                        <Download className="mr-2 h-4 w-4" />
-                        Download {result.type === "video" ? "Video" : "Image"}
-                      </Button>
+                      <a href={result.downloadUrl} download target="_blank" rel="noopener noreferrer">
+                        <Button className="w-full">
+                          <Download className="mr-2 h-4 w-4" />
+                          Download {result.type === "photo" ? "Image" : "Video"}
+                        </Button>
+                      </a>
                     </div>
                   </CardContent>
                 </Card>
@@ -308,7 +352,7 @@ export default function TwitterDownloaderPage() {
                 {[
                   {
                     step: "1",
-                    title: "Find Twitter Post",
+                    title: "Find Twitter/X Post",
                     description: "Go to Twitter/X and find the post with video, GIF, or image you want to download",
                   },
                   {
@@ -441,5 +485,5 @@ export default function TwitterDownloaderPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
