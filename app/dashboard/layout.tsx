@@ -27,20 +27,7 @@ import {
 import { cn } from "@/lib/utils"
 
 const tools = [
-  {
-    name: "TikTok Downloader",
-    href: "/dashboard/tiktok-downloader",
-    icon: Video,
-    color: "text-pink-600 dark:text-pink-400",
-    bgColor: "bg-pink-50 dark:bg-pink-950/20",
-  },
-  {
-    name: "YouTube Downloader",
-    href: "/dashboard/youtube-downloader",
-    icon: Music,
-    color: "text-red-600 dark:text-red-400",
-    bgColor: "bg-red-50 dark:bg-red-950/20",
-  },
+ 
   {
     name: "QR Generator",
     href: "/dashboard/qr-generator",
@@ -55,13 +42,7 @@ const tools = [
     color: "text-green-600 dark:text-green-400",
     bgColor: "bg-green-50 dark:bg-green-950/20",
   },
-  {
-    name: "Twitter Downloader",
-    href: "/dashboard/twitter-downloader",
-    icon: Twitter,
-    color: "text-sky-600 dark:text-sky-400",
-    bgColor: "bg-sky-50 dark:bg-sky-950/20",
-  },
+ 
   {
     name: "Text to Image",
     href: "/dashboard/text-to-image",
@@ -83,13 +64,7 @@ const tools = [
     color: "text-yellow-600 dark:text-yellow-500",
     bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
   },
-  {
-    name: "All Media Downloader",
-    href: "/dashboard/all-media-downloader",
-    icon: Download,
-    color: "text-indigo-600 dark:text-indigo-400",
-    bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
-  },
+ 
 ]
 
 export default function DashboardLayout({

@@ -22,26 +22,8 @@ import {
 } from "lucide-react"
 
 const tools = [
-  {
-    name: "TikTok Downloader",
-    description: "Download TikTok videos without watermark",
-    icon: Video,
-    href: "/dashboard/tiktok-downloader",
-    color: "from-pink-500 to-rose-500",
-    bgColor: "bg-pink-50 dark:bg-pink-950/20",
-    iconColor: "text-pink-600 dark:text-pink-400",
-    popular: true,
-  },
-  {
-    name: "YouTube Downloader",
-    description: "Download YouTube videos and audio",
-    icon: Music,
-    href: "/dashboard/youtube-downloader",
-    color: "from-red-500 to-red-600",
-    bgColor: "bg-red-50 dark:bg-red-950/20",
-    iconColor: "text-red-600 dark:text-red-400",
-    popular: true,
-  },
+
+
   {
     name: "QR Generator",
     description: "Generate QR codes for any content",
@@ -50,6 +32,7 @@ const tools = [
     color: "from-blue-500 to-blue-600",
     bgColor: "bg-blue-50 dark:bg-blue-950/20",
     iconColor: "text-blue-600 dark:text-blue-400",
+    popular: true,
   },
   {
     name: "Image Hosting",
@@ -59,16 +42,9 @@ const tools = [
     color: "from-green-500 to-emerald-500",
     bgColor: "bg-green-50 dark:bg-green-950/20",
     iconColor: "text-green-600 dark:text-green-400",
+    popular: true,
   },
-  {
-    name: "Twitter Downloader",
-    description: "Download Twitter videos and GIFs",
-    icon: Twitter,
-    href: "/dashboard/twitter-downloader",
-    color: "from-sky-500 to-blue-500",
-    bgColor: "bg-sky-50 dark:bg-sky-950/20",
-    iconColor: "text-sky-600 dark:text-sky-400",
-  },
+
   {
     name: "Text to Image",
     description: "Generate images from text using AI",
@@ -78,6 +54,7 @@ const tools = [
     bgColor: "bg-purple-50 dark:bg-purple-950/20",
     iconColor: "text-purple-600 dark:text-purple-400",
     new: true,
+    popular: true,
   },
   {
     name: "PDF to Text",
@@ -97,15 +74,7 @@ const tools = [
     bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
     iconColor: "text-yellow-600 dark:text-yellow-500",
   },
-  {
-    name: "All Media Downloader",
-    description: "Universal media downloader",
-    icon: Download,
-    href: "/dashboard/all-media-downloader",
-    color: "from-indigo-500 to-purple-500",
-    bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
-    iconColor: "text-indigo-600 dark:text-indigo-400",
-  },
+  
 ]
 
 const stats = [
