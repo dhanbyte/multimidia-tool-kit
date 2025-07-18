@@ -1,17 +1,17 @@
-"use client"
+// AllMediaDownloaderPage.tsx
+"use client";
 
-import React from "react"
-
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
-import { Progress } from "@/components/ui/progress"
-import { useToast } from "@/hooks/use-toast"
+import React from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
 import {
   Download,
   Globe,
@@ -27,158 +27,249 @@ import {
   Clock,
   Eye,
   Heart,
-} from "lucide-react"
+} from "lucide-react";
 
 export default function AllMediaDownloaderPage() {
-  const [url, setUrl] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<any>(null)
-  const [error, setError] = useState("")
-  const [progress, setProgress] = useState(0)
-  const [detectedPlatform, setDetectedPlatform] = useState("")
-  const { toast } = useToast()
+  const [url, setUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<any>(null);
+  const [error, setError] = useState("");
+  const [progress, setProgress] = useState(0);
+  const [detectedPlatform, setDetectedPlatform] = useState("");
+  const { toast } = useToast();
 
   const supportedPlatforms = [
-    { name: "YouTube", icon: Music, color: "text-red-600", domains: ["youtube.com", "youtu.be"] },
-    { name: "TikTok", icon: Video, color: "text-pink-600", domains: ["tiktok.com"] },
-    { name: "Twitter/X", icon: Video, color: "text-sky-600", domains: ["twitter.com", "x.com"] },
-    { name: "Instagram", icon: ImageIcon, color: "text-purple-600", domains: ["instagram.com"] },
-    { name: "Facebook", icon: Video, color: "text-blue-600", domains: ["facebook.com", "fb.watch"] },
-    { name: "Vimeo", icon: Play, color: "text-indigo-600", domains: ["vimeo.com"] },
-    { name: "Dailymotion", icon: Video, color: "text-orange-600", domains: ["dailymotion.com"] },
-    { name: "Reddit", icon: Video, color: "text-orange-500", domains: ["reddit.com"] },
-  ]
+    // yt-dlp often reports platform names like 'Youtube', 'Tiktok' etc.
+    // domains भी yt-dlp के सपोर्टेड साइट्स के हिसाब से बढ़ाए जा सकते हैं
+    { name: "YouTube", icon: Music, color: "text-red-600", domains: ["youtube.com", "youtu.be", "m.youtube.com", "music.youtube.com"] },
+    { name: "TikTok", icon: Video, color: "text-pink-600", domains: ["tiktok.com", "www.tiktok.com"] },
+    { name: "Twitter", icon: Video, color: "text-sky-600", domains: ["twitter.com", "x.com"] },
+    { name: "Instagram", icon: ImageIcon, color: "text-purple-600", domains: ["instagram.com", "www.instagram.com"] },
+    { name: "Facebook", icon: Video, color: "text-blue-600", domains: ["facebook.com", "fb.watch", "www.facebook.com"] },
+    { name: "Vimeo", icon: Play, color: "text-indigo-600", domains: ["vimeo.com", "www.vimeo.com"] },
+    { name: "Dailymotion", icon: Video, color: "text-orange-600", domains: ["dailymotion.com", "www.dailymotion.com"] },
+    { name: "Reddit", icon: Video, color: "text-orange-500", domains: ["reddit.com", "www.reddit.com", "old.reddit.com"] },
+    // आप यहां और प्लेटफॉर्म जोड़ सकते हैं जिन्हें yt-dlp सपोर्ट करता है
+  ];
 
   const detectPlatform = (inputUrl: string) => {
-    const platform = supportedPlatforms.find((p) => p.domains.some((domain) => inputUrl.includes(domain)))
-    return platform?.name || ""
-  }
+    try {
+      const parsedUrl = new URL(inputUrl);
+      const hostname = parsedUrl.hostname;
+      const platform = supportedPlatforms.find((p) =>
+        p.domains.some((domain) => hostname.includes(domain.replace(/^(www\.)?/, ''))) // 'www.' को हटाकर मैच करें
+      );
+      return platform?.name || "";
+    } catch (e) {
+      return ""; // Invalid URL
+    }
+  };
 
   const handleUrlChange = (value: string) => {
-    setUrl(value)
-    const platform = detectPlatform(value)
-    setDetectedPlatform(platform)
-  }
+    setUrl(value);
+    const platform = detectPlatform(value);
+    setDetectedPlatform(platform);
+    setError(""); // Clear error on URL change
+    setResult(null); // Clear previous result
+  };
 
-  const handleDownload = async () => {
+  // Function to get media information (first step)
+  const handleGetMediaInfo = async () => {
     if (!url) {
-      setError("Please enter a media URL")
-      return
+      setError("Please enter a media URL");
+      return;
     }
 
     if (!detectedPlatform) {
-      setError("Unsupported platform. Please check supported platforms list.")
-      return
+      setError("Unsupported platform. Please check supported platforms list. (Note: yt-dlp supports many more platforms than listed, try anyway!)");
+      // return; // Don't return here, let the backend try, as yt-dlp might support it even if our list doesn't
     }
 
-    setLoading(true)
-    setError("")
-    setResult(null)
-    setProgress(0)
+    setLoading(true);
+    setError("");
+    setResult(null);
+    setProgress(0);
 
     // Simulate progress
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 90) {
-          clearInterval(progressInterval)
-          return 90
+          clearInterval(progressInterval);
+          return 90;
         }
-        return prev + 8
-      })
-    }, 300)
+        return prev + 8;
+      });
+    }, 300);
 
     try {
       const response = await fetch("/api/all-media-download", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url, platform: detectedPlatform }),
-      })
+        body: JSON.stringify({ url, action: "getInfo" }), // Explicitly request info
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to download media")
+        throw new Error(data.error || "Failed to fetch media information");
       }
 
-      setProgress(100)
-      setResult(data.data)
+      setProgress(100);
+      setResult(data.data);
       toast({
         title: "Success!",
-        description: `${detectedPlatform} media processed successfully`,
-      })
+        description: `${data.data.platform || 'Media'} information fetched successfully.`,
+      });
     } catch (err: any) {
-      setError(err.message)
+      setError(err.message);
       toast({
         title: "Error",
         description: err.message,
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
-      clearInterval(progressInterval)
+      setLoading(false);
+      clearInterval(progressInterval);
     }
-  }
+  };
+
+  // Function to handle actual format download
+  const handleFormatDownload = async (formatId: string, formatQuality: string, formatExt: string) => {
+    if (!url || !formatId) {
+      toast({
+        title: "Error",
+        description: "Missing URL or format information for download.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Starting Download",
+      description: `Preparing to download ${formatQuality} (${formatExt})... This might take a moment.`,
+    });
+
+    try {
+      const response = await fetch("/api/all-media-download", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, formatId, action: "download" }), // Explicitly request download
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json(); // Error body expected from API
+        throw new Error(errorData.error || "Failed to initiate download.");
+      }
+
+      // Handle the file download
+      const blob = await response.blob();
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = `media_download.${formatExt}`; // Default filename
+
+      if (contentDisposition) {
+        // Try to parse filename from Content-Disposition header
+        const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      } else if (result?.title) {
+        // Fallback to title if Content-Disposition is missing
+        filename = `${result.title.replace(/[^a-z0-9_.-]/gi, '_')}.${formatExt}`; // Sanitize title for filename
+      }
+
+
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = filename; // Set the filename for download
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+
+      toast({
+        title: "Download Complete!",
+        description: `${filename} has been downloaded.`,
+        variant: "default", // Default variant for toast
+      });
+    } catch (err: any) {
+      console.error("Download error:", err);
+      toast({
+        title: "Download Error",
+        description: err.message,
+        variant: "destructive",
+      });
+    }
+  };
+
 
   const handleDemo = () => {
-    setUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-    setDetectedPlatform("YouTube")
-    setLoading(true)
-    setError("")
-    setProgress(0)
+    setUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ"); // A famous YouTube URL for demo
+    setDetectedPlatform("YouTube");
+    setLoading(true);
+    setError("");
+    setResult(null); // Clear previous result for demo
+    setProgress(0);
 
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
-          clearInterval(progressInterval)
-          return 100
+          clearInterval(progressInterval);
+          return 100;
         }
-        return prev + 15
-      })
-    }, 250)
+        return prev + 15;
+      });
+    }, 250);
 
+    // Simulate fetching data from yt-dlp
     setTimeout(() => {
       setResult({
         title: "Rick Astley - Never Gonna Give You Up (Official Video)",
         platform: "YouTube",
         author: "Rick Astley",
-        thumbnail: "/placeholder.svg?height=300&width=400",
+        thumbnail: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hq720.jpg", // A real thumbnail URL
         duration: "3:33",
-        views: "1.4B",
-        likes: "15M",
+        views: "1,400,000,000", // Example large number
+        likes: "15,000,000", // Example large number
         uploadDate: "2009-10-25",
         formats: [
-          { type: "video", quality: "1080p", format: "MP4", size: "45.2 MB" },
-          { type: "video", quality: "720p", format: "MP4", size: "28.7 MB" },
-          { type: "video", quality: "480p", format: "MP4", size: "18.3 MB" },
-          { type: "audio", quality: "320kbps", format: "MP3", size: "8.1 MB" },
-          { type: "audio", quality: "128kbps", format: "MP3", size: "3.2 MB" },
+          { type: "video", quality: "1080p", format: "mp4", size: "45.2 MB", formatId: "248+251" }, // Example formatId
+          { type: "video", quality: "720p", format: "mp4", size: "28.7 MB", formatId: "247+251" },
+          { type: "video", quality: "480p", format: "mp4", size: "18.3 MB", formatId: "135+251" },
+          { type: "audio", quality: "320kbps", format: "mp3", size: "8.1 MB", formatId: "251" },
+          { type: "audio", quality: "128kbps", format: "mp3", size: "3.2 MB", formatId: "140" },
         ],
-      })
-      setLoading(false)
+      });
+      setLoading(false);
       toast({
         title: "Demo Complete!",
         description: "This is a demo result. Use real URLs for actual downloads.",
-      })
-    }, 2000)
-  }
+      });
+    }, 2000);
+  };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
-  }
+    if (!dateString || dateString === "N/A") return "N/A";
+    try {
+      return new Date(dateString).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch (e) {
+      return dateString; // Return as is if parsing fails
+    }
+  };
 
   const getPlatformIcon = (platformName: string) => {
-    const platform = supportedPlatforms.find((p) => p.name === platformName)
-    return platform ? platform.icon : Globe
-  }
+    const platform = supportedPlatforms.find((p) => p.name.toLowerCase() === platformName.toLowerCase());
+    return platform ? platform.icon : Globe;
+  };
 
   const getPlatformColor = (platformName: string) => {
-    const platform = supportedPlatforms.find((p) => p.name === platformName)
-    return platform ? platform.color : "text-gray-600"
-  }
+    const platform = supportedPlatforms.find((p) => p.name.toLowerCase() === platformName.toLowerCase());
+    return platform ? platform.color : "text-gray-600";
+  };
 
   return (
     <div className="space-y-6">
@@ -222,7 +313,7 @@ export default function AllMediaDownloaderPage() {
                       </div>
                     )}
                   </div>
-                  <Button onClick={handleDownload} disabled={loading}>
+                  <Button onClick={handleGetMediaInfo} disabled={loading}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -231,7 +322,7 @@ export default function AllMediaDownloaderPage() {
                     ) : (
                       <>
                         <Download className="mr-2 h-4 w-4" />
-                        Download
+                        Get Info
                       </>
                     )}
                   </Button>
@@ -346,12 +437,15 @@ export default function AllMediaDownloaderPage() {
                                     </Badge>
                                     <span className="text-xs text-muted-foreground">{format.size}</span>
                                   </div>
-                                  <Button size="sm">
+                                  <Button size="sm" onClick={() => handleFormatDownload(format.formatId, format.quality, format.format)}>
                                     <Download className="mr-1 h-3 w-3" />
                                     Download
                                   </Button>
                                 </div>
                               ))}
+                              {result.formats?.filter((format: any) => format.type === "video").length === 0 && (
+                                <p className="text-sm text-muted-foreground text-center py-4">No video formats available.</p>
+                              )}
                           </TabsContent>
                           <TabsContent value="audio" className="space-y-2">
                             {result.formats
@@ -369,12 +463,15 @@ export default function AllMediaDownloaderPage() {
                                     </Badge>
                                     <span className="text-xs text-muted-foreground">{format.size}</span>
                                   </div>
-                                  <Button size="sm">
+                                  <Button size="sm" onClick={() => handleFormatDownload(format.formatId, format.quality, format.format)}>
                                     <Download className="mr-1 h-3 w-3" />
                                     Download
                                   </Button>
                                 </div>
                               ))}
+                              {result.formats?.filter((format: any) => format.type === "audio").length === 0 && (
+                                <p className="text-sm text-muted-foreground text-center py-4">No audio formats available.</p>
+                              )}
                           </TabsContent>
                         </Tabs>
                       </div>
@@ -401,18 +498,18 @@ export default function AllMediaDownloaderPage() {
                   },
                   {
                     step: "2",
-                    title: "Paste URL",
-                    description: "Paste the URL in the input field above. The platform will be automatically detected",
+                    title: "Paste URL & Get Info",
+                    description: "Paste the URL in the input field above and click 'Get Info'. The platform will be automatically detected, and available formats will be displayed.",
                   },
                   {
                     step: "3",
-                    title: "Choose Format",
-                    description: "Select your preferred format and quality from the available options",
+                    title: "Choose Format & Download",
+                    description: "Select your preferred format and quality from the available options and click the 'Download' button next to it.",
                   },
                   {
                     step: "4",
-                    title: "Download",
-                    description: "Click download to save the media file to your device",
+                    title: "Save File",
+                    description: "The media file will be downloaded to your device.",
                   },
                 ].map((instruction, index) => (
                   <div key={index} className="flex items-start space-x-3">
@@ -465,7 +562,6 @@ export default function AllMediaDownloaderPage() {
                   "Various quality settings",
                   "Fast processing",
                   "Auto platform detection",
-                  "Batch downloads",
                   "No registration required",
                   "Mobile friendly",
                 ].map((feature, index) => (
@@ -490,14 +586,14 @@ export default function AllMediaDownloaderPage() {
               <div className="space-y-3 text-sm text-muted-foreground">
                 <p>• Works with most major social media platforms</p>
                 <p>• Higher quality files take longer to process</p>
-                <p>• Some platforms may have restrictions</p>
-                <p>• Private content requires public access</p>
-                <p>• Check platform terms before downloading</p>
+                <p>• Some platforms may have restrictions (e.g., age-gated content)</p>
+                <p>• Private content cannot be downloaded without proper authentication (not supported here)</p>
+                <p>• Always check platform terms before downloading content.</p>
               </div>
             </CardContent>
           </Card>
 
-          {/* Recent Downloads */}
+          {/* Recent Downloads (Placeholder/Example) */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Popular Downloads</CardTitle>
@@ -519,7 +615,7 @@ export default function AllMediaDownloaderPage() {
             </CardContent>
           </Card>
 
-          {/* Stats */}
+          {/* Stats (Placeholder/Example) */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Usage Stats</CardTitle>
@@ -544,5 +640,5 @@ export default function AllMediaDownloaderPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

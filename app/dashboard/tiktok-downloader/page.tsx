@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 import {
   Download,
-  Video,
+  Video, // TikTok icon के लिए Video आइकन का उपयोग
   AlertCircle,
   CheckCircle,
   Loader2,
@@ -35,40 +35,39 @@ import {
   MessageCircle,
   Share,
   Info,
+  Eye, // Views के लिए Eye icon
 } from "lucide-react";
 
-// Updated Result Data Interface to match RapidAPI's response structure
-interface RapidApiVideoFormat {
-  type: "video" | "audio"; // e.g., "video", "audio"
-  quality: string; // e.g., "1080p", "320kbps"
-  format: string; // e.g., "MP4", "MP3"
+// Updated Result Data Interface to match yt-dlp's output structure
+interface VideoFormat {
+  type: "video" | "audio";
+  quality: string; // e.g., "1080p", "320kbps", "best"
+  format: string; // e.g., "mp4", "webm", "mp3"
   size: string; // e.g., "45.2 MB"
-  downloadUrl?: string; // The URL to directly download from RapidAPI if provided
-  // RapidAPI might provide a format_id or similar, but we'll use a combination of quality+format for selection
+  formatId: string; // yt-dlp का format_id, डाउनलोड के लिए उपयोग किया जाएगा
 }
 
 interface TikTokInfo {
-  shares: any;
-  comments: any;
   title: string;
   platform: string;
   author: string;
   thumbnail: string;
   duration: string;
-  views: string;
-  likes: string;
+  views: string; // yt-dlp से सीधे मिल सकता है
+  likes: string; // yt-dlp से सीधे मिल सकता है
+  comments?: string; // yt-dlp से हमेशा उपलब्ध नहीं हो सकता
+  shares?: string; // yt-dlp से हमेशा उपलब्ध नहीं हो सकता
   uploadDate: string;
-  formats: RapidApiVideoFormat[]; // Use the updated format interface
+  formats: VideoFormat[];
 }
 
 export default function TikTokDownloaderPage() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
-  const [info, setInfo] = useState<TikTokInfo | null>(null);
+  const [info, setInfo] = useState<TikTokInfo | null>(null); // Stores video info and formats
   const [error, setError] = useState("");
-  const [progress, setProgress] = useState(0);
-  // selectedFormatKey will be a string like "1080p_MP4" to uniquely identify a format
-  const [selectedFormatKey, setSelectedFormatKey] = useState<string>("");
+  const [progress, setProgress] = useState(0); // Progress for the API call
+  const [selectedFormatId, setSelectedFormatId] = useState<string>(""); // yt-dlp formatId stored here
   const { toast } = useToast();
 
   const handleGetInfo = async () => {
@@ -80,9 +79,9 @@ export default function TikTokDownloaderPage() {
 
     setLoading(true);
     setError("");
-    setInfo(null);
-    setProgress(0);
-    setSelectedFormatKey("");
+    setInfo(null); // Clear previous info
+    setProgress(0); // Reset progress
+    setSelectedFormatId(""); // Reset selected format
 
     const progressInterval = setInterval(() => {
       setProgress((prev) => (prev < 90 ? prev + 10 : prev));
@@ -94,7 +93,7 @@ export default function TikTokDownloaderPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url }), // No formatId sent for info
+        body: JSON.stringify({ url, action: "getInfo" }), // 'action: "getInfo"' भेजें
       });
 
       const apiResult = await apiResponse.json();
@@ -104,7 +103,7 @@ export default function TikTokDownloaderPage() {
         throw new Error(apiResult.error || "Failed to fetch video details.");
       }
 
-      setInfo(apiResult.data); // RapidAPI response uses 'data' key
+      setInfo(apiResult.data); // yt-dlp API response 'data' कुंजी के अंदर आती है
       setProgress(100);
       toast({
         title: "Video Info Loaded!",
@@ -127,16 +126,13 @@ export default function TikTokDownloaderPage() {
   };
 
   const handleDownloadFile = async () => {
-    if (!info || !selectedFormatKey) {
+    if (!info || !selectedFormatId) {
       setError("Please get video info and select a format first.");
       toast({ title: "Error", description: "Please select a format to download.", variant: "destructive" });
       return;
     }
 
-    const [quality, format] = selectedFormatKey.split("_");
-    const selectedFormat = info.formats.find(
-      (f) => f.quality === quality && f.format === format
-    );
+    const selectedFormat = info.formats.find(f => f.formatId === selectedFormatId);
 
     if (!selectedFormat) {
       setError("Selected format not found.");
@@ -148,57 +144,59 @@ export default function TikTokDownloaderPage() {
     setError("");
     setProgress(0);
 
+    // यह अंतराल अब मुख्य रूप से "डाउनलोड का अनुरोध" चरण को इंगित करता है,
+    // क्योंकि वास्तविक फ़ाइल स्ट्रीम सीधे ब्राउज़र द्वारा संभाली जाएगी।
     const downloadProgressInterval = setInterval(() => {
-      setProgress((prev) => (prev < 95 ? prev + 5 : prev)); // Simulate download progress
+      setProgress((prev) => (prev < 95 ? prev + 5 : prev)); // पहल प्रगति का अनुकरण करें
     }, 500);
 
     try {
-      // If RapidAPI provides a direct download URL, use it
-      if (selectedFormat.downloadUrl) {
-        window.open(selectedFormat.downloadUrl, '_blank');
-        toast({
-          title: "Download Started!",
-          description: "Your TikTok video is downloading...",
-        });
-      } else {
-        // Otherwise, make another API call to your backend to trigger the download stream
-        // Here, we're assuming the backend will use the 'formatId' to fetch the actual download
-        // In your rapidapi backend, you might need a common 'formatId' or pass quality/format
-        // For simplicity, let's pass a combined formatId like "QUALITY_FORMAT"
-        const downloadResponse = await fetch("/api/tiktok-download", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ url, formatId: selectedFormatKey }), // Pass selectedFormatKey as formatId
-        });
+      // बैकएंड रूट को ट्रिगर करें जो डाउनलोड को प्रॉक्सी करता है
+      const downloadResponse = await fetch("/api/tiktok-download", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url, formatId: selectedFormatId, action: "download" }), // 'action: "download"' भेजें
+      });
 
-        if (!downloadResponse.ok) {
-          const errorText = await downloadResponse.text();
-          throw new Error(`Failed to download video: ${errorText}`);
-        }
+      clearInterval(downloadProgressInterval); // एक बार प्रतिक्रिया प्राप्त होने पर प्रगति का अनुकरण करना बंद करें
 
-        const blob = await downloadResponse.blob();
-        const filename = `${info.title.replace(/[^a-z0-9_.-]/gi, '_').toLowerCase()}_${selectedFormat.quality}.${selectedFormat.format.toLowerCase()}`;
-        const downloadUrl = window.URL.createObjectURL(blob);
-
-        const a = document.createElement("a");
-        a.href = downloadUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-
-        a.remove();
-        window.URL.revokeObjectURL(downloadUrl);
-
-        toast({
-          title: "Download Started!",
-          description: "Your TikTok video is downloading...",
-        });
+      if (!downloadResponse.ok) {
+        const errorData = await downloadResponse.json(); // त्रुटि बॉडी API से अपेक्षित है
+        throw new Error(errorData.error || "Failed to initiate download.");
       }
 
-      clearInterval(downloadProgressInterval);
+      // फ़ाइल डाउनलोड को संभालें
+      const blob = await downloadResponse.blob();
+      const contentDisposition = downloadResponse.headers.get('Content-Disposition');
+      let filename = `tiktok_download.${selectedFormat.format}`; // डिफ़ॉल्ट फ़ाइल नाम
+
+      if (contentDisposition) {
+        // Content-Disposition हेडर से फ़ाइल नाम पार्स करने का प्रयास करें
+        const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      } else if (info?.title) {
+        // यदि Content-Disposition गायब है तो शीर्षक पर वापस जाएं
+        filename = `${info.title.replace(/[^a-z0-9_.-]/gi, '_')}.${selectedFormat.format}`; // फ़ाइल नाम के लिए शीर्षक को सैनिटाइज करें
+      }
+
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = filename; // डाउनलोड के लिए फ़ाइल नाम सेट करें
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+
       setProgress(100);
+      toast({
+        title: "Download Started!",
+        description: "Your TikTok video is downloading...",
+      });
 
     } catch (err: any) {
       clearInterval(downloadProgressInterval);
@@ -220,7 +218,7 @@ export default function TikTokDownloaderPage() {
     setError("");
     setProgress(0);
     setInfo(null);
-    setSelectedFormatKey("");
+    setSelectedFormatId("");
 
     const progressInterval = setInterval(() => {
       setProgress((prev) => (prev < 90 ? prev + 10 : prev));
@@ -233,19 +231,19 @@ export default function TikTokDownloaderPage() {
         platform: "TikTok",
         author: "demo_user_123",
         thumbnail: "https://placehold.co/600x400/png?text=TikTok+Demo",
-        duration: "0:25",
-        views: "1.5M", // Added for demo consistency
+        duration: "00:25",
+        views: "1.5M",
         likes: "99.8K",
         comments: "5.1K",
-        uploadDate: "2025-07-18", // Added for demo consistency
         shares: "10.3K",
+        uploadDate: "2025-07-18",
         formats: [
-          { type: "video", quality: "1080p", format: "MP4", size: "45.2 MB", downloadUrl: "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4" },
-          { type: "video", quality: "720p", format: "MP4", size: "28.7 MB", downloadUrl: "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4" },
-          { type: "audio", quality: "320kbps", format: "MP3", size: "8.1 MB", downloadUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+          { type: "video", quality: "1080p", format: "mp4", size: "45.2 MB", formatId: "best_video_1080p" },
+          { type: "video", quality: "720p", format: "mp4", size: "28.7 MB", formatId: "best_video_720p" },
+          { type: "audio", quality: "320kbps", format: "mp3", size: "8.1 MB", formatId: "best_audio_320kbps" },
         ],
       });
-      setSelectedFormatKey("1080p_MP4"); // Pre-select a format for demo
+      setSelectedFormatId("best_video_1080p"); // Demo के लिए एक फ़ॉर्मेट प्री-सेलेक्ट करें
       setProgress(100);
       setLoading(false);
       toast({
@@ -266,7 +264,7 @@ export default function TikTokDownloaderPage() {
         <div>
           <h1 className="text-3xl font-bold">TikTok Video Downloader</h1>
           <p className="text-muted-foreground">
-            Download TikTok videos without watermark in HD quality using Universal Media Downloader
+            Download TikTok videos without watermark in HD quality using yt-dlp
           </p>
         </div>
       </div>
@@ -294,7 +292,7 @@ export default function TikTokDownloaderPage() {
                     setError("");
                     setInfo(null);
                     setProgress(0);
-                    setSelectedFormatKey("");
+                    setSelectedFormatId("");
                   }}
                   className="flex-1"
                 />
@@ -369,7 +367,12 @@ export default function TikTokDownloaderPage() {
                             <Clock className="mr-1 h-4 w-4" />
                             {info.duration}
                           </div>
-                          {/* Display views/likes/comments/shares if available from API */}
+                          {info.views && (
+                            <div className="flex items-center text-blue-500">
+                                <Eye className="mr-1 h-4 w-4" />
+                                {info.views}
+                            </div>
+                          )}
                           {info.likes && (
                             <div className="flex items-center text-red-500">
                               <Heart className="mr-1 h-4 w-4" />
@@ -398,8 +401,8 @@ export default function TikTokDownloaderPage() {
                       <p className="text-sm font-medium">Select Download Quality:</p>
                       <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                         <Select
-                          onValueChange={setSelectedFormatKey}
-                          value={selectedFormatKey}
+                          onValueChange={setSelectedFormatId}
+                          value={selectedFormatId}
                           disabled={loading || info.formats.length === 0}
                         >
                           <SelectTrigger className="flex-1">
@@ -412,10 +415,7 @@ export default function TikTokDownloaderPage() {
                               </SelectItem>
                             )}
                             {info.formats.map((format, index) => (
-                              <SelectItem
-                                key={`${format.quality}_${format.format}_${index}`} // Use a unique key
-                                value={`${format.quality}_${format.format}`} // Value for selection
-                              >
+                              <SelectItem key={format.formatId || index} value={format.formatId}>
                                 {format.quality} ({format.format}) {format.size ? ` - ${format.size}` : ''}
                                 {format.type === 'audio' ? ' (Audio Only)' : ''}
                               </SelectItem>
@@ -423,7 +423,7 @@ export default function TikTokDownloaderPage() {
                           </SelectContent>
                         </Select>
 
-                        <Button onClick={handleDownloadFile} disabled={loading || !selectedFormatKey}>
+                        <Button onClick={handleDownloadFile} disabled={loading || !selectedFormatId}>
                           {loading ? (
                             <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -439,32 +439,21 @@ export default function TikTokDownloaderPage() {
                       </div>
                     </div>
 
-                    {/* Preview logic (only if RapidAPI provides direct download URLs for preview) */}
-                    {selectedFormatKey && info.formats.find(f => `${f.quality}_${f.format}` === selectedFormatKey)?.downloadUrl && (
-                        <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
-                            {info.formats.find(f => `${f.quality}_${f.format}` === selectedFormatKey)?.type === 'video' ? (
-                                <video
-                                    src={info.formats.find(f => `${f.quality}_${f.format}` === selectedFormatKey)?.downloadUrl}
-                                    poster={info.thumbnail || ""}
-                                    controls
-                                    className="w-full h-full object-contain"
-                                >
-                                    Your browser does not support the video tag.
-                                </video>
-                            ) : (
-                                <audio
-                                    src={info.formats.find(f => `${f.quality}_${f.format}` === selectedFormatKey)?.downloadUrl}
-                                    controls
-                                    className="w-full mt-4"
-                                >
-                                    Your browser does not support the audio element.
-                                </audio>
-                            )}
-                            <p className="text-muted-foreground text-xs mt-2 flex items-center justify-center">
-                                <Info className="h-3 w-3 mr-1" /> Preview might not show for all formats or due to CORS.
-                            </p>
-                        </div>
-                    )}
+                    {/* Preview logic (yt-dlp से सीधे URL आमतौर पर CORS के कारण काम नहीं करते हैं,
+                        इसलिए यह भाग केवल डेमो के लिए या यदि आपके पास एक प्रॉक्सी है तो काम करेगा) */}
+                    {/* <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
+                        <video
+                            src={info.formats.find(f => f.formatId === selectedFormatId)?.url} // यह URL काम नहीं कर सकता है
+                            poster={info.thumbnail || ""}
+                            controls
+                            className="w-full h-full object-contain"
+                        >
+                            Your browser does not support the video tag.
+                        </video>
+                        <p className="text-muted-foreground text-xs mt-2 flex items-center justify-center">
+                            <Info className="h-3 w-3 mr-1" /> Preview might not show for all formats or due to CORS.
+                        </p>
+                    </div> */}
 
 
                   </CardContent>
@@ -538,7 +527,7 @@ export default function TikTokDownloaderPage() {
             <CardContent>
               <div className="space-y-3">
                 {[
-                  "No watermark removal (depends on RapidAPI)", // Changed
+                  "No watermark removal (often automatic with yt-dlp)",
                   "Multiple quality options (HD, SD, Audio Only)",
                   "Fast processing",
                   "No registration required",
