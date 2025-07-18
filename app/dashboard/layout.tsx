@@ -12,23 +12,23 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { VoiceSearch } from "@/components/voice-search"
 import {
-  Download, // Download icon is still imported as it's used in the header
+  Download,
   QrCode,
   Upload,
   ImageIcon,
   FileText,
-  FileImage,
+  FileImage, // PDF to JPG के लिए नया आइकन
   Search,
   Menu,
   Home,
-  Sparkles, // <-- Corrected: Use Sparkles for Bio Generator
-  Image as LucideImage, // For Image Compressor
+  Sparkles, // Social Media Bio Generator के लिए
+  Image as LucideImage, // Image Compressor के लिए
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 
 const tools = [
-  // --- NEW TOOLS ---
+  // --- CORE TOOLS ---
   {
     name: "Image Compressor",
     href: "/dashboard/image-compressor",
@@ -39,11 +39,10 @@ const tools = [
   {
     name: "Social Media Bio Generator",
     href: "/dashboard/social-bio-generator",
-    icon: Sparkles, // <-- Corrected: Use Sparkles here
+    icon: Sparkles,
     color: "text-yellow-600 dark:text-yellow-500",
     bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
   },
-  // --- OTHER EXISTING TOOLS ---
   {
     name: "QR Generator",
     href: "/dashboard/qr-generator",
@@ -75,10 +74,11 @@ const tools = [
   {
     name: "PDF to JPG",
     href: "/dashboard/pdf-to-jpg",
-    icon: FileImage,
-    color: "text-yellow-600 dark:text-yellow-500",
-    bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
+    icon: FileImage, // FileImage आइकन का उपयोग करें
+    color: "text-teal-600 dark:text-teal-500", // मैंने इसे 'yellow' से 'teal' में बदल दिया है ताकि पिछले टूल से अलग दिखे।
+    bgColor: "bg-teal-50 dark:bg-teal-950/20",
   },
+  // आप यहां और टूल्स जोड़ सकते हैं
 ]
 
 export default function DashboardLayout({
@@ -108,7 +108,7 @@ export default function DashboardLayout({
       <div className="flex h-16 items-center border-b px-6">
         <Link href="/" className="flex items-center space-x-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
-            <Download className="h-4 w-4 text-white" />
+            <Download className="h-4 w-4 text-white" /> {/* Logo Icon */}
           </div>
           <span className="font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             MediaTools Pro
@@ -131,25 +131,25 @@ export default function DashboardLayout({
             <span>Dashboard Home</span>
           </Link>
           <div className="border-t pt-4 mt-4">
-             <p className="text-xs font-semibold text-muted-foreground uppercase px-3 mb-2">Tools</p>
-             {filteredTools.map((tool) => {
-               const isActive = pathname === tool.href
-               return (
-                 <Link
-                   key={tool.href}
-                   href={tool.href}
-                   className={cn(
-                     "flex items-center space-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                     isActive
-                       ? `${tool.bgColor} ${tool.color} shadow-sm border-l-2 border-current`
-                       : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                   )}
-                 >
-                   <tool.icon className="h-5 w-5" />
-                   <span>{tool.name}</span>
-                 </Link>
-               )
-             })}
+            <p className="text-xs font-semibold text-muted-foreground uppercase px-3 mb-2">Tools</p>
+            {filteredTools.map((tool) => {
+              const isActive = pathname === tool.href
+              return (
+                <Link
+                  key={tool.href}
+                  href={tool.href}
+                  className={cn(
+                    "flex items-center space-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                    isActive
+                      ? `${tool.bgColor} ${tool.color} shadow-sm border-l-2 border-current`
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  )}
+                >
+                  <tool.icon className="h-5 w-5" />
+                  <span>{tool.name}</span>
+                </Link>
+              )
+            })}
           </div>
         </nav>
       </div>

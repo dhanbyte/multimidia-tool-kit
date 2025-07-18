@@ -1,557 +1,496 @@
-"use client"
+// app/dashboard/pdf-to-jpg/page.tsx
+"use client";
 
-import type React from "react"
-
-import { useState, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Progress } from "@/components/ui/progress"
-import { useToast } from "@/hooks/use-toast"
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 import {
-  FileImage,
-  Upload,
-  AlertCircle,
-  CheckCircle,
-  Loader2,
-  Download,
-  Trash2,
-  Eye,
-  Info,
-  File,
-  ImageIcon,
-  ZoomIn,
-} from "lucide-react"
-import { blob } from "stream/consumers"
+  FileUp, // Upload icon
+  FileImage, // Main icon for PDF to JPG
+  Loader2, // Loading spinner
+  Download, // Download icon
+  ChevronRight, ChevronLeft, // Pagination icons
+  RotateCcw, // Reset/Clear icon
+  PanelTopClose, // To collapse pages (toggle all pages preview)
+  Info, // For general info, also used for toggle text
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import * as pdfjsLib from "pdfjs-dist";
+import JSZip from "jszip";
+import { saveAs } from 'file-saver';
+import { Separator } from "@/components/ui/separator";
 
-export default function PDFToJPGPage() {
-  const [file, setFile] = useState<File | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [convertedImages, setConvertedImages] = useState<any[]>([])
-  const [error, setError] = useState("")
-  const [progress, setProgress] = useState(0)
-  const [dragActive, setDragActive] = useState(false)
-  const [fileInfo, setFileInfo] = useState<any>(null)
-  const [quality, setQuality] = useState("high")
-  const [resolution, setResolution] = useState("300")
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const { toast } = useToast()
+// Set the workerSrc for pdf.js
+// Ensure pdf.worker.min.js is in your public directory
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
-  const qualityOptions = [
-    { value: "low", label: "Low (Faster)", description: "Good for previews" },
-    { value: "medium", label: "Medium", description: "Balanced quality and size" },
-    { value: "high", label: "High (Recommended)", description: "Best quality output" },
-    { value: "maximum", label: "Maximum", description: "Highest quality, larger files" },
-  ]
+export default function PdfToJpgConverterPage() {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [pdfPages, setPdfPages] = useState<HTMLCanvasElement[]>([]); // Array of canvas elements
+  const [currentPage, setCurrentPage] = useState(0); // For single page preview (0-indexed)
+  const [totalPages, setTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(false); // For initial PDF loading
+  const [isConverting, setIsConverting] = useState(false); // For JPG conversion process
+  const [quality, setQuality] = useState(0.9); // JPG Quality (0.1 - 1.0)
+  const [dpi, setDpi] = useState(150); // DPI for rendering
+  const [conversionStatus, setConversionStatus] = useState("");
+  const [conversionProgress, setConversionProgress] = useState(0); // 0-100
+  const [selectedPages, setSelectedPages] = useState<number[]>([]); // Pages selected for conversion (1-indexed)
+  const [showAllPagesPreview, setShowAllPagesPreview] = useState(false); // Toggle for all pages preview
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const resolutionOptions = [
-    { value: "150", label: "150 DPI (Web)" },
-    { value: "300", label: "300 DPI (Print)" },
-    { value: "600", label: "600 DPI (High Quality)" },
-    { value: "1200", label: "1200 DPI (Professional)" },
-  ]
+  const { toast } = useToast();
 
-  const handleFileSelect = (selectedFile: File | null) => {
-    if (!selectedFile) return
+  // Handle file selection (from input or drag-drop)
+  const handleFileChange = async (file: File | null) => {
+    if (!file) return;
 
-    if (selectedFile.type !== "application/pdf") {
+    if (file.type === "application/pdf") {
+      setSelectedFile(file);
+      await loadPdf(file);
+    } else {
+      setSelectedFile(null);
+      setPdfPages([]);
+      setTotalPages(0);
+      setCurrentPage(0);
       toast({
-        title: "Invalid File",
-        description: "Please select a PDF file",
+        title: "Invalid File Type",
+        description: "Please upload a PDF file.",
         variant: "destructive",
-      })
-      return
+      });
     }
+  };
 
-    if (selectedFile.size > 100 * 1024 * 1024) {
+  // Handle Drop
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files?.[0];
+    handleFileChange(file);
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault(); // Necessary to allow drop
+  };
+
+  // Load and render PDF pages onto canvases
+  const loadPdf = useCallback(async (file: File) => {
+    setIsLoading(true);
+    setPdfPages([]);
+    setCurrentPage(0);
+    setTotalPages(0);
+    setSelectedPages([]);
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      setTotalPages(pdf.numPages);
+
+      const pagesToRender: HTMLCanvasElement[] = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        // Calculate viewport scale based on desired DPI (72 DPI is PDF's default)
+        const viewport = page.getViewport({ scale: dpi / 72 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        if (!context) throw new Error("Could not get 2D context from canvas");
+
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport,
+        };
+        await page.render(renderContext).promise;
+        pagesToRender.push(canvas); // Store the rendered canvas
+      }
+      setPdfPages(pagesToRender);
+      // Select all pages by default for conversion
+      setSelectedPages(Array.from({ length: pdf.numPages }, (_, i) => i + 1));
       toast({
-        title: "File Too Large",
-        description: "PDF file must be smaller than 100MB",
+        title: "PDF Loaded",
+        description: `${pdf.numPages} pages loaded successfully.`,
+      });
+    } catch (error) {
+      console.error("Error loading PDF:", error);
+      toast({
+        title: "Error Loading PDF",
+        description: "Could not load the PDF file. Please ensure it's a valid PDF.",
         variant: "destructive",
-      })
-      return
+      });
+      setSelectedFile(null); // Clear selected file on error
+    } finally {
+      setIsLoading(false);
+    }
+  }, [dpi, toast]); // Depend on dpi to re-render if DPI changes
+
+  // Reload PDF if DPI or selectedFile changes
+  useEffect(() => {
+    if (selectedFile) {
+      loadPdf(selectedFile);
+    }
+  }, [dpi, selectedFile, loadPdf]);
+
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
+  };
+
+  const handlePageSelection = (pageNumber: number) => {
+    setSelectedPages((prev) =>
+      prev.includes(pageNumber)
+        ? prev.filter((p) => p !== pageNumber)
+        : [...prev, pageNumber].sort((a, b) => a - b) // Keep pages sorted
+    );
+  };
+
+  const handleSelectAllPages = () => {
+    if (selectedPages.length === totalPages) {
+      setSelectedPages([]); // Deselect all
+    } else {
+      setSelectedPages(Array.from({ length: totalPages }, (_, i) => i + 1)); // Select all
+    }
+  };
+
+  const convertPdfToJpg = async () => {
+    if (!selectedFile || pdfPages.length === 0 || selectedPages.length === 0) {
+      toast({
+        title: "No PDF or Pages Selected",
+        description: "Please load a PDF and select at least one page for conversion.",
+        variant: "destructive",
+      });
+      return;
     }
 
-    setFile(selectedFile)
-    setFileInfo({
-      name: selectedFile.name,
-      size: selectedFile.size,
-      type: selectedFile.type,
-      lastModified: selectedFile.lastModified,
-    })
-    setError("")
-    setConvertedImages([])
-  }
+    setIsConverting(true);
+    setConversionProgress(0);
+    setConversionStatus("Starting conversion...");
 
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true)
-    } else if (e.type === "dragleave") {
-      setDragActive(false)
-    }
-  }
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setDragActive(false)
-    const droppedFile = e.dataTransfer.files[0]
-    handleFileSelect(droppedFile)
-  }
-
-  const handleConvert = async () => {
-    if (!file) {
-      setError("Please select a PDF file")
-      return
-    }
-
-    setLoading(true)
-    setError("")
-    setConvertedImages([])
-    setProgress(0)
-
-    // Simulate progress
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) {
-          clearInterval(progressInterval)
-          return 90
-        }
-        return prev + 6
-      })
-    }, 400)
+    const zip = new JSZip();
+    let convertedCount = 0;
 
     try {
-      const formData = new FormData()
-      formData.append("file", file)
-      formData.append("quality", quality)
-      formData.append("resolution", resolution)
+      for (const pageNumber of selectedPages) {
+        setConversionStatus(`Converting page ${pageNumber} of ${selectedPages.length}...`);
+        setConversionProgress(Math.round((convertedCount / selectedPages.length) * 100));
 
-      const response = await fetch("/api/pdf-to-jpg", {
-        method: "POST",
-        body: formData,
-      })
+        // Use the pre-rendered canvas from pdfPages state
+        const canvas = pdfPages[pageNumber - 1]; // Page numbers are 1-based, array is 0-based
+        if (!canvas) {
+            console.warn(`Canvas not found for page ${pageNumber}. Skipping.`);
+            convertedCount++;
+            continue;
+        }
 
-      const data = await response.json()
+        const dataUrl = canvas.toDataURL("image/jpeg", quality); // Convert canvas to JPEG
 
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to convert PDF to JPG")
+        // Convert Data URL to Blob for JSZip
+        const blob = await fetch(dataUrl).then(res => res.blob());
+
+        zip.file(`${selectedFile.name.replace(/\.pdf$/, '')}_page_${pageNumber}.jpg`, blob);
+        convertedCount++;
       }
 
-      setProgress(100)
-      setConvertedImages(data.data.images)
+      setConversionProgress(100);
+      setConversionStatus("Creating zip file...");
+
+      const content = await zip.generateAsync({ type: "blob", compression: "DEFLATE", compressionOptions: { level: 9 } });
+      saveAs(content, `${selectedFile.name.replace(/\.pdf$/, '')}_converted_images.zip`);
+
       toast({
-        title: "Success!",
-        description: `PDF converted to ${data.data.images.length} JPG image(s)`,
-      })
-    } catch (err: any) {
-      setError(err.message)
+        title: "Conversion Complete!",
+        description: "Your JPG images have been downloaded in a ZIP file.",
+      });
+
+    } catch (error) {
+      console.error("Error converting PDF to JPG:", error);
       toast({
-        title: "Error",
-        description: err.message,
+        title: "Conversion Failed",
+        description: "An error occurred during conversion. Please try again. Check console for details.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
-      clearInterval(progressInterval)
+      setIsConverting(false);
+      setConversionStatus("");
     }
-  }
+  };
 
-const base64PDF = "data:application/pdf;base64,JVBERi0xLjQKJ..."  // valid base64 PDF
-
-const handleDemo = async () => {
-  const res = await fetch(base64PDF)
-  const blob = await res.blob()
-  
- 
-
-
-
-
-  const downloadImage = (image: any) => {
-    const link = document.createElement("a")
-    link.href = image.url
-    link.download = image.filename
-    link.click()
+  // Reset all states
+  const handleClear = () => {
+    setSelectedFile(null);
+    setPdfPages([]);
+    setCurrentPage(0);
+    setTotalPages(0);
+    setIsLoading(false);
+    setIsConverting(false);
+    setConversionStatus("");
+    setConversionProgress(0);
+    setSelectedPages([]);
+    setShowAllPagesPreview(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Clear file input
+    }
     toast({
-      title: "Downloaded!",
-      description: `${image.filename} saved to your device`,
-    })
-  }
-
-  const downloadAll = () => {
-    convertedImages.forEach((image, index) => {
-      setTimeout(() => {
-        downloadImage(image)
-      }, index * 500)
-    })
-    toast({
-      title: "Downloading All!",
-      description: `Downloading ${convertedImages.length} images...`,
-    })
-  }
-
-  const removeFile = () => {
-    setFile(null)
-    setFileInfo(null)
-    setConvertedImages([])
-    setError("")
-  }
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes"
-    const k = 1024
-    const sizes = ["Bytes", "KB", "MB", "GB"]
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
-  }
+      title: "Cleared",
+      description: "Converter has been reset.",
+    });
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center space-x-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-50 dark:bg-yellow-950/20">
-          <FileImage className="h-6 w-6 text-yellow-600 dark:text-yellow-500" />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold">PDF to JPG Converter</h1>
-          <p className="text-muted-foreground">Convert PDF pages to high-quality JPG images</p>
-        </div>
-      </div>
+    <div className="container mx-auto p-4 md:p-8">
+      <Card className="max-w-5xl mx-auto">
+        <CardHeader>
+          <CardTitle className="text-3xl font-extrabold flex items-center gap-3 text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-cyan-500">
+            <FileImage className="h-8 w-8 text-blue-500" /> PDF to JPG Converter
+          </CardTitle>
+          <CardDescription className="text-md text-muted-foreground mt-2">
+            Convert your PDF documents into high-quality JPG images directly in your browser.
+            All processing is done client-side, ensuring your privacy.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-8">
+          {/* File Upload Section */}
+          <div
+            className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-gray-50 transition-all dark:border-gray-700 dark:hover:bg-gray-800"
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <FileUp className="h-12 w-12 text-gray-400 mb-4" />
+            <p className="text-lg font-medium text-gray-700 dark:text-gray-300">Drag & drop your PDF here</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">or click to browse</p>
+            <Input
+              type="file"
+              accept="application/pdf"
+              onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
+              ref={fileInputRef}
+              className="hidden"
+              disabled={isLoading || isConverting}
+            />
+          </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Upload and Convert Section */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Upload className="mr-2 h-5 w-5" />
-                Upload PDF File
-              </CardTitle>
-              <CardDescription>Select a PDF file and choose conversion settings</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Drag and Drop Area */}
-              {!file && (
-                <div
-                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                    dragActive
-                      ? "border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20"
-                      : "border-gray-300 dark:border-gray-600"
-                  }`}
-                  onDragEnter={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDragOver={handleDrag}
-                  onDrop={handleDrop}
-                >
-                  <File className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                  <p className="text-lg font-medium mb-2">Drop PDF file here</p>
-                  <p className="text-sm text-muted-foreground mb-4">or click to browse files</p>
-                  <Button variant="outline" onClick={() => fileInputRef.current?.click()} className="bg-transparent">
-                    <FileImage className="mr-2 h-4 w-4" />
-                    Select PDF File
-                  </Button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".pdf,application/pdf"
-                    className="hidden"
-                    onChange={(e) => handleFileSelect(e.target.files?.[0] || null)}
+          {selectedFile && (
+            <div className="flex justify-between items-center bg-muted p-4 rounded-lg shadow-sm">
+              <div className="flex items-center space-x-3">
+                <FileImage className="h-6 w-6 text-primary" />
+                <div>
+                  <p className="font-semibold">{selectedFile.name}</p>
+                  <p className="text-sm text-muted-foreground">{(selectedFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+                </div>
+              </div>
+              <Button variant="outline" size="sm" onClick={handleClear} disabled={isLoading || isConverting}>
+                <RotateCcw className="h-4 w-4 mr-2" /> Clear
+              </Button>
+            </div>
+          )}
+
+          {isLoading && (
+            <div className="flex flex-col items-center justify-center py-8">
+              <Loader2 className="h-10 w-10 animate-spin text-primary" />
+              <p className="mt-4 text-lg text-muted-foreground">Loading PDF pages...</p>
+            </div>
+          )}
+
+          {pdfPages.length > 0 && !isLoading && (
+            <>
+              <Separator />
+              {/* Conversion Options */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid gap-2">
+                  <Label htmlFor="quality" className="text-base font-semibold">JPG Quality (0.1 - 1.0)</Label>
+                  <Input
+                    id="quality"
+                    type="number"
+                    min="0.1"
+                    max="1.0"
+                    step="0.1"
+                    value={quality}
+                    onChange={(e) => setQuality(parseFloat(e.target.value))}
+                    disabled={isConverting}
                   />
                 </div>
-              )}
-
-              {/* Selected File */}
-              {file && fileInfo && (
-                <div className="border rounded-lg p-4 bg-muted/50">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-100 dark:bg-yellow-900/20">
-                        <FileImage className="h-5 w-5 text-yellow-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-sm">{fileInfo.name}</h4>
-                        <p className="text-xs text-muted-foreground">{formatFileSize(fileInfo.size)} • PDF Document</p>
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="sm" onClick={removeFile}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {/* Conversion Settings */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Image Quality</label>
-                  <Select value={quality} onValueChange={setQuality}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {qualityOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          <div>
-                            <div className="font-medium">{option.label}</div>
-                            <div className="text-xs text-muted-foreground">{option.description}</div>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Resolution (DPI)</label>
-                  <Select value={resolution} onValueChange={setResolution}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {resolutionOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="grid gap-2">
+                  <Label htmlFor="dpi" className="text-base font-semibold">Resolution / DPI</Label>
+                  <select
+                    id="dpi"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={dpi}
+                    onChange={(e) => setDpi(parseInt(e.target.value))}
+                    disabled={isConverting}
+                  >
+                    <option value={72}>72 DPI (Low)</option>
+                    <option value={150}>150 DPI (Medium - Recommended)</option>
+                    <option value={300}>300 DPI (High)</option>
+                    <option value={600}>600 DPI (Very High)</option>
+                  </select>
                 </div>
               </div>
 
-              <div className="flex space-x-2">
-                <Button onClick={handleConvert} disabled={loading || !file} className="flex-1">
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Converting...
-                    </>
-                  ) : (
-                    <>
-                      <ImageIcon className="mr-2 h-4 w-4" />
-                      Convert to JPG
-                    </>
-                  )}
-                </Button>
-                <Button variant="outline" onClick={handleDemo} disabled={loading} className="bg-transparent">
-                  Demo
-                </Button>
-              </div>
-
-              {loading && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Converting PDF to JPG images...</span>
-                    <span>{progress}%</span>
-                  </div>
-                  <Progress value={progress} className="w-full" />
-                </div>
-              )}
-
-              {error && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Converted Images */}
-          {convertedImages.length > 0 && (
-            <Card>
-              <CardHeader>
+              {/* Page Selection */}
+              <div className="grid gap-4">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center">
-                    <ImageIcon className="mr-2 h-5 w-5" />
-                    Converted Images ({convertedImages.length})
-                  </CardTitle>
-                  <Button onClick={downloadAll} size="sm">
-                    <Download className="mr-2 h-4 w-4" />
-                    Download All
+                  <Label className="text-base font-semibold">Select Pages for Conversion</Label>
+                  <Button
+                    variant="outline"
+                    onClick={handleSelectAllPages}
+                    disabled={isConverting}
+                    size="sm"
+                  >
+                    {selectedPages.length === totalPages ? "Deselect All" : "Select All"}
                   </Button>
                 </div>
-                <CardDescription>Your PDF pages converted to JPG images</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {convertedImages.map((image) => (
-                    <Card key={image.id} className="overflow-hidden">
-                      <div className="aspect-[3/4] relative">
-                        <img
-                          src={image.url || "/placeholder.svg"}
-                          alt={`Page ${image.pageNumber}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-2 left-2">
-                          <Badge variant="secondary" className="text-xs">
-                            Page {image.pageNumber}
-                          </Badge>
-                        </div>
-                        <div className="absolute top-2 right-2 flex space-x-1">
-                          <Button size="sm" variant="secondary" onClick={() => window.open(image.url, "_blank")}>
-                            <Eye className="h-3 w-3" />
-                          </Button>
-                          <Button size="sm" variant="secondary" onClick={() => downloadImage(image)}>
-                            <Download className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                      <CardContent className="p-3">
-                        <div className="space-y-1">
-                          <h4 className="font-medium text-sm">{image.filename}</h4>
-                          <div className="flex items-center justify-between text-xs text-muted-foreground">
-                            <span>{formatFileSize(image.size)}</span>
-                            <span>{resolution} DPI</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 border rounded-md bg-muted/20">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
+                    <Button
+                      key={pageNumber}
+                      variant={selectedPages.includes(pageNumber) ? "default" : "outline"}
+                      onClick={() => handlePageSelection(pageNumber)}
+                      disabled={isConverting}
+                      className={cn(
+                        "w-12 h-10",
+                        selectedPages.includes(pageNumber) ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"
+                      )}
+                    >
+                      {pageNumber}
+                    </Button>
                   ))}
                 </div>
-                <Alert className="mt-4">
-                  <CheckCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    PDF converted successfully! {convertedImages.length} image(s) ready for download.
-                  </AlertDescription>
-                </Alert>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+              </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Features */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Features</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {[
-                  "High-quality conversion",
-                  "Multiple resolution options",
-                  "Batch processing",
-                  "Custom quality settings",
-                  "Fast processing",
-                  "All pages converted",
-                  "Download individually",
-                  "Bulk download option",
-                ].map((feature, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-sm">{feature}</span>
+              <Separator />
+
+              {/* PDF Preview */}
+              <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                PDF Preview ({totalPages} pages)
+                {totalPages > 1 && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowAllPagesPreview(!showAllPagesPreview)}
+                    className="ml-auto"
+                    title={showAllPagesPreview ? "Show Single Page Preview" : "Show All Pages Preview"}
+                  >
+                    {showAllPagesPreview ? <PanelTopClose className="h-5 w-5" /> : <Info className="h-5 w-5" />}
+                  </Button>
+                )}
+              </h3>
+              <div className="flex flex-col items-center space-y-4">
+                {showAllPagesPreview ? (
+                  // All pages preview
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full p-4 border rounded-lg bg-card shadow-inner max-h-[600px] overflow-y-auto">
+                    {pdfPages.map((canvas, index) => (
+                      <div key={index} className="border rounded-md p-2 shadow-sm bg-background flex flex-col items-center">
+                        <span className="text-sm text-muted-foreground mb-2">Page {index + 1}</span>
+                        {/* Render directly to an img tag for simplicity in all pages preview */}
+                        {/* For better performance in large PDFs, consider lazy loading or virtualized lists */}
+                        <img
+                            src={canvas.toDataURL()}
+                            alt={`PDF Page ${index + 1}`}
+                            className="max-w-full h-auto border border-gray-200 dark:border-gray-700"
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                ) : (
+                  // Single page preview
+                  <>
+                    {pdfPages[currentPage] && (
+                        <img
+                            src={pdfPages[currentPage].toDataURL()}
+                            alt={`PDF Page ${currentPage + 1}`}
+                            className="max-w-full h-auto border border-gray-200 dark:border-gray-700 shadow-lg rounded-md"
+                        />
+                    )}
 
-          {/* Quality Guide */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <ZoomIn className="mr-2 h-4 w-4" />
-                Quality Guide
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 text-sm">
-                <div>
-                  <strong>150 DPI:</strong> Good for web use and email
-                </div>
-                <div>
-                  <strong>300 DPI:</strong> Standard for printing and documents
-                </div>
-                <div>
-                  <strong>600 DPI:</strong> High quality for professional use
-                </div>
-                <div>
-                  <strong>1200 DPI:</strong> Maximum quality for archival
-                </div>
+                    {totalPages > 1 && (
+                      <div className="flex items-center space-x-4 mt-4">
+                        <Button
+                          variant="outline"
+                          onClick={handlePrevPage}
+                          disabled={currentPage === 0 || isLoading || isConverting}
+                        >
+                          <ChevronLeft className="h-4 w-4 mr-2" /> Previous
+                        </Button>
+                        <span className="font-medium text-lg">
+                          Page {currentPage + 1} of {totalPages}
+                        </span>
+                        <Button
+                          variant="outline"
+                          onClick={handleNextPage}
+                          disabled={currentPage === totalPages - 1 || isLoading || isConverting}
+                        >
+                          Next <ChevronRight className="h-4 w-4 ml-2" />
+                        </Button>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
-            </CardContent>
-          </Card>
 
-          {/* Usage Limits */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Usage Limits</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span>Max file size:</span>
-                  <Badge variant="outline">100MB</Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span>Pages per file:</span>
-                  <Badge variant="outline">Unlimited</Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span>Output format:</span>
-                  <Badge variant="outline">JPG</Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span>Processing time:</span>
-                  <Badge variant="outline">~2s per page</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              {/* Convert Button */}
+              <Button
+                onClick={convertPdfToJpg}
+                className="w-full text-lg py-7 rounded-lg shadow-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-300"
+                disabled={isConverting || isLoading || selectedPages.length === 0}
+              >
+                {isConverting ? (
+                  <>
+                    <Loader2 className="mr-2 h-6 w-6 animate-spin" /> {conversionStatus} ({conversionProgress}%)
+                  </>
+                ) : (
+                  <>
+                    <Download className="mr-2 h-6 w-6" /> Convert & Download JPGs
+                  </>
+                )}
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
 
-          {/* Tips */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Info className="mr-2 h-4 w-4" />
-                Pro Tips
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 text-sm text-muted-foreground">
-                <p>• Higher DPI creates larger file sizes</p>
-                <p>• Use 300 DPI for most printing needs</p>
-                <p>• Maximum quality is best for archival</p>
-                <p>• Web use typically needs only 150 DPI</p>
-                <p>• Each page becomes a separate JPG file</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Stats */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Usage Stats</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Files Converted</span>
-                  <Badge variant="secondary">2,156</Badge>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Success Rate</span>
-                  <Badge variant="default">99.2%</Badge>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Avg. Processing</span>
-                  <Badge variant="outline">8s</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      {/* How to Use Section */}
+      <Card className="max-w-5xl mx-auto mt-8">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold">How to Use the PDF to JPG Converter</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ol className="list-decimal list-inside space-y-3 text-muted-foreground text-base">
+            <li>
+              **Upload Your PDF:** Click on the "Drag & drop your PDF here" area or drag your PDF file onto it.
+            </li>
+            <li>
+              **PDF Preview:** Once uploaded, you'll see a preview of your PDF pages. You can navigate through pages or toggle to see all pages.
+            </li>
+            <li>
+              **Adjust Settings (Optional):**
+              <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
+                <li>**JPG Quality:** Set the quality of the output JPG images (0.1 to 1.0, where 1.0 is highest).</li>
+                <li>**Resolution / DPI:** Choose the DPI (Dots Per Inch) for the rendered images. Higher DPI means larger, higher-quality images.</li>
+              </ul>
+            </li>
+            <li>
+              **Select Pages:** By default, all pages are selected. Click on page numbers to select/deselect specific pages for conversion.
+              You can also use "Select All" / "Deselect All" button.
+            </li>
+            <li>
+              **Convert & Download:** Click the "<Download className="inline-block h-4 w-4 relative top-0.5" /> Convert & Download JPGs" button.
+              The converted JPG images will be bundled into a `.zip` file and downloaded to your device.
+            </li>
+          </ol>
+        </CardContent>
+      </Card>
     </div>
-  )
+  );
 }
 
-
-
-}
+// Label component (Assuming you have this in your shadcn setup or create it)
+const Label = ({ htmlFor, children, className }: { htmlFor?: string; children: React.ReactNode; className?: string }) => (
+    <label htmlFor={htmlFor} className={cn("text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className)}>
+      {children}
+    </label>
+  );
