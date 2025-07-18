@@ -1,4 +1,5 @@
-"use client"
+// app/text-to-image/page.tsx
+'use client';
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -10,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import { useToast } from "@/hooks/use-toast"
+import Image from 'next/image'; // Import the Next.js Image component
+
 import {
   ImageIcon,
   Wand2,
@@ -44,6 +47,9 @@ export default function TextToImagePage() {
     { value: "vintage", label: "Vintage", description: "Retro and vintage style" },
   ]
 
+  // NOTE: Stability AI's free/starter models typically support 512x512 and 768x768.
+  // Larger sizes like 1024x1024 often require specific SDXL models and more credits.
+  // Ensure the sizes here are compatible with the ENGINE_ID you chose in route.ts.
   const sizes = [
     { value: "256x256", label: "256×256 (Small)" },
     { value: "512x512", label: "512×512 (Medium)" },
@@ -75,16 +81,16 @@ export default function TextToImagePage() {
     setGeneratedImage(null)
     setProgress(0)
 
-    // Simulate progress
+    // Simulate progress while waiting for API response
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 90) {
+        if (prev >= 90) { // Cap at 90% until actual response is received
           clearInterval(progressInterval)
           return 90
         }
         return prev + 5
       })
-    }, 400)
+    }, 400) // Adjust interval for faster/slower progress simulation
 
     try {
       const response = await fetch("/api/text-to-image", {
@@ -96,9 +102,19 @@ export default function TextToImagePage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to generate image")
+        // If the backend API itself returns an error (e.g., from Stability AI)
+        clearInterval(progressInterval); // Clear interval on error
+        const errorMessage = data.error || data.details || "Failed to generate image";
+        setError(errorMessage);
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        return; // Stop execution
       }
 
+      // If successful, set progress to 100 and display image
       setProgress(100)
       setGeneratedImage(data.data)
       toast({
@@ -106,15 +122,18 @@ export default function TextToImagePage() {
         description: "Image generated successfully",
       })
     } catch (err: any) {
-      setError(err.message)
+      clearInterval(progressInterval); // Clear interval on error
+      console.error("Client-side fetch error:", err);
+      const errorMessage = err.message || "An unexpected error occurred.";
+      setError(errorMessage);
       toast({
         title: "Error",
-        description: err.message,
+        description: errorMessage,
         variant: "destructive",
-      })
+      });
     } finally {
       setLoading(false)
-      clearInterval(progressInterval)
+      clearInterval(progressInterval) // Ensure interval is always cleared
     }
   }
 
@@ -135,7 +154,7 @@ export default function TextToImagePage() {
 
     setTimeout(() => {
       setGeneratedImage({
-        imageUrl: "/placeholder.svg?height=512&width=512",
+        imageUrl: "/placeholder.svg?height=512&width=512&text=DEMO Image", // Added text for clarity
         prompt: "A beautiful sunset over a calm lake with mountains in the background",
         style: style,
         size: size,
@@ -199,6 +218,7 @@ export default function TextToImagePage() {
                   onChange={(e) => setPrompt(e.target.value)}
                   rows={4}
                   className="resize-none"
+                  maxLength={500} // Added max length for prompt
                 />
                 <p className="text-xs text-muted-foreground mt-1">{prompt.length}/500 characters</p>
               </div>
@@ -208,7 +228,7 @@ export default function TextToImagePage() {
                   <label className="text-sm font-medium mb-2 block">Art Style</label>
                   <Select value={style} onValueChange={setStyle}>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Select a style" />
                     </SelectTrigger>
                     <SelectContent>
                       {styles.map((styleOption) => (
@@ -227,7 +247,7 @@ export default function TextToImagePage() {
                   <label className="text-sm font-medium mb-2 block">Image Size</label>
                   <Select value={size} onValueChange={setSize}>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Select a size" />
                     </SelectTrigger>
                     <SelectContent>
                       {sizes.map((sizeOption) => (
@@ -240,7 +260,7 @@ export default function TextToImagePage() {
                 </div>
               </div>
 
-              <Button onClick={handleGenerate} disabled={loading || !prompt.trim()} className="w-full">
+              <Button onClick={handleGenerate} disabled={loading || !prompt.trim() || prompt.length < 10} className="w-full">
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -322,10 +342,16 @@ export default function TextToImagePage() {
               {generatedImage ? (
                 <>
                   <div className="w-full aspect-square border rounded-lg overflow-hidden bg-muted">
-                    <img
+                    {/* Replaced <img> with Next.js <Image> component */}
+                    <Image
                       src={generatedImage.imageUrl || "/placeholder.svg"}
                       alt="Generated image"
-                      className="w-full h-full object-cover"
+                      width={parseInt(generatedImage.size.split('x')[0])} // Extract width from size string
+                      height={parseInt(generatedImage.size.split('x')[1])} // Extract height from size string
+                      layout="responsive" // Ensures the image scales within its container
+                      objectFit="cover" // Covers the area, possibly cropping parts
+                      unoptimized={generatedImage.imageUrl.startsWith('data:image/')} // Disable optimization for base64
+                      className="rounded-md"
                     />
                   </div>
                   <div className="w-full space-y-2">

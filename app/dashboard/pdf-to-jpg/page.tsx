@@ -24,6 +24,7 @@ import {
   ImageIcon,
   ZoomIn,
 } from "lucide-react"
+import { blob } from "stream/consumers"
 
 export default function PDFToJPGPage() {
   const [file, setFile] = useState<File | null>(null)
@@ -160,62 +161,16 @@ export default function PDFToJPGPage() {
     }
   }
 
-  const handleDemo = () => {
-    const demoFile = new File([""], "sample-document.pdf", { type: "application/pdf" })
-    setFile(demoFile)
-    setFileInfo({
-      name: "sample-document.pdf",
-      size: 512000,
-      type: "application/pdf",
-      lastModified: Date.now(),
-    })
+const base64PDF = "data:application/pdf;base64,JVBERi0xLjQKJ..."  // valid base64 PDF
 
-    setLoading(true)
-    setError("")
-    setProgress(0)
+const handleDemo = async () => {
+  const res = await fetch(base64PDF)
+  const blob = await res.blob()
+  
+ 
 
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(progressInterval)
-          return 100
-        }
-        return prev + 10
-      })
-    }, 300)
 
-    setTimeout(() => {
-      const demoImages = [
-        {
-          id: 1,
-          pageNumber: 1,
-          url: "/placeholder.svg?height=400&width=300",
-          filename: "page-1.jpg",
-          size: 245760,
-        },
-        {
-          id: 2,
-          pageNumber: 2,
-          url: "/placeholder.svg?height=400&width=300",
-          filename: "page-2.jpg",
-          size: 198432,
-        },
-        {
-          id: 3,
-          pageNumber: 3,
-          url: "/placeholder.svg?height=400&width=300",
-          filename: "page-3.jpg",
-          size: 267891,
-        },
-      ]
-      setConvertedImages(demoImages)
-      setLoading(false)
-      toast({
-        title: "Demo Complete!",
-        description: "Demo images generated. Upload a real PDF for actual conversion.",
-      })
-    }, 3000)
-  }
+
 
   const downloadImage = (image: any) => {
     const link = document.createElement("a")
@@ -595,4 +550,5 @@ export default function PDFToJPGPage() {
       </div>
     </div>
   )
+}
 }
