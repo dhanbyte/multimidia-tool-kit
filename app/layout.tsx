@@ -1,12 +1,11 @@
 // app/layout.tsx
-import type React from "react"; // Already present
+import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
-// Update the import path to the correct file location and name
-import { SiteHeader } from "@/components/site-header";
+import { SiteHeader } from "@/components/main-nav"; // सुनिश्चित करें कि यह इंपोर्ट हो
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,8 +24,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <SiteHeader /> {/* Add the SiteHeader here */}
-          <main className="flex-1"> {/* Optional: Added flex-1 to main for layout */}
+          <SiteHeader /> {/* सुनिश्चित करें कि यह यहां रेंडर हो रहा है */}
+          <main className="flex-1">
             {children}
           </main>
           <Toaster />

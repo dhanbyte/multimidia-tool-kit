@@ -4,26 +4,45 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
-  Download,
   QrCode,
   Upload,
-  Twitter,
   ImageIcon,
   FileText,
   FileImage,
-  Video,
-  Music,
-  Users,
-  Clock,
-  TrendingUp,
   Star,
   ArrowRight,
   Zap,
+  Image as LucideImage, // For Image Compressor (renamed to avoid conflict with ImageIcon)
 } from "lucide-react"
 
+// Removed unused icons: Download, Users, Clock, TrendingUp as stats are removed
+// Removed unused imports due to stats removal: Download, Users, Clock, TrendingUp
+
 const tools = [
-
-
+  // --- NEW TOOLS ---
+  {
+    name: "Image Compressor",
+    description: "Compress multiple images at once for web optimization",
+    icon: LucideImage, // Using Lucide 'Image' icon
+    href: "/dashboard/image-compressor",
+    color: "from-purple-500 to-violet-500",
+    bgColor: "bg-pink-50 dark:bg-pink-950/20",
+    iconColor: "text-pink-600 dark:text-pink-400",
+    new: true, // Mark as new
+    popular: true, // Mark as popular
+  },
+  {
+    name: "Social Media Bio Generator",
+    description: "Generate creative and catchy social media bios using AI",
+    icon: Zap, // Using Lucide 'Zap' icon (good for AI tools)
+    href: "/dashboard/social-bio-generator",
+    color: "from-yellow-500 to-amber-500",
+    bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
+    iconColor: "text-yellow-600 dark:text-yellow-500",
+    new: true, // Mark as new
+    popular: true, // Also popular if desired
+  },
+  // --- OTHER EXISTING TOOLS ---
   {
     name: "QR Generator",
     description: "Generate QR codes for any content",
@@ -44,7 +63,6 @@ const tools = [
     iconColor: "text-green-600 dark:text-green-400",
     popular: true,
   },
-
   {
     name: "Text to Image",
     description: "Generate images from text using AI",
@@ -74,74 +92,30 @@ const tools = [
     bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
     iconColor: "text-yellow-600 dark:text-yellow-500",
   },
-  
 ]
 
-const stats = [
-  {
-    title: "Total Downloads",
-    value: "12,847",
-    change: "+20.1%",
-    icon: Download,
-    color: "text-green-600",
-  },
-  {
-    title: "Active Users",
-    value: "2,847",
-    change: "+180.1%",
-    icon: Users,
-    color: "text-blue-600",
-  },
-  {
-    title: "Avg. Processing Time",
-    value: "2.3s",
-    change: "-5%",
-    icon: Clock,
-    color: "text-purple-600",
-  },
-  {
-    title: "Success Rate",
-    value: "99.9%",
-    change: "+0.1%",
-    icon: TrendingUp,
-    color: "text-emerald-600",
-  },
-]
+// Stats data is removed as per request
+// const stats = [...]
 
 const recentActivity = [
-  { tool: "TikTok Downloader", time: "2 minutes ago", status: "Completed", user: "Anonymous" },
   { tool: "QR Generator", time: "5 minutes ago", status: "Completed", user: "Anonymous" },
-  { tool: "YouTube Downloader", time: "8 minutes ago", status: "Completed", user: "Anonymous" },
   { tool: "Text to Image", time: "12 minutes ago", status: "Processing", user: "Anonymous" },
   { tool: "PDF to Text", time: "15 minutes ago", status: "Completed", user: "Anonymous" },
+  { tool: "Image Compressor", time: "20 minutes ago", status: "Completed", user: "Anonymous" },
+  { tool: "Social Media Bio Generator", time: "25 minutes ago", status: "Completed", user: "Anonymous" },
 ]
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-4 md:p-8">
       {/* Welcome Section */}
       <div className="flex flex-col space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Welcome to MediaTools Pro</h1>
         <p className="text-muted-foreground">Your all-in-one platform for media processing and conversion tools</p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, index) => (
-          <Card key={index} className="relative overflow-hidden">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className={cn("text-xs", stat.color)}>{stat.change} from last month</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
       {/* Quick Access Tools */}
+      {/* This section is moved up to replace the stats cards */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

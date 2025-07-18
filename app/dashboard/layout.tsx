@@ -1,3 +1,4 @@
+// app/dashboard/layout.tsx
 "use client"
 
 import type React from "react"
@@ -11,23 +12,38 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { VoiceSearch } from "@/components/voice-search"
 import {
-  Download,
+  Download, // Download icon is still imported as it's used in the header
   QrCode,
   Upload,
-  Twitter,
   ImageIcon,
   FileText,
   FileImage,
-  Video,
-  Music,
   Search,
   Menu,
   Home,
+  Sparkles, // <-- Corrected: Use Sparkles for Bio Generator
+  Image as LucideImage, // For Image Compressor
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+
 const tools = [
- 
+  // --- NEW TOOLS ---
+  {
+    name: "Image Compressor",
+    href: "/dashboard/image-compressor",
+    icon: LucideImage,
+    color: "text-pink-600 dark:text-pink-400",
+    bgColor: "bg-pink-50 dark:bg-pink-950/20",
+  },
+  {
+    name: "Social Media Bio Generator",
+    href: "/dashboard/social-bio-generator",
+    icon: Sparkles, // <-- Corrected: Use Sparkles here
+    color: "text-yellow-600 dark:text-yellow-500",
+    bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
+  },
+  // --- OTHER EXISTING TOOLS ---
   {
     name: "QR Generator",
     href: "/dashboard/qr-generator",
@@ -42,7 +58,6 @@ const tools = [
     color: "text-green-600 dark:text-green-400",
     bgColor: "bg-green-50 dark:bg-green-950/20",
   },
- 
   {
     name: "Text to Image",
     href: "/dashboard/text-to-image",
@@ -64,7 +79,6 @@ const tools = [
     color: "text-yellow-600 dark:text-yellow-500",
     bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
   },
- 
 ]
 
 export default function DashboardLayout({
@@ -104,24 +118,39 @@ export default function DashboardLayout({
 
       <div className="flex-1 overflow-auto py-6">
         <nav className="space-y-2 px-4">
-          {filteredTools.map((tool) => {
-            const isActive = pathname === tool.href
-            return (
-              <Link
-                key={tool.href}
-                href={tool.href}
-                className={cn(
-                  "flex items-center space-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                  isActive
-                    ? `${tool.bgColor} ${tool.color} shadow-sm border-l-2 border-current`
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                )}
-              >
-                <tool.icon className="h-5 w-5" />
-                <span>{tool.name}</span>
-              </Link>
-            )
-          })}
+          <Link
+            href="/dashboard"
+            className={cn(
+              "flex items-center space-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 mb-4",
+              pathname === "/dashboard"
+                ? "bg-muted text-foreground shadow-sm border-l-2 border-primary"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+            )}
+          >
+            <Home className="h-5 w-5" />
+            <span>Dashboard Home</span>
+          </Link>
+          <div className="border-t pt-4 mt-4">
+             <p className="text-xs font-semibold text-muted-foreground uppercase px-3 mb-2">Tools</p>
+             {filteredTools.map((tool) => {
+               const isActive = pathname === tool.href
+               return (
+                 <Link
+                   key={tool.href}
+                   href={tool.href}
+                   className={cn(
+                     "flex items-center space-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                     isActive
+                       ? `${tool.bgColor} ${tool.color} shadow-sm border-l-2 border-current`
+                       : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                   )}
+                 >
+                   <tool.icon className="h-5 w-5" />
+                   <span>{tool.name}</span>
+                 </Link>
+               )
+             })}
+          </div>
         </nav>
       </div>
     </div>
@@ -163,7 +192,9 @@ export default function DashboardLayout({
                 className="pl-10 pr-12"
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                <VoiceSearch onResult={handleVoiceResult} />
+                <Suspense fallback={null}> {/* Wrap VoiceSearch in Suspense */}
+                    <VoiceSearch onResult={handleVoiceResult} />
+                </Suspense>
               </div>
             </div>
           </div>

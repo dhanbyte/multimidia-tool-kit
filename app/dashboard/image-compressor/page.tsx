@@ -1,6 +1,7 @@
+// app/dashboard/image-compressor/page.tsx
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react"; // Added useEffect for cleanup
 import { useDropzone } from "react-dropzone";
 import imageCompression from "browser-image-compression";
 import { Button } from "@/components/ui/button";
@@ -9,28 +10,29 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/use-toast";
 import JSZip from "jszip";
 import { saveAs } from 'file-saver';
-import { ReloadIcon, DownloadIcon } from "@radix-ui/react-icons"; // Ensure you have this icon library installed
+import { Loader2, Download, Image as ImageIconLucide, XCircle, Trash2, UploadCloud } from "lucide-react"; // Added UploadCloud
 
-// If not installed, install: npm install @radix-ui/react-icons
-// Or use a custom SVG icon
-
-interface CompressedFile extends File {
+interface ExtendedFile extends File {
   preview: string;
+}
+
+interface CompressedFile extends ExtendedFile {
   compressedSize: number;
   originalSize: number;
+  id: string; // Unique ID for each file for easier management
 }
 
 export default function ImageCompressorPage() {
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<ExtendedFile[]>([]);
   const [compressedFiles, setCompressedFiles] = useState<CompressedFile[]>([]);
   const [isCompressing, setIsCompressing] = useState(false);
   const [progress, setProgress] = useState(0);
   const { toast } = useToast();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    // Filter out non-image files if any
-    const imageFiles = acceptedFiles.filter(file => file.type.startsWith('image/'));
-    if (imageFiles.length === 0) {
+    const newImageFiles = acceptedFiles.filter(file => file.type.startsWith('image/'));
+
+    if (newImageFiles.length === 0) {
       toast({
         title: "Invalid File Type",
         description: "Please upload image files (e.g., JPG, PNG, WebP).",
@@ -39,30 +41,61 @@ export default function ImageCompressorPage() {
       return;
     }
 
-    setFiles((prevFiles) => [
-      ...prevFiles,
-      ...imageFiles.map((file) =>
-        Object.assign(file, {
-          preview: URL.createObjectURL(file),
-        })
-      ),
-    ]);
+    setFiles((prevFiles) => {
+      const uniqueNewFiles = newImageFiles.filter(
+        (newFile) => !prevFiles.some((prevFile) => prevFile.name === newFile.name && prevFile.size === newFile.size)
+      );
+
+      return [
+        ...prevFiles,
+        ...uniqueNewFiles.map((file) =>
+          Object.assign(file, {
+            preview: URL.createObjectURL(file),
+          })
+        ),
+      ];
+    });
+
+    toast({
+      title: "Images Added",
+      description: `${newImageFiles.length} image(s) ready for compression.`,
+      variant: "default",
+    });
   }, [toast]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, open } = useDropzone({
     onDrop,
     accept: {
       'image/jpeg': [],
       'image/png': [],
       'image/webp': [],
-      'image/gif': [], // Optional: add GIF if you want to support it, though compression options might be limited
+      'image/gif': [],
     },
     multiple: true,
+    noClick: true, // Disable click to open file dialog, so we can use a custom button
   });
 
+  // Cleanup object URLs when component unmounts or files change
+  useEffect(() => {
+    return () => {
+      files.forEach(file => URL.revokeObjectURL(file.preview));
+      compressedFiles.forEach(file => URL.revokeObjectURL(file.preview));
+    };
+  }, [files, compressedFiles]);
+
+
   const handleCompress = async () => {
+    if (files.length === 0) {
+      toast({
+        title: "No Images to Compress",
+        description: "Please drag and drop or select images first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsCompressing(true);
-    setCompressedFiles([]);
+    setCompressedFiles([]); // Clear previous compressed files
     setProgress(0);
 
     const compressed: CompressedFile[] = [];
@@ -71,25 +104,25 @@ export default function ImageCompressorPage() {
     for (const file of files) {
       try {
         const options = {
-          maxSizeMB: 1, // (max file size in MB)
-          maxWidthOrHeight: 1920, // max width or height in pixels
-          useWebWorker: true, // Recommended for better performance
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
           onProgress: (p: number) => {
-            // Update overall progress for all files
             setProgress(Math.round(((completed + (p / 100)) / files.length) * 100));
           },
-          // mimeType: 'image/webp' // Optional: convert to WebP for better compression
         };
 
-        const compressedFile = await imageCompression(file, options);
-        Object.assign(compressedFile, {
-          preview: URL.createObjectURL(compressedFile),
-          compressedSize: compressedFile.size,
+        const compressedFileBlob = await imageCompression(file, options);
+        const compressedFileWithPreview = Object.assign(compressedFileBlob, {
+          preview: URL.createObjectURL(compressedFileBlob),
+          compressedSize: compressedFileBlob.size,
           originalSize: file.size,
+          name: file.name, // Ensure original name is carried over
+          id: `${file.name}-${file.size}-${Date.now()}`, // Unique ID
         });
-        compressed.push(compressedFile as CompressedFile);
+        compressed.push(compressedFileWithPreview as CompressedFile);
         completed++;
-        setProgress(Math.round((completed / files.length) * 100)); // Ensure progress reaches 100% for each file completion
+        setProgress(Math.round((completed / files.length) * 100));
 
       } catch (error) {
         console.error("Image compression error:", error);
@@ -108,15 +141,15 @@ export default function ImageCompressorPage() {
     if (compressed.length > 0) {
       toast({
         title: "Compression Complete",
-        description: `${compressed.length} images compressed successfully!`,
+        description: `${compressed.length} image(s) compressed successfully!`,
         variant: "default",
       });
     } else {
-        toast({
-            title: "No Images Compressed",
-            description: "Please ensure you've uploaded valid image files.",
-            variant: "default",
-        });
+      toast({
+        title: "No Images Compressed",
+        description: "Please ensure you've uploaded valid image files.",
+        variant: "default",
+      });
     }
   };
 
@@ -131,18 +164,17 @@ export default function ImageCompressorPage() {
     }
 
     if (compressedFiles.length === 1) {
-        // If only one file, download directly
-        saveAs(compressedFiles[0], `compressed_${compressedFiles[0].name}`);
-        toast({
-            title: "Download Initiated",
-            description: "Your compressed image is downloading.",
-        });
-        return;
+      saveAs(compressedFiles[0], `compressed_${compressedFiles[0].name}`);
+      toast({
+        title: "Download Initiated",
+        description: "Your compressed image is downloading.",
+      });
+      return;
     }
 
-    // If multiple, create a ZIP file
     const zip = new JSZip();
     compressedFiles.forEach((file) => {
+      // Ensure the file is added with a unique name in case of duplicates
       zip.file(`compressed_${file.name}`, file);
     });
 
@@ -163,20 +195,40 @@ export default function ImageCompressorPage() {
     }
   };
 
+  const handleRemoveFile = (fileName: string) => {
+    setFiles(prevFiles => prevFiles.filter(file => {
+        if (file.name === fileName) {
+            URL.revokeObjectURL(file.preview); // Revoke URL for the removed original file
+            return false;
+        }
+        return true;
+    }));
+    setCompressedFiles(prev => prev.filter(file => {
+        if (file.name === fileName) {
+            URL.revokeObjectURL(file.preview); // Revoke URL for the removed compressed file
+            return false;
+        }
+        return true;
+    }));
+    toast({
+        title: "File Removed",
+        description: `${fileName} has been removed.`,
+    });
+  };
+
   const handleReset = () => {
-    files.forEach(file => URL.revokeObjectURL((file as any).preview));
+    files.forEach(file => URL.revokeObjectURL(file.preview));
     compressedFiles.forEach(file => URL.revokeObjectURL(file.preview));
     setFiles([]);
     setCompressedFiles([]);
     setIsCompressing(false);
     setProgress(0);
     toast({
-        title: "Reset Complete",
-        description: "All files cleared.",
+      title: "Reset Complete",
+      description: "All files cleared.",
     });
   };
 
-  // Helper function to format file size
   const formatBytes = (bytes: number, decimals = 2) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -190,100 +242,141 @@ export default function ImageCompressorPage() {
     <div className="container mx-auto p-4 md:p-8">
       <Card className="max-w-4xl mx-auto">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">Multi-Image Compressor</CardTitle>
+          <CardTitle className="text-2xl font-bold flex items-center gap-2">
+            <ImageIconLucide className="h-6 w-6 text-purple-600" /> Multi-Image Compressor
+          </CardTitle>
           <CardDescription>Drag & Drop multiple images to compress them directly in your browser. Fast, free, and private!</CardDescription>
         </CardHeader>
         <CardContent>
           <div
             {...getRootProps()}
-            className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors duration-200"
+            className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors duration-200 bg-muted/20"
           >
             <input {...getInputProps()} />
-            {isDragActive ? (
-              <p className="text-lg text-primary">Drop the images here ...</p>
+            <UploadCloud className="w-16 h-16 text-muted-foreground mb-4" />
+            {files.length > 0 ? (
+                <>
+                    <p className="text-lg text-primary font-semibold">{files.length} file(s) selected.</p>
+                    <p className="text-sm text-muted-foreground mt-1">Drag more files here or click to add more.</p>
+                </>
             ) : (
-              <p className="text-lg text-muted-foreground">Drag 'n' drop some images here, or click to select files</p>
+                <>
+                    <p className="text-lg text-muted-foreground font-semibold">Drag 'n' drop images here</p>
+                    <p className="text-sm text-muted-foreground mt-1">or click the button below to select files</p>
+                </>
             )}
-            <p className="text-sm text-muted-foreground mt-2">Supports JPG, PNG, WebP, GIF</p>
+
+            <Button onClick={open} className="mt-6">
+                Select Files
+            </Button>
+            <p className="text-xs text-muted-foreground mt-4">Supports JPG, PNG, WebP, GIF. Max size ~20MB per image.</p>
           </div>
 
           {files.length > 0 && (
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold mb-3">Files to Compress ({files.length})</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {files.map((file, index) => (
-                  <Card key={index} className="flex flex-col items-center p-2 text-center">
-                    <img
-                      src={(file as any).preview}
-                      alt={file.name}
-                      className="w-full h-24 object-cover rounded-md mb-2"
-                      onLoad={() => URL.revokeObjectURL((file as any).preview)}
-                    />
-                    <p className="text-sm font-medium truncate w-full">{file.name}</p>
-                    <p className="text-xs text-muted-foreground">{formatBytes(file.size)}</p>
-                  </Card>
-                ))}
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4">Selected Images ({files.length})</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {files.map((file, index) => {
+                  const matchingCompressedFile = compressedFiles.find(cf => cf.name === file.name && cf.originalSize === file.size);
+                  const savings = matchingCompressedFile ? (((file.size - matchingCompressedFile.compressedSize) / file.size) * 100).toFixed(1) : null;
+
+                  return (
+                    <Card key={index} className="relative p-4 flex flex-col items-center text-center border-2 border-dashed border-gray-200 dark:border-gray-800">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-2 right-2 h-7 w-7 text-red-500 hover:bg-red-500/10 z-10"
+                        onClick={(e) => { e.stopPropagation(); handleRemoveFile(file.name); }}
+                        title="Remove file"
+                      >
+                        <XCircle className="h-5 w-5" />
+                      </Button>
+                      
+                      <div className="w-full flex justify-center mb-4">
+                        <img
+                          src={file.preview}
+                          alt={file.name}
+                          className="w-full h-32 object-contain rounded-md border" // Use object-contain to fit, not crop
+                          onLoad={() => URL.revokeObjectURL(file.preview)}
+                        />
+                      </div>
+                      <p className="text-sm font-medium truncate w-full px-2">{file.name}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Original: {formatBytes(file.size)}</p>
+
+                      {matchingCompressedFile && (
+                        <div className="mt-3 w-full">
+                          <p className="text-xs text-muted-foreground">Compressed:</p>
+                          <p className="text-sm font-semibold text-green-600 dark:text-green-400">
+                            {formatBytes(matchingCompressedFile.compressedSize)}
+                          </p>
+                          {savings && savings !== "NaN" && (
+                            <p className="text-xs font-bold text-blue-500 dark:text-blue-400 mt-1">
+                              Saved: {savings}%
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </Card>
+                  );
+                })}
               </div>
-              <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
+
+              <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
                 <Button
                   onClick={handleCompress}
                   disabled={isCompressing || files.length === 0}
-                  className="w-full sm:w-auto"
+                  className="w-full sm:w-auto px-6 py-3 text-base"
                 >
-                  {isCompressing && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
+                  {isCompressing && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
                   {isCompressing ? `Compressing (${progress}%)` : "Compress Images"}
                 </Button>
                 <Button
                   onClick={handleReset}
                   variant="outline"
-                  disabled={isCompressing && progress < 100}
-                  className="w-full sm:w-auto"
+                  disabled={isCompressing}
+                  className="w-full sm:w-auto px-6 py-3 text-base"
                 >
-                  Clear All
+                  <Trash2 className="mr-2 h-5 w-5" /> Clear All
+                </Button>
+              </div>
+
+              {isCompressing && files.length > 0 && (
+                <div className="mt-6">
+                  <Progress value={progress} className="w-full h-3" />
+                  <p className="text-center text-sm text-muted-foreground mt-2">{progress}% Complete</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {compressedFiles.length > 0 && !isCompressing && (
+            <div className="mt-10 pt-6 border-t border-dashed">
+              <h3 className="text-lg font-semibold mb-4">Download Compressed Images</h3>
+              <div className="text-center">
+                <Button onClick={handleDownloadAll} className="w-full sm:w-auto px-8 py-4 text-base">
+                  <Download className="mr-2 h-5 w-5" /> Download All ({compressedFiles.length === 1 ? compressedFiles[0].name.split('.').pop()?.toUpperCase() || "File" : "ZIP"})
                 </Button>
               </div>
             </div>
           )}
+        </CardContent>
+      </Card>
 
-          {isCompressing && files.length > 0 && (
-            <div className="mt-6">
-                <Progress value={progress} className="w-full" />
-                <p className="text-center text-sm text-muted-foreground mt-2">{progress}% Complete</p>
-            </div>
-          )}
-
-          {compressedFiles.length > 0 && (
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold mb-3">Compressed Files ({compressedFiles.length})</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {compressedFiles.map((file, index) => (
-                  <Card key={index} className="flex flex-col items-center p-2 text-center">
-                    <img
-                      src={file.preview}
-                      alt={`Compressed ${file.name}`}
-                      className="w-full h-24 object-cover rounded-md mb-2"
-                      onLoad={() => URL.revokeObjectURL(file.preview)}
-                    />
-                    <p className="text-sm font-medium truncate w-full">{file.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Original: {formatBytes(file.originalSize)}
-                    </p>
-                    <p className="text-xs text-green-600 font-semibold">
-                      Compressed: {formatBytes(file.compressedSize)}
-                    </p>
-                    <p className="text-xs text-blue-500">
-                      Savings: {(((file.originalSize - file.compressedSize) / file.originalSize) * 100).toFixed(1)}%
-                    </p>
-                  </Card>
-                ))}
-              </div>
-              <div className="mt-6 text-center">
-                <Button onClick={handleDownloadAll} className="w-full sm:w-auto">
-                  <DownloadIcon className="mr-2 h-4 w-4" /> Download All ({compressedFiles.length === 1 ? compressedFiles[0].name : "ZIP"})
-                </Button>
-              </div>
-            </div>
-          )}
+      {/* How to Use Section */}
+      <Card className="max-w-4xl mx-auto mt-8">
+        <CardHeader>
+          <CardTitle className="text-xl font-bold">How to Use</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
+            <li>Click the "Select Files" button or drag and drop your image files onto the designated area.</li>
+            <li>Review your selected images. You can remove individual images if needed.</li>
+            <li>Click the "Compress Images" button to start the optimization process.</li>
+            <li>Observe the real-time progress.</li>
+            <li>Once complete, compare the original and compressed sizes.</li>
+            <li>Click "Download All" to save your optimized images (as a ZIP file if multiple, or individually).</li>
+            <li>Use "Clear All" to reset the tool and start fresh.</li>
+          </ol>
         </CardContent>
       </Card>
     </div>

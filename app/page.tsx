@@ -3,28 +3,48 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
-  Download,
+  Download, // Download icon is still imported as it's used in the header and stats
   QrCode,
   Upload,
-  Twitter,
-  ImageIcon,
+  ImageIcon, // For Text to Image
   FileText,
   FileImage,
-  Video,
-  Music,
-  Zap,
+  Zap, // For Social Media Bio Generator and features
   Shield,
   Clock,
   Users,
   Star,
   ArrowRight,
   CheckCircle,
+  Image as LucideImage, // For Image Compressor
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 const tools = [
- 
- 
+  // --- NEW TOOLS YOU WANT TO KEEP ---
+  {
+    name: "Image Compressor",
+    description: "Compress multiple images at once for web optimization",
+    icon: LucideImage, // Using Lucide 'Image' icon
+    href: "/dashboard/image-compressor",
+    color: "from-purple-500 to-violet-500",
+    bgColor: "bg-pink-50 dark:bg-pink-950/20",
+    iconColor: "text-pink-600 dark:text-pink-400",
+    new: true,
+    popular: true,
+  },
+  {
+    name: "Social Media Bio Generator",
+    description: "Generate creative and catchy social media bios using AI",
+    icon: Zap, // Using Lucide 'Zap' icon
+    href: "/dashboard/social-bio-generator",
+    color: "from-yellow-500 to-amber-500",
+    bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
+    iconColor: "text-yellow-600 dark:text-yellow-500",
+    new: true,
+    popular: true,
+  },
+  // --- OTHER EXISTING TOOLS (from your provided code) ---
   {
     name: "QR Generator",
     description: "Generate custom QR codes for any text, URL, or data",
@@ -43,7 +63,6 @@ const tools = [
     bgColor: "bg-green-50 dark:bg-green-950/20",
     iconColor: "text-green-600 dark:text-green-400",
   },
-  
   {
     name: "Text to Image",
     description: "Generate stunning images from text descriptions using AI",
@@ -71,7 +90,6 @@ const tools = [
     bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
     iconColor: "text-yellow-600 dark:text-yellow-500",
   },
-
 ]
 
 const features = [
@@ -98,9 +116,9 @@ const features = [
 ]
 
 const stats = [
-  { label: "Downloads", value: "10M+", icon: Download },
+  { label: "Files Processed", value: "10M+", icon: Download }, // Changed label from Downloads to Files Processed
   { label: "Happy Users", value: "500K+", icon: Users },
-  { label: "Tools Available", value: "9+", icon: Zap },
+  { label: "Tools Available", value: `${tools.length}+`, icon: Zap }, // Dynamically get tool count
   { label: "Success Rate", value: "99.9%", icon: CheckCircle },
 ]
 
@@ -146,7 +164,7 @@ export default function HomePage() {
             </span>
           </h1>
           <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-            Download videos, generate QR codes, convert files, and more - all in one powerful platform. Fast, secure,
+            Generate QR codes, convert files, compress images, and more - all in one powerful platform. Fast, secure,
             and completely free to use.
           </p>
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
