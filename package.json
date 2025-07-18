@@ -39,6 +39,7 @@
     "@radix-ui/react-toggle": "1.1.1",
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "1.1.6",
+    "@vercel/analytics": "^1.5.0",
     "autoprefixer": "^10.4.20",
     "axios": "^1.10.0",
     "browser-image-compression": "^2.0.2",
@@ -89,10 +90,10 @@
     "@types/react-dom": "^19",
     "@types/react-speech-recognition": "^3.9.6",
     "@types/uuid": "^10.0.0",
+    "copy-file": "^11.0.0",
+    "cross-env": "^7.0.3",
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5",
-    "cross-env": "^7.0.3",
-    "copy-file": "^11.0.0"
+    "typescript": "^5"
   }
 }

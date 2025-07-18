@@ -6,7 +6,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { SiteHeader } from "@/components/main-nav"; // सुनिश्चित करें कि यह इंपोर्ट हो
-
+import { Analytics } from "@vercel/analytics/next"
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -27,6 +27,7 @@ export default function RootLayout({
           <SiteHeader /> {/* सुनिश्चित करें कि यह यहां रेंडर हो रहा है */}
           <main className="flex-1">
             {children}
+             <Analytics />
           </main>
           <Toaster />
         </ThemeProvider>
