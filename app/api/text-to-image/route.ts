@@ -106,8 +106,8 @@ export async function POST(request: NextRequest) {
           { error: "AI service did not return an image. No artifacts found." },
           { status: 500 }
       );
+    
     }
-
     const base64Image = data.artifacts[0].base64;
 
     if (!base64Image) {
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
      
 
 
-    
+
     // Construct the data URL expected by your frontend
     const imageUrl = `data:image/png;base64,${base64Image}`;
 
