@@ -54,7 +54,12 @@ export default function ImageCompressorPage() {
           })
         ),
       ];
+      
     });
+  
+
+
+
 
     toast({
       title: "Images Added",
