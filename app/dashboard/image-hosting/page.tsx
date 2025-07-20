@@ -23,46 +23,43 @@ import {
   FileImage,
   Cloud,
 } from "lucide-react"
-
 export const metadata = {
-  title: "Free Image Hosting - Upload & Share Images Instantly",
-  description: "Upload and host images for free. Get shareable image URLs, support for JPG, PNG, GIF, and more. No signup needed. Fast and secure CDN delivery.",
+  title: "Free Image Hosting | Upload & Share Images Instantly",
+  description: "Upload and share images with permanent links. No signup required. Fast, reliable, and free image hosting.",
   keywords: [
-    "Image Hosting",
-    "Free Image Uploader",
-    "Upload Images Online",
-    "Shareable Image Links",
-    "Fast Image Hosting",
-    "Host Images JPG PNG GIF",
-    "Drag and Drop Image Upload",
-    "CDN Image Hosting",
-    "Image Hosting Tool",
-    "Online Image Storage"
+    "Image hosting",
+    "Free image upload",
+    "Share images online",
+    "Permanent image links",
+    "Image hosting without signup",
   ],
   openGraph: {
-    title: "Free Image Hosting Tool | Upload and Share Images Online",
-    description: "Host and share images with custom URLs. Supports JPG, PNG, GIF, and more. Easy and fast uploads.",
-    url: "https://yourdomain.com/dashboard/image-hosting",
-    siteName: "MediaTools Pro",
+    title: "Image Hosting Platform",
+    description: "Upload and share your images online for free with permanent URLs and instant access.",
+    url: "https://multi-tool-website.dhanbyte.me/dashboard/image-hosting",
+    siteName: "MultiTool by Dhanbyte",
     images: [
       {
-        url: "https://yourdomain.com/og/image-hosting.png",
+        url: "https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819",
         width: 1200,
         height: 630,
-        alt: "Free Image Hosting | MediaTools Pro"
-      }
+        alt: "Free Image Hosting - MultiTool",
+      },
     ],
-    locale: "en_US",
-    type: "website"
+    type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Free Image Hosting - Upload Images with Shareable URLs",
-    description: "Fast and free image hosting service. Drag, drop, and share your images instantly.",
-    images: ["https://yourdomain.com/og/image-hosting.png"]
+    title: "Free Image Hosting | Upload Now",
+    description: "Upload images and get shareable links instantly. Fast and secure image hosting service.",
+    images: ["https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"],
   },
-  metadataBase: new URL("https://yourdomain.com")
-}
+  alternates: {
+    canonical: "https://multi-tool-website.dhanbyte.me/dashboard/image-hosting",
+  },
+  metadataBase: new URL("https://multi-tool-website.dhanbyte.me"),
+};
+
 
 export default function ImageHostingPage() {
   const [files, setFiles] = useState<File[]>([])

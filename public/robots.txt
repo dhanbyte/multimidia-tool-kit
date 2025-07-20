@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: https://dhananjay.me/sitemap.xml
+
+Sitemap: https://multi-tool-website.dhanbyte.me/sitemap.xml

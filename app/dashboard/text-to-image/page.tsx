@@ -32,8 +32,7 @@ import {
 
 export const metadata = {
   title: "AI Text to Image Generator | Create Art from Words",
-  description:
-    "Generate stunning AI images from text descriptions using our powerful Text to Image tool. Choose styles, resolutions, and download high-quality artwork instantly.",
+  description: "Generate stunning AI images from text descriptions using our powerful Text to Image tool. Choose styles, resolutions, and download high-quality artwork instantly.",
   keywords: [
     "AI image generator",
     "text to image",
@@ -45,13 +44,12 @@ export const metadata = {
   ],
   openGraph: {
     title: "AI Text to Image Generator",
-    description:
-      "Turn your ideas into AI-generated art. Choose styles like realistic, anime, or abstract. Download high-res images instantly.",
-    url: "https://multi-tool.dhanbyte.com/text-to-image",
+    description: "Turn your ideas into AI-generated art. Choose styles like realistic, anime, or abstract. Download high-res images instantly.",
+    url: "https://multi-tool-website.dhanbyte.me/dashboard/text-to-image",
     siteName: "MultiTool by Dhanbyte",
     images: [
       {
-        url: "https://multi-tool.dhanbyte.com/og/text-to-image.png", // Replace with your OG image path
+        url: "https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819",
         width: 1200,
         height: 630,
         alt: "AI Text to Image - MultiTool",
@@ -62,13 +60,13 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "AI Text to Image Generator",
-    description:
-      "Create stunning images with AI using your text prompts. Multiple styles and HD resolutions supported.",
-    images: ["https://multi-tool.dhanbyte.com/og/text-to-image.png"],
+    description: "Create stunning images with AI using your text prompts. Multiple styles and HD resolutions supported.",
+    images: ["https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"],
   },
   alternates: {
-    canonical: "https://multi-tool.dhanbyte.com/text-to-image",
+    canonical: "https://multi-tool-website.dhanbyte.me/dashboard/text-to-image",
   },
+  metadataBase: new URL("https://multi-tool-website.dhanbyte.me"),
 };
 
 export default function TextToImagePage() {

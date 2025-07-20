@@ -26,45 +26,47 @@ import {
   Info,
 } from "lucide-react"
 
-export const metadata = {
-  title: "Free QR Code Generator - Generate QR for Text, URL, Email, WiFi",
-  description: "Generate high-quality QR codes for plain text, URLs, emails, phone numbers, and WiFi settings. Free, fast, and easy to use with instant preview and download.",
+// app/dashboard/qr-generator/page.tsx
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "QR Code Generator - MultiTool by Dhanbyte",
+  description: "Generate custom QR codes instantly for free. Easy to use, fast download, no login required.",
   keywords: [
-    "QR Code Generator",
-    "Generate QR",
-    "Text to QR",
-    "QR for URL",
-    "Free QR Code Creator",
-    "QR Code for WiFi",
-    "QR Code Maker",
-    "Online QR Generator",
-    "QR Code Tool",
-    "Download QR Code"
+    "QR code generator",
+    "free QR code tool",
+    "create QR codes",
+    "custom QR codes",
+    "online QR code maker"
   ],
   openGraph: {
-    title: "QR Code Generator - Free Online Tool",
-    description: "Create and download custom QR codes instantly. Supports text, URLs, email, phone, and WiFi QR formats.",
-    url: "https://yourdomain.com/dashboard/qr-generator",
-    siteName: "MediaTools Pro",
+    title: "QR Code Generator - MultiTool",
+    description: "Create QR codes in seconds. Free, fast, and customizable.",
+    url: "https://multi-tool-website.dhanbyte.me/dashboard/qr-generator",
+    siteName: "MultiTool by Dhanbyte",
     images: [
       {
-        url: "https://yourdomain.com/og/qr-generator.png",
+        url: "https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819",
         width: 1200,
         height: 630,
-        alt: "QR Code Generator - MediaTools Pro"
-      }
+        alt: "QR Code Generator - MultiTool",
+      },
     ],
-    locale: "en_US",
-    type: "website"
+    type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Free QR Code Generator | MediaTools Pro",
-    description: "Generate custom QR codes for your data. Free, fast, and downloadable.",
-    images: ["https://yourdomain.com/og/qr-generator.png"]
+    title: "QR Code Generator",
+    description: "Free tool to create QR codes for links, messages, and more.",
+    images: ["https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"],
   },
-  metadataBase: new URL("https://yourdomain.com")
+  alternates: {
+    canonical: "https://multi-tool-website.dhanbyte.me/dashboard/qr-generator",
+  },
+  metadataBase: new URL("https://multi-tool-website.dhanbyte.me")
 }
+
+
 
 export default function QRGeneratorPage() {
   const [text, setText] = useState("")

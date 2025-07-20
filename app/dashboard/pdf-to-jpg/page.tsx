@@ -5,22 +5,41 @@ import { Loader2 } from 'lucide-react';
 
 import { Metadata } from "next"
 
-export const metadata: Metadata = {
-  title: "PDF to JPG Converter - MediaTools Pro",
-  description: "Convert PDF pages into high-quality JPG images quickly and easily using MediaTools Pro.",
-  keywords: ["PDF to JPG", "Convert PDF to Image", "PDF Image Extractor", "Online PDF Tools"],
+export const metadata = {
+  title: "PDF to JPG Converter | Convert PDF Pages to Images",
+  description: "Easily convert PDF files to high-quality JPG images. Fast, free, and works directly in your browser.",
+  keywords: [
+    "PDF to JPG",
+    "Convert PDF to image",
+    "PDF to JPG converter online",
+    "PDF to image free",
+    "Online PDF to JPG tool",
+  ],
   openGraph: {
-    title: "PDF to JPG Converter",
-    description: "Free online tool to convert PDF documents into JPG images.",
-    url: "https://dhananjay.me/dashboard/pdf-to-jpg",
-    images: ["/og-image.png"],
+    title: "PDF to JPG Converter Online",
+    description: "Convert your PDF documents into individual JPG images instantly. No signup required.",
+    url: "https://multi-tool-website.dhanbyte.me/dashboard/pdf-to-jpg",
+    siteName: "MultiTool by Dhanbyte",
+    images: [
+      {
+        url: "https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819",
+        width: 1200,
+        height: 630,
+        alt: "PDF to JPG - MultiTool",
+      },
+    ],
+    type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "PDF to JPG Converter",
-    description: "Convert PDF to JPG online — no installation needed.",
-    images: ["/og-image.png"],
+    title: "Free PDF to JPG Converter",
+    description: "Convert PDF pages to JPG images in seconds. High quality, free, and online.",
+    images: ["https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"],
   },
+  alternates: {
+    canonical: "https://multi-tool-website.dhanbyte.me/dashboard/pdf-to-jpg",
+  },
+  metadataBase: new URL("https://multi-tool-website.dhanbyte.me"),
 };
 
 

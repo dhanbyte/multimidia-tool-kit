@@ -30,46 +30,41 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 // app/dashboard/social-bio-generator/page.tsx
-
 export const metadata = {
-  title: "AI Social Media Bio Generator | Stand Out Online",
-  description: "Generate engaging and personalized social media bios for Instagram, Twitter, LinkedIn, TikTok, and more. Powered by AI. Free and fast!",
+  title: "Social Media Bio Generator | Create Engaging Bios Instantly",
+  description: "Generate creative bios for Instagram, Twitter, LinkedIn, and more. Powered by AI to match your vibe and audience.",
   keywords: [
-    "Social Media Bio Generator",
-    "Instagram Bio Maker",
-    "AI Bio Generator",
-    "Twitter Bio Generator",
-    "LinkedIn Bio Generator",
-    "TikTok Bio Creator",
-    "Custom Bio AI",
-    "Social Bio Tool",
-    "Free Bio Generator",
+    "Bio generator",
+    "Social media bio creator",
+    "Instagram bio generator",
+    "Twitter bio ideas",
+    "AI bio generator",
   ],
   openGraph: {
-    title: "AI Social Media Bio Generator | Stand Out Online",
-    description: "Create perfect social media bios with AI — fast, personalized, and platform-specific.",
-    url: "https://yourdomain.com/dashboard/social-bio-generator",
-    siteName: "YourAppName",
+    title: "AI Social Media Bio Generator",
+    description: "Generate engaging bios for all your profiles. Quick, creative, and free.",
+    url: "https://multi-tool-website.dhanbyte.me/dashboard/social-bio-generator",
+    siteName: "MultiTool by Dhanbyte",
     images: [
       {
-        url: "https://yourdomain.com/og/social-bio-generator.png",
+        url: "https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819",
         width: 1200,
         height: 630,
-        alt: "AI Social Bio Generator Preview",
+        alt: "Social Media Bio Generator - MultiTool",
       },
     ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI Social Media Bio Generator",
-    description: "Generate platform-specific social media bios instantly with AI.",
-    images: ["https://yourdomain.com/og/social-bio-generator.png"],
-    creator: "@yourTwitterHandle",
+    title: "AI Social Bio Generator",
+    description: "Stand out online with personalized, AI-powered social media bios. Generate now!",
+    images: ["https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"],
   },
   alternates: {
-    canonical: "https://yourdomain.com/dashboard/social-bio-generator",
+    canonical: "https://multi-tool-website.dhanbyte.me/dashboard/social-bio-generator",
   },
+  metadataBase: new URL("https://multi-tool-website.dhanbyte.me"),
 };
 
 

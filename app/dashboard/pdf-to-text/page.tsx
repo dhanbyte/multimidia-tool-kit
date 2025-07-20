@@ -25,44 +25,43 @@ import {
 } from "lucide-react"
 
 import { Metadata } from "next"
-import dynamic from "next/dynamic"
-
-export const metadata: Metadata = {
-  title: "PDF to Text Converter – Extract Text from PDF Online",
-  description:
-    "Use our free PDF to Text converter to extract plain text from any PDF document. Accurate, fast, no registration required.",
+export const metadata = {
+  title: "PDF to Text Converter | Extract Text from PDF Files",
+  description: "Convert your PDF documents to plain text with high accuracy. Works fast online in your browser.",
   keywords: [
-    "PDF to Text",
-    "Extract PDF text",
+    "PDF to text",
+    "Extract text from PDF",
     "PDF text converter",
-    "Online PDF extractor",
-    "Free PDF to text tool",
-    "PDF OCR",
-    "Convert PDF to plain text",
+    "Convert PDF to TXT",
+    "Online PDF text extraction",
   ],
   openGraph: {
-    title: "PDF to Text Converter – Extract Text from PDF Online",
-    description:
-      "Instantly extract text from PDF files with our fast and secure PDF to Text tool. No signup needed.",
-    url: "https://yourdomain.com/dashboard/pdf-to-text",
-    type: "website",
+    title: "PDF to Text Converter Online",
+    description: "Extract text from any PDF file easily. Free, fast, and secure conversion in your browser.",
+    url: "https://multi-tool-website.dhanbyte.me/dashboard/pdf-to-text",
+    siteName: "MultiTool by Dhanbyte",
     images: [
       {
-        url: "https://yourdomain.com/og/pdf-to-text.jpg",
+        url: "https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819",
         width: 1200,
         height: 630,
-        alt: "PDF to Text Converter Tool",
+        alt: "PDF to Text - MultiTool",
       },
     ],
+    type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "PDF to Text Converter – Extract Text from PDF Online",
-    description:
-      "Free and fast PDF to Text tool. Extract content from any PDF document in seconds.",
-    images: ["https://yourdomain.com/og/pdf-to-text.jpg"],
+    title: "Extract Text from PDF | Free PDF to Text Tool",
+    description: "Easily convert PDF files into plain text. Accurate and instant conversion with no sign up.",
+    images: ["https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"],
   },
-}
+  alternates: {
+    canonical: "https://multi-tool-website.dhanbyte.me/dashboard/pdf-to-text",
+  },
+  metadataBase: new URL("https://multi-tool-website.dhanbyte.me"),
+};
+
 
 export default function PDFToTextPage() {
   const [file, setFile] = useState<File | null>(null)

@@ -21,45 +21,41 @@ interface CompressedFile extends ExtendedFile {
   originalSize: number;
   id: string; // Unique ID for each file for easier management
 }
-
 export const metadata = {
-  title: "Image Compressor - Compress JPG, PNG, WebP & GIF Online",
-  description: "Compress images online without losing quality. Free, fast, and secure image compression tool for JPG, PNG, GIF, WebP formats. No sign-up required.",
+  title: "Online Image Compressor | Reduce Image Size Instantly",
+  description: "Compress images online without quality loss. Drag & drop JPEG, PNG, or WebP files and get optimized images fast.",
   keywords: [
-    "Image Compressor",
-    "Compress JPG Online",
-    "Compress PNG Online",
-    "Free Image Compression",
-    "Reduce Image Size",
-    "Compress WebP",
-    "GIF Optimizer",
-    "Online Image Optimization",
-    "Image Compression Tool",
-    "MediaTools Pro"
+    "Image compressor",
+    "Compress image online",
+    "Reduce image size",
+    "Online image optimizer",
+    "JPEG PNG WebP compressor",
   ],
   openGraph: {
-    title: "Free Image Compressor - Shrink Image Sizes Online | MediaTools Pro",
-    description: "Compress your JPG, PNG, WebP, and GIF images for free. Maintain quality while reducing size with our browser-based image compressor.",
-    url: "https://yourdomain.com/dashboard/image-compressor",
-    siteName: "MediaTools Pro",
+    title: "Online Image Compressor",
+    description: "Quickly compress your images without losing quality. Fast, secure, and free.",
+    url: "https://multi-tool-website.dhanbyte.me/dashboard/image-compressor",
+    siteName: "MultiTool by Dhanbyte",
     images: [
       {
-        url: "https://yourdomain.com/og/image-compressor.png",
+        url: "https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819",
         width: 1200,
         height: 630,
-        alt: "Free Image Compressor - Shrink Image Sizes Online",
-      }
+        alt: "Image Compressor - MultiTool",
+      },
     ],
-    locale: "en_US",
-    type: "website"
+    type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Image Compressor - Reduce Image File Size Online",
-    description: "Free and fast image compression for JPG, PNG, WebP, and GIF. No account needed. Just drag and drop!",
-    images: ["https://yourdomain.com/og/image-compressor.png"]
+    title: "Free Image Compressor | Optimize JPEG, PNG, WebP",
+    description: "Reduce file size of your images with our online image compressor tool.",
+    images: ["https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"],
   },
-  metadataBase: new URL("https://yourdomain.com")
+  alternates: {
+    canonical: "https://multi-tool-website.dhanbyte.me/dashboard/image-compressor",
+  },
+  metadataBase: new URL("https://multi-tool-website.dhanbyte.me"),
 };
 
 export default function ImageCompressorPage() {
