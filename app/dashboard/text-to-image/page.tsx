@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     "text to image",
     "perchance text to image",
     "chương trình text to image ...",
-    "image to text ai"
+    "image to text ai",
     "generate images from text",
     "AI image generator online",
     "free image compressor",
