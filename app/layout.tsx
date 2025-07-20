@@ -50,6 +50,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="icon" type="image/png" href="https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819" />
+
         {/* ✅ Google Analytics script */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-CSRTEPL9GN"></script>
         <script
