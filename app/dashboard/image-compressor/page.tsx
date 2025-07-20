@@ -1,5 +1,4 @@
 // app/dashboard/image-compressor/page.tsx
-"use client";
 
 import { useState, useCallback, useEffect } from "react"; // Added useEffect for cleanup
 import { useDropzone } from "react-dropzone";
