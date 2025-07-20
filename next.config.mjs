@@ -1,6 +1,7 @@
 // next.config.mjs
 
-export default {
+/** @type {import('next').NextConfig} */
+const config = {
   async redirects() {
     return [
       {
@@ -16,4 +17,19 @@ export default {
       },
     ];
   },
+
+  async rewrites() {
+    return [
+      {
+        source: '/sitemap.xml',
+        destination: '/api/sitemap',
+      },
+      {
+        source: '/robots.txt',
+        destination: '/api/robots',
+      },
+    ];
+  },
 };
+
+export default config;
