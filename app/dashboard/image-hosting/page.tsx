@@ -38,7 +38,7 @@ export const metadata = {
   metadataBase: new URL("https://multi-tool-website.dhanbyte.me"),
 };
 
-const ImageHostingPages = dynamic(() => import("@/components/image-hosting"), {
+const ImageHostingPages = dynamic(() => import("../../../components/image-hosting"), {
   ssr: true,
   loading: () => (
     <div className="flex justify-center items-center h-[50vh]">

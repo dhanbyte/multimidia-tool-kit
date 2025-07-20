@@ -40,7 +40,7 @@ export const metadata: Metadata = {
 }
 
 
-const QRGeneratorPages = dynamic(() => import("@/components/qr-genrator"), {
+const QRGeneratorPages = dynamic(() => import("../../../components/qr-genrator"), {
   ssr: true,
   loading: () => (
     <div className="flex justify-center items-center h-[50vh]">

@@ -122,7 +122,7 @@ export default function SocialBioGeneratorPage() {
     setCopiedBio(false); // Reset copy status
 
     try {
-      const bio = await generateBioWithAI({ keywords, tone, platform, length });
+      const bio = await generateBioWithAIs({ keywords, tone, platform, length });
       setGeneratedBio(bio);
       toast({
         title: "Bio Generated!",

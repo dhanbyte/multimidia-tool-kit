@@ -42,7 +42,7 @@ export const metadata: Metadata = {
 };
 
 // ✅ Use correct client component
-const TextToImageClient = dynamic(() => import("@/components/TextToImage"), {
+const TextToImageClient = dynamic(() => import("../../../components/text-to-image"), {
   ssr: true,
   loading: () => (
     <div className="flex justify-center items-center h-[50vh]">

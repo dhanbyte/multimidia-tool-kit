@@ -1,3 +1,4 @@
+// app/api/sitemap/route.ts
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -15,20 +16,15 @@ export async function GET() {
     "/dashboard/voice-cleaner",
   ];
 
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      ${routes
-        .map(
-          (route) => `
-        <url>
-          <loc>${baseUrl}${route}</loc>
-        </url>`
-        )
-        .join("")}
-    </urlset>
-  `;
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>` +
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">` +
+    routes.map((route) => {
+      return `<url><loc>${baseUrl}${route}</loc></url>`;
+    }).join("") +
+    `</urlset>`;
 
-  return new NextResponse(sitemap, {
+  return new NextResponse(xml, {
+    status: 200,
     headers: {
       "Content-Type": "application/xml",
     },

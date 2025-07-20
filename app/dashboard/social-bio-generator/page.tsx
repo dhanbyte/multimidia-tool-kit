@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://multi-tool-website.dhanbyte.me"),
 };
 
-const SocialBioGeneratorClient = dynamic(() => import("@/components/social-bio-generator"), {
+const SocialBioGeneratorClient = dynamic(() => import("../../../components/social-bio-generator"), {
   ssr: true,
   loading: () => (
     <div className="flex justify-center items-center h-[50vh]">

@@ -37,7 +37,7 @@ export const metadata = {
   },
   metadataBase: new URL("https://multi-tool-website.dhanbyte.me"),
 };
-const ImageCompressorPages = dynamic(() => import("@/components/image-compressor"), {
+const ImageCompressorPages = dynamic(() => import("../../../components/image-compressor"), {
   ssr: true,
   loading: () => (
     <div className="flex justify-center items-center h-[50vh]">

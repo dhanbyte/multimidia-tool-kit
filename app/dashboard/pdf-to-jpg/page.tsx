@@ -40,7 +40,7 @@ export const metadata = {
   metadataBase: new URL("https://multi-tool-website.dhanbyte.me"),
 };
 
-const DynamicPdfToJpgConvert = dynamic(() => import("@/components/PdfToJpgConverterClient"), {
+const DynamicPdfToJpgConvert = dynamic(() => import("../../../components/PdfToJpgConverterClient"), {
   ssr: true,
   loading: () => (
     <div className="flex justify-center items-center h-[50vh]">
