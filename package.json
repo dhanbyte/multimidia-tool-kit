@@ -7,9 +7,9 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-   "postinstall": "npm run copy-pdf-worker && npx shadcn-ui@latest add button card input separator toast",
-  "copy-pdf-worker": "cpy node_modules/pdfjs-dist/build/pdf.worker.min.mjs public"
-},
+    "postinstall": "npm run copy-pdf-worker && npx shadcn-ui@latest add button card input separator toast",
+    "copy-pdf-worker": "cpy node_modules/pdfjs-dist/build/pdf.worker.min.mjs public"
+  },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "latest",
@@ -40,7 +40,6 @@
     "@radix-ui/react-toggle": "latest",
     "@radix-ui/react-toggle-group": "latest",
     "@radix-ui/react-tooltip": "latest",
-    "@vercel/analytics": "^1.5.0",
     "autoprefixer": "^10.4.20",
     "axios": "^1.10.0",
     "browser-image-compression": "^2.0.2",
