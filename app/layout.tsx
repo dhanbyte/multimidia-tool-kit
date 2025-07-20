@@ -1,8 +1,9 @@
-import "./globals.css"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+// app/layout.tsx
+import "./globals.css";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Multi Tool Website",
@@ -12,32 +13,22 @@ export const metadata: Metadata = {
       "https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"
     ]
   }
-}
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
+        {/* ✅ Google Analytics Tag */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-CSRTEPL9GN"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-
-gtag('config', 'G-CSRTEPL9GN');
-</script>
-        {/* ✅ Favicon */}
-        <link
-          rel="icon"
-          type="image/png"
-          href="https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"
-        />
-
-        {/* ✅ Open Graph image */}
-        <meta
-          property="og:image"
-          content="https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"
-        />
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-CSRTEPL9GN');
+          `
+        }} />
 
         {/* ✅ Google Tag Manager */}
         <script dangerouslySetInnerHTML={{
@@ -49,9 +40,22 @@ gtag('config', 'G-CSRTEPL9GN');
             })(window,document,'script','dataLayer','GTM-TJBS3J62');
           `
         }} />
+
+        {/* ✅ Favicon */}
+        <link
+          rel="icon"
+          type="image/png"
+          href="https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"
+        />
+
+        {/* ✅ OG Image (Fallback) */}
+        <meta
+          property="og:image"
+          content="https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"
+        />
       </head>
       <body className={inter.className}>
-        {/* ✅ GTM <noscript> for noscript support */}
+        {/* ✅ GTM noscript fallback */}
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-TJBS3J62"
@@ -64,5 +68,5 @@ gtag('config', 'G-CSRTEPL9GN');
         {children}
       </body>
     </html>
-  )
+  );
 }
