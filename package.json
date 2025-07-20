@@ -7,9 +7,9 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-    "postinstall": "npm run copy-pdf-worker && npx shadcn-ui@latest add button card input separator toast",
-    "copy-pdf-worker": "cp node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/pdf.worker.min.mjs"
-  },
+   "postinstall": "npm run copy-pdf-worker && npx shadcn-ui@latest add button card input separator toast",
+  "copy-pdf-worker": "cpy node_modules/pdfjs-dist/build/pdf.worker.min.mjs public"
+},
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "latest",
@@ -62,7 +62,6 @@
     "qrcode": "^1.5.4",
     "qrcode.react": "^4.2.0",
     "react": "^19.1.0",
-    "react-day-picker": "8.10.1",
     "react-dom": "^19.1.0",
     "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.54.1",
@@ -86,6 +85,7 @@
     "@types/react-speech-recognition": "^3.9.6",
     "@types/uuid": "^10.0.0",
     "copy-file": "^11.0.0",
+    "cpy-cli": "^5.0.0",
     "cross-env": "^7.0.3",
     "eslint": "^8",
     "eslint-config-next": "15.2.4",
