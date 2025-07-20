@@ -26,6 +26,46 @@ import {
   Info,
 } from "lucide-react"
 
+export const metadata = {
+  title: "Free QR Code Generator - Generate QR for Text, URL, Email, WiFi",
+  description: "Generate high-quality QR codes for plain text, URLs, emails, phone numbers, and WiFi settings. Free, fast, and easy to use with instant preview and download.",
+  keywords: [
+    "QR Code Generator",
+    "Generate QR",
+    "Text to QR",
+    "QR for URL",
+    "Free QR Code Creator",
+    "QR Code for WiFi",
+    "QR Code Maker",
+    "Online QR Generator",
+    "QR Code Tool",
+    "Download QR Code"
+  ],
+  openGraph: {
+    title: "QR Code Generator - Free Online Tool",
+    description: "Create and download custom QR codes instantly. Supports text, URLs, email, phone, and WiFi QR formats.",
+    url: "https://yourdomain.com/dashboard/qr-generator",
+    siteName: "MediaTools Pro",
+    images: [
+      {
+        url: "https://yourdomain.com/og/qr-generator.png",
+        width: 1200,
+        height: 630,
+        alt: "QR Code Generator - MediaTools Pro"
+      }
+    ],
+    locale: "en_US",
+    type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Free QR Code Generator | MediaTools Pro",
+    description: "Generate custom QR codes for your data. Free, fast, and downloadable.",
+    images: ["https://yourdomain.com/og/qr-generator.png"]
+  },
+  metadataBase: new URL("https://yourdomain.com")
+}
+
 export default function QRGeneratorPage() {
   const [text, setText] = useState("")
   const [qrType, setQrType] = useState("text")

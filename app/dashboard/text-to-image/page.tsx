@@ -13,6 +13,7 @@ import { Progress } from "@/components/ui/progress"
 import { useToast } from "@/hooks/use-toast"
 import Image from 'next/image'; // Import the Next.js Image component
 
+
 import {
   ImageIcon,
   Wand2,
@@ -27,6 +28,48 @@ import {
   Zap,
   Eye,
 } from "lucide-react"
+// app/text-to-image/page.tsx
+
+export const metadata = {
+  title: "AI Text to Image Generator | Create Art from Words",
+  description:
+    "Generate stunning AI images from text descriptions using our powerful Text to Image tool. Choose styles, resolutions, and download high-quality artwork instantly.",
+  keywords: [
+    "AI image generator",
+    "text to image",
+    "AI art tool",
+    "generate images from text",
+    "AI image generator online",
+    "free AI art creator",
+    "AI image styles",
+  ],
+  openGraph: {
+    title: "AI Text to Image Generator",
+    description:
+      "Turn your ideas into AI-generated art. Choose styles like realistic, anime, or abstract. Download high-res images instantly.",
+    url: "https://multi-tool.dhanbyte.com/text-to-image",
+    siteName: "MultiTool by Dhanbyte",
+    images: [
+      {
+        url: "https://multi-tool.dhanbyte.com/og/text-to-image.png", // Replace with your OG image path
+        width: 1200,
+        height: 630,
+        alt: "AI Text to Image - MultiTool",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AI Text to Image Generator",
+    description:
+      "Create stunning images with AI using your text prompts. Multiple styles and HD resolutions supported.",
+    images: ["https://multi-tool.dhanbyte.com/og/text-to-image.png"],
+  },
+  alternates: {
+    canonical: "https://multi-tool.dhanbyte.com/text-to-image",
+  },
+};
 
 export default function TextToImagePage() {
   const [prompt, setPrompt] = useState("")

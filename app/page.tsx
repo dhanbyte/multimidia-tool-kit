@@ -151,7 +151,7 @@ export default function HomePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="container py-24 md:py-32">
+      <section className="container py-10 md:py-8">
         <div className="mx-auto max-w-4xl text-center">
           <Badge variant="secondary" className="mb-6">
             <Star className="mr-1 h-3 w-3" />
@@ -182,21 +182,7 @@ export default function HomePage() {
       </section>
 
       {/* Stats Section */}
-      <section className="border-y bg-muted/30">
-        <div className="container py-12">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                  <stat.icon className="h-6 w-6 text-primary" />
-                </div>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* Tools Grid */}
       <section className="container py-24">
@@ -280,6 +266,21 @@ export default function HomePage() {
               Access All Tools Free
             </Button>
           </Link>
+        </div>
+      </section>
+            <section className="border-y bg-muted/30">
+        <div className="container py-12">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                  <stat.icon className="h-6 w-6 text-primary" />
+                </div>
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <div className="text-sm text-muted-foreground">{stat.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

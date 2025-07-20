@@ -22,6 +22,46 @@ interface CompressedFile extends ExtendedFile {
   id: string; // Unique ID for each file for easier management
 }
 
+export const metadata = {
+  title: "Image Compressor - Compress JPG, PNG, WebP & GIF Online",
+  description: "Compress images online without losing quality. Free, fast, and secure image compression tool for JPG, PNG, GIF, WebP formats. No sign-up required.",
+  keywords: [
+    "Image Compressor",
+    "Compress JPG Online",
+    "Compress PNG Online",
+    "Free Image Compression",
+    "Reduce Image Size",
+    "Compress WebP",
+    "GIF Optimizer",
+    "Online Image Optimization",
+    "Image Compression Tool",
+    "MediaTools Pro"
+  ],
+  openGraph: {
+    title: "Free Image Compressor - Shrink Image Sizes Online | MediaTools Pro",
+    description: "Compress your JPG, PNG, WebP, and GIF images for free. Maintain quality while reducing size with our browser-based image compressor.",
+    url: "https://yourdomain.com/dashboard/image-compressor",
+    siteName: "MediaTools Pro",
+    images: [
+      {
+        url: "https://yourdomain.com/og/image-compressor.png",
+        width: 1200,
+        height: 630,
+        alt: "Free Image Compressor - Shrink Image Sizes Online",
+      }
+    ],
+    locale: "en_US",
+    type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Image Compressor - Reduce Image File Size Online",
+    description: "Free and fast image compression for JPG, PNG, WebP, and GIF. No account needed. Just drag and drop!",
+    images: ["https://yourdomain.com/og/image-compressor.png"]
+  },
+  metadataBase: new URL("https://yourdomain.com")
+};
+
 export default function ImageCompressorPage() {
   const [files, setFiles] = useState<ExtendedFile[]>([]);
   const [compressedFiles, setCompressedFiles] = useState<CompressedFile[]>([]);

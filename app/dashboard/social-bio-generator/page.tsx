@@ -29,6 +29,49 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 // Import useSpeechRecognition and SpeechRecognition for voice input
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
+// app/dashboard/social-bio-generator/page.tsx
+
+export const metadata = {
+  title: "AI Social Media Bio Generator | Stand Out Online",
+  description: "Generate engaging and personalized social media bios for Instagram, Twitter, LinkedIn, TikTok, and more. Powered by AI. Free and fast!",
+  keywords: [
+    "Social Media Bio Generator",
+    "Instagram Bio Maker",
+    "AI Bio Generator",
+    "Twitter Bio Generator",
+    "LinkedIn Bio Generator",
+    "TikTok Bio Creator",
+    "Custom Bio AI",
+    "Social Bio Tool",
+    "Free Bio Generator",
+  ],
+  openGraph: {
+    title: "AI Social Media Bio Generator | Stand Out Online",
+    description: "Create perfect social media bios with AI — fast, personalized, and platform-specific.",
+    url: "https://yourdomain.com/dashboard/social-bio-generator",
+    siteName: "YourAppName",
+    images: [
+      {
+        url: "https://yourdomain.com/og/social-bio-generator.png",
+        width: 1200,
+        height: 630,
+        alt: "AI Social Bio Generator Preview",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AI Social Media Bio Generator",
+    description: "Generate platform-specific social media bios instantly with AI.",
+    images: ["https://yourdomain.com/og/social-bio-generator.png"],
+    creator: "@yourTwitterHandle",
+  },
+  alternates: {
+    canonical: "https://yourdomain.com/dashboard/social-bio-generator",
+  },
+};
+
 
 // Placeholder for AI generation (replace with actual API call)
 const generateBioWithAI = async (data: {

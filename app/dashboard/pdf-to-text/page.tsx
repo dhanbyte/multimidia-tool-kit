@@ -24,6 +24,46 @@ import {
   Search,
 } from "lucide-react"
 
+import { Metadata } from "next"
+import dynamic from "next/dynamic"
+
+export const metadata: Metadata = {
+  title: "PDF to Text Converter – Extract Text from PDF Online",
+  description:
+    "Use our free PDF to Text converter to extract plain text from any PDF document. Accurate, fast, no registration required.",
+  keywords: [
+    "PDF to Text",
+    "Extract PDF text",
+    "PDF text converter",
+    "Online PDF extractor",
+    "Free PDF to text tool",
+    "PDF OCR",
+    "Convert PDF to plain text",
+  ],
+  openGraph: {
+    title: "PDF to Text Converter – Extract Text from PDF Online",
+    description:
+      "Instantly extract text from PDF files with our fast and secure PDF to Text tool. No signup needed.",
+    url: "https://yourdomain.com/dashboard/pdf-to-text",
+    type: "website",
+    images: [
+      {
+        url: "https://yourdomain.com/og/pdf-to-text.jpg",
+        width: 1200,
+        height: 630,
+        alt: "PDF to Text Converter Tool",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PDF to Text Converter – Extract Text from PDF Online",
+    description:
+      "Free and fast PDF to Text tool. Extract content from any PDF document in seconds.",
+    images: ["https://yourdomain.com/og/pdf-to-text.jpg"],
+  },
+}
+
 export default function PDFToTextPage() {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
@@ -223,6 +263,7 @@ This tool can extract text from any PDF document quickly and accurately. Perfect
     const i = Math.floor(Math.log(bytes) / Math.log(k))
     return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
   }
+  
 
   return (
     <div className="space-y-6">

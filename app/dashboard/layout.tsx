@@ -1,4 +1,3 @@
-// app/dashboard/layout.tsx
 "use client"
 
 import type React from "react"
@@ -18,24 +17,23 @@ import {
   Upload,
   ImageIcon,
   FileText,
-  FileImage, // PDF to JPG के लिए नया आइकन
+  FileImage,
   Search,
   Menu,
   Home,
-  Sparkles, // Social Media Bio Generator के लिए
-  Image as LucideImage, // Image Compressor के लिए
+  Sparkles,
+  Image as LucideImage,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-
 const tools = [
-  // --- CORE TOOLS ---
   {
     name: "Image Compressor",
     href: "/dashboard/image-compressor",
     icon: LucideImage,
     color: "text-pink-600 dark:text-pink-400",
     bgColor: "bg-pink-50 dark:bg-pink-950/20",
+    keywords: ["compress", "image", "photo", "jpg", "png", "reduce", "resize"],
   },
   {
     name: "Social Media Bio Generator",
@@ -43,6 +41,7 @@ const tools = [
     icon: Sparkles,
     color: "text-yellow-600 dark:text-yellow-500",
     bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
+    keywords: ["bio", "social", "profile", "twitter", "instagram", "facebook", "linkedin"],
   },
   {
     name: "QR Generator",
@@ -50,6 +49,7 @@ const tools = [
     icon: QrCode,
     color: "text-blue-600 dark:text-blue-400",
     bgColor: "bg-blue-50 dark:bg-blue-950/20",
+    keywords: ["qr", "barcode", "code", "scan", "generate"],
   },
   {
     name: "Image Hosting",
@@ -57,6 +57,7 @@ const tools = [
     icon: Upload,
     color: "text-green-600 dark:text-green-400",
     bgColor: "bg-green-50 dark:bg-green-950/20",
+    keywords: ["image", "hosting", "upload", "share", "photo"],
   },
   {
     name: "Text to Image",
@@ -64,6 +65,7 @@ const tools = [
     icon: ImageIcon,
     color: "text-purple-600 dark:text-purple-400",
     bgColor: "bg-purple-50 dark:bg-purple-950/20",
+    keywords: ["text", "to", "image", "ai", "generate", "photo"],
   },
   {
     name: "PDF to Text",
@@ -71,15 +73,16 @@ const tools = [
     icon: FileText,
     color: "text-orange-600 dark:text-orange-400",
     bgColor: "bg-orange-50 dark:bg-orange-950/20",
+    keywords: ["pdf", "text", "extract", "convert", "file"],
   },
   {
     name: "PDF to JPG",
     href: "/dashboard/pdf-to-jpg",
-    icon: FileImage, // FileImage आइकन का उपयोग करें
-    color: "text-teal-600 dark:text-teal-500", // मैंने इसे 'yellow' से 'teal' में बदल दिया है ताकि पिछले टूल से अलग दिखे।
+    icon: FileImage,
+    color: "text-teal-600 dark:text-teal-500",
     bgColor: "bg-teal-50 dark:bg-teal-950/20",
+    keywords: ["pdf", "jpg", "image", "convert", "extract", "photo"],
   },
-  // आप यहां और टूल्स जोड़ सकते हैं
 ]
 
 export default function DashboardLayout({
@@ -92,8 +95,14 @@ export default function DashboardLayout({
   const pathname = usePathname()
 
   useEffect(() => {
-    if (searchQuery) {
-      const filtered = tools.filter((tool) => tool.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    const query = searchQuery.toLowerCase()
+    if (query) {
+      const filtered = tools.filter((tool) => {
+        return (
+          tool.name.toLowerCase().includes(query) ||
+          tool.keywords?.some((keyword) => keyword.toLowerCase().includes(query))
+        )
+      })
       setFilteredTools(filtered)
     } else {
       setFilteredTools(tools)
@@ -109,7 +118,7 @@ export default function DashboardLayout({
       <div className="flex h-16 items-center border-b px-6">
         <Link href="/" className="flex items-center space-x-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
-            <Download className="h-4 w-4 text-white" /> {/* Logo Icon */}
+            <Download className="h-4 w-4 text-white" />
           </div>
           <span className="font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             MediaTools Pro
@@ -193,8 +202,8 @@ export default function DashboardLayout({
                 className="pl-10 pr-12"
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                <Suspense fallback={null}> {/* Wrap VoiceSearch in Suspense */}
-                    <VoiceSearch onResult={handleVoiceResult} />
+                <Suspense fallback={null}>
+                  <VoiceSearch onResult={handleVoiceResult} />
                 </Suspense>
               </div>
             </div>

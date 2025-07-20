@@ -24,6 +24,46 @@ import {
   Cloud,
 } from "lucide-react"
 
+export const metadata = {
+  title: "Free Image Hosting - Upload & Share Images Instantly",
+  description: "Upload and host images for free. Get shareable image URLs, support for JPG, PNG, GIF, and more. No signup needed. Fast and secure CDN delivery.",
+  keywords: [
+    "Image Hosting",
+    "Free Image Uploader",
+    "Upload Images Online",
+    "Shareable Image Links",
+    "Fast Image Hosting",
+    "Host Images JPG PNG GIF",
+    "Drag and Drop Image Upload",
+    "CDN Image Hosting",
+    "Image Hosting Tool",
+    "Online Image Storage"
+  ],
+  openGraph: {
+    title: "Free Image Hosting Tool | Upload and Share Images Online",
+    description: "Host and share images with custom URLs. Supports JPG, PNG, GIF, and more. Easy and fast uploads.",
+    url: "https://yourdomain.com/dashboard/image-hosting",
+    siteName: "MediaTools Pro",
+    images: [
+      {
+        url: "https://yourdomain.com/og/image-hosting.png",
+        width: 1200,
+        height: 630,
+        alt: "Free Image Hosting | MediaTools Pro"
+      }
+    ],
+    locale: "en_US",
+    type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Free Image Hosting - Upload Images with Shareable URLs",
+    description: "Fast and free image hosting service. Drag, drop, and share your images instantly.",
+    images: ["https://yourdomain.com/og/image-hosting.png"]
+  },
+  metadataBase: new URL("https://yourdomain.com")
+}
+
 export default function ImageHostingPage() {
   const [files, setFiles] = useState<File[]>([])
   const [loading, setLoading] = useState(false)

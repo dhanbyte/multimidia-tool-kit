@@ -1,15 +1,33 @@
-// app/dashboard/pdf-to-jpg/page.tsx
-"use client"; // यह आवश्यक है!
+"use client";
 
 import dynamic from 'next/dynamic';
-import { Loader2 } from 'lucide-react'; // केवल Loader2 की आवश्यकता है
+import { Loader2 } from 'lucide-react';
 
-// Dynamic import for the PdfToJpgConverterClient component
-// ssr: false का मतलब है कि यह कंपोनेंट सर्वर-साइड रेंडर नहीं होगा।
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "PDF to JPG Converter - MediaTools Pro",
+  description: "Convert PDF pages into high-quality JPG images quickly and easily using MediaTools Pro.",
+  keywords: ["PDF to JPG", "Convert PDF to Image", "PDF Image Extractor", "Online PDF Tools"],
+  openGraph: {
+    title: "PDF to JPG Converter",
+    description: "Free online tool to convert PDF documents into JPG images.",
+    url: "https://dhananjay.me/dashboard/pdf-to-jpg",
+    images: ["/og-image.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PDF to JPG Converter",
+    description: "Convert PDF to JPG online — no installation needed.",
+    images: ["/og-image.png"],
+  },
+};
+
+
 const DynamicPdfToJpgConverter = dynamic(
-  () => import('@/components/PdfToJpgConverterClient'), // नई क्लाइंट-साइड फ़ाइल को इम्पोर्ट करें
+  () => import('@/components/PdfToJpgConverterClient'),
   {
-    ssr: false, // यह key है!
+    ssr: false,
     loading: () => (
       <div className="flex justify-center items-center h-full min-h-[50vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -19,7 +37,15 @@ const DynamicPdfToJpgConverter = dynamic(
   }
 );
 
-// डिफ़ॉल्ट एक्सपोर्ट जो dynamically लोडेड कंपोनेंट को रेंडर करता है
 export default function PdfToJpgPage() {
-  return <DynamicPdfToJpgConverter />;
+  return (
+    <div className="max-w-3xl mx-auto px-4 py-10">
+      <h1 className="text-3xl md:text-4xl font-bold mb-4">Free PDF to JPG Converter</h1>
+      <p className="text-muted-foreground mb-8 text-base">
+        Instantly convert your PDF files into high-quality JPG images. No sign-up required – fast, secure, and 100% free.
+      </p>
+
+      <DynamicPdfToJpgConverter />
+    </div>
+  );
 }
