@@ -9,6 +9,10 @@ export const metadata = {
   keywords: [
     "PDF to JPG",
     "Convert PDF to image",
+    "convert tiff image to pdf",
+    "how to convert image to pdf on...",
+    "convert a pdf to an image",
+    "how to convert pdf in image",
     "PDF to JPG converter online",
     "PDF to image free",
     "Online PDF to JPG tool",

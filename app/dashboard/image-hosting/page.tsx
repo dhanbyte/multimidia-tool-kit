@@ -5,10 +5,14 @@ export const metadata = {
   title: "Free Image Hosting | Upload & Share Images Instantly",
   description: "Upload and share images with permanent links. No signup required. Fast, reliable, and free image hosting.",
   keywords: [
-    "Image hosting",
+    "web hosting images",
     "Free image upload",
-    "Share images online",
+    "	temporary image hosting",
+    "hosta images",
+    "	anon image hosting",
+    "hh image host",
     "Permanent image links",
+    "anonymous image host",
     "Image hosting without signup",
   ],
   openGraph: {

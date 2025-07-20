@@ -7,9 +7,14 @@ export const metadata = {
   keywords: [
     "Image compressor",
     "Compress image online",
-    "Reduce image size",
-    "Online image optimizer",
-    "JPEG PNG WebP compressor",
+    "image compressor sizer",
+    "free image compressor",
+    "image compressor to 50kb",
+    "discord images compressor site",
+    "image compressor tinify",
+    "image compressor sizer",
+    "discord images compressor site",
+    "image compressor tinify",
   ],
   openGraph: {
     title: "Online Image Compressor",

@@ -9,6 +9,12 @@ export const metadata: Metadata = {
     "QR code generator",
     "free QR code tool",
     "create QR codes",
+    "adobe qr code generator",
+    "qr code generator canva",
+    "generate qr code for url",
+    "qr code generator monkey",
+    "generate qr code for wifi",
+    "QR code maker",
     "custom QR codes",
     "online QR code maker"
   ],

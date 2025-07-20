@@ -10,7 +10,11 @@ export const metadata: Metadata = {
     "Extract text from PDF",
     "PDF text converter",
     "Convert PDF to TXT",
+    "how to convert a text file to ...",
+    "how to convert a text file to ...",
+    "convert text messages to pdf",
     "Online PDF text extraction",
+    "convert from rich text to pdf"
   ],
   openGraph: {
     title: "PDF to Text Converter Online",

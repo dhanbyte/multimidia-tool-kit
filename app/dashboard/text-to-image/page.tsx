@@ -8,11 +8,13 @@ export const metadata: Metadata = {
   keywords: [
     "AI image generator",
     "text to image",
-    "AI art tool",
+    "perchance text to image",
+    "chương trình text to image ...",
+    "image to text ai"
     "generate images from text",
     "AI image generator online",
-    "free AI art creator",
-    "AI image styles",
+    "free image compressor",
+    "images to text ai"
   ],
   openGraph: {
     title: "AI Text to Image Generator",
@@ -24,7 +26,7 @@ export const metadata: Metadata = {
         url: "https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819",
         width: 1200,
         height: 630,
-        alt: "AI Text to Image - MultiTool",
+        alt: "AI Text to Image - MultiTool,images to text ai",
       },
     ],
     type: "website",
