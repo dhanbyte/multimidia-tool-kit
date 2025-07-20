@@ -1,7 +1,6 @@
 
 import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
-
 import { Metadata } from "next"
 
 export const metadata = {
@@ -41,29 +40,25 @@ export const metadata = {
   metadataBase: new URL("https://multi-tool-website.dhanbyte.me"),
 };
 
-
-const DynamicPdfToJpgConverter = dynamic(
-  () => import('@/components/PdfToJpgConverterClient'),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex justify-center items-center h-full min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Loading PDF Converter...</span>
-      </div>
-    ),
-  }
-);
+const DynamicPdfToJpgConvert = dynamic(() => import("@/components/PdfToJpgConverterClient"), {
+  ssr: true,
+  loading: () => (
+    <div className="flex justify-center items-center h-[50vh]">
+      <Loader2 className="animate-spin h-6 w-6 text-primary" />
+      <span className="ml-2">Loading PDF Tool...</span>
+    </div>
+  ),
+});
 
 export default function PdfToJpgPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
       <h1 className="text-3xl md:text-4xl font-bold mb-4">Free PDF to JPG Converter</h1>
       <p className="text-muted-foreground mb-8 text-base">
-        Instantly convert your PDF files into high-quality JPG images. No sign-up required – fast, secure, and 100% free.
+        Instantly convert your PDF files into high-quality JPG images. No sign-up required  fast, secure, and 100% free.
       </p>
 
-      <DynamicPdfToJpgConverter />
+      <DynamicPdfToJpgConvert />
     </div>
   );
 }
