@@ -10,42 +10,58 @@ export const metadata: Metadata = {
   description: "Free tools like PDF, JPG, AI utilities and more",
   openGraph: {
     images: [
-      "https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"
-    ]
-  }
+      "https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819",
+    ],
+  },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <head>
         {/* ✅ Google Analytics Tag */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-CSRTEPL9GN"></script>
-        <script dangerouslySetInnerHTML={{
-          __html: `
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-CSRTEPL9GN"
+        ></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', 'G-CSRTEPL9GN');
-          `
-        }} />
+          `,
+          }}
+        />
 
         {/* ✅ Google Tag Manager */}
-        <script dangerouslySetInnerHTML={{
-          __html: `
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
             (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
             j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
             })(window,document,'script','dataLayer','GTM-TJBS3J62');
-          `
-        }} />
+          `,
+          }}
+        />
 
         {/* ✅ Favicon */}
         <link
           rel="icon"
           type="image/png"
           href="https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"
+        />
+        <title>Free PDF, Image, Audio Tools | dhanbyte.me</title>
+        <meta
+          name="description"
+          content="Convert PDF, Compress images, Generate text — all tools in one place at dhanbyte.me."
         />
 
         {/* ✅ OG Image (Fallback) */}

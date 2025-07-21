@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "PDF to Text Converter Online",
     description: "Extract text from any PDF file easily. Free, fast, and secure conversion in your browser.",
-    url: "https://multi-tool-website.dhanbyte.me/dashboard/pdf-to-text",
+    url: "https://dhanbyte.me/dashboard/pdf-to-text",
     siteName: "MultiTool by Dhanbyte",
     images: [
       {
@@ -38,9 +38,9 @@ export const metadata: Metadata = {
     images: ["https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"],
   },
   alternates: {
-    canonical: "https://multi-tool-website.dhanbyte.me/dashboard/pdf-to-text",
+    canonical: "https://dhanbyte.me/dashboard/pdf-to-text",
   },
-  metadataBase: new URL("https://multi-tool-website.dhanbyte.me"),
+  metadataBase: new URL("https://dhanbyte.me"),
 };
 
 const PDFToTextPages = dynamic(() => import("../../../components/pdf-to-text"), {

@@ -18,7 +18,7 @@ export const metadata = {
   openGraph: {
     title: "Image Hosting Platform",
     description: "Upload and share your images online for free with permanent URLs and instant access.",
-    url: "https://multi-tool-website.dhanbyte.me/dashboard/image-hosting",
+    url: "https://dhanbyte.me/dashboard/image-hosting",
     siteName: "MultiTool by Dhanbyte",
     images: [
       {
@@ -37,9 +37,9 @@ export const metadata = {
     images: ["https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"],
   },
   alternates: {
-    canonical: "https://multi-tool-website.dhanbyte.me/dashboard/image-hosting",
+    canonical: "https://dhanbyte.me/dashboard/image-hosting",
   },
-  metadataBase: new URL("https://multi-tool-website.dhanbyte.me"),
+  metadataBase: new URL("https://dhanbyte.me"),
 };
 
 const ImageHostingPages = dynamic(() => import("../../../components/image-hosting"), {

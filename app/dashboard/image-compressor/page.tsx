@@ -19,7 +19,7 @@ export const metadata = {
   openGraph: {
     title: "Online Image Compressor",
     description: "Quickly compress your images without losing quality. Fast, secure, and free.",
-    url: "https://multi-tool-website.dhanbyte.me/dashboard/image-compressor",
+    url: "https://dhanbyte.me/dashboard/image-compressor",
     siteName: "MultiTool by Dhanbyte",
     images: [
       {
@@ -38,9 +38,9 @@ export const metadata = {
     images: ["https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"],
   },
   alternates: {
-    canonical: "https://multi-tool-website.dhanbyte.me/dashboard/image-compressor",
+    canonical: "https://dhanbyte.me/dashboard/image-compressor",
   },
-  metadataBase: new URL("https://multi-tool-website.dhanbyte.me"),
+  metadataBase: new URL("https://dhanbyte.me"),
 };
 const ImageCompressorPages = dynamic(() => import("../../../components/image-compressor"), {
   ssr: true,

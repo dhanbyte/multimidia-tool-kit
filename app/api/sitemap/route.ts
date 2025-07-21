@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const baseUrl = "https://multi-tool-website.dhanbyte.me";
+  const baseUrl = "https://dhanbyte.me";
 
   const routes = [
     "/", // Homepage

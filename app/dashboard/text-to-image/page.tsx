@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "AI Text to Image Generator",
     description: "Turn your ideas into AI-generated art. Choose styles like realistic, anime, or abstract. Download high-res images instantly.",
-    url: "https://multi-tool-website.dhanbyte.me/dashboard/text-to-image",
+    url: "https://dhanbyte.me/dashboard/text-to-image",
     siteName: "MultiTool by Dhanbyte",
     images: [
       {
@@ -38,9 +38,9 @@ export const metadata: Metadata = {
     images: ["https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"],
   },
   alternates: {
-    canonical: "https://multi-tool-website.dhanbyte.me/dashboard/text-to-image",
+    canonical: "https://dhanbyte.me/dashboard/text-to-image",
   },
-  metadataBase: new URL("https://multi-tool-website.dhanbyte.me"),
+  metadataBase: new URL("https://dhanbyte.me"),
 };
 
 // ✅ Use correct client component

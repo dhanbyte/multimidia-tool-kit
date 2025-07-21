@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "AI Social Media Bio Generator",
     description: "Generate engaging bios for all your profiles. Quick, creative, and free.",
-    url: "https://multi-tool-website.dhanbyte.me/dashboard/social-bio-generator",
+    url: "https://dhanbyte.me/dashboard/social-bio-generator",
     siteName: "MultiTool by Dhanbyte",
     images: [
       {
@@ -39,9 +39,9 @@ export const metadata: Metadata = {
     images: ["https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"],
   },
   alternates: {
-    canonical: "https://multi-tool-website.dhanbyte.me/dashboard/social-bio-generator",
+    canonical: "https://dhanbyte.me/dashboard/social-bio-generator",
   },
-  metadataBase: new URL("https://multi-tool-website.dhanbyte.me"),
+  metadataBase: new URL("https://dhanbyte.me"),
 };
 
 const SocialBioGeneratorClient = dynamic(() => import("../../../components/social-bio-generator"), {
