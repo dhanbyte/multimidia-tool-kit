@@ -6,12 +6,24 @@ import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Multi Tool Website",
-  description: "Free tools like PDF, JPG, AI utilities and more",
+  title: "MediaTools Pro – Free Online PDF, Image & Audio Tools",
+  description:
+    "Compress images, convert PDFs, scan documents, clean audio, and more. dhanbyte.me offers free, fast, and secure tools all in one place.",
   openGraph: {
+    title: "MediaTools Pro – All-in-One Online Tools",
+    description:
+      "Try our free tools like PDF to JPG, QR Generator, Image Compressor & AI-based utilities at dhanbyte.me. 100% free and online.",
+    url: "https://dhanbyte.me",
+    siteName: "MediaTools Pro",
     images: [
-      "https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819",
+      {
+        url: "https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819",
+        width: 1200,
+        height: 630,
+        alt: "MediaTools Pro by dhanbyte",
+      },
     ],
+    type: "website",
   },
 };
 
@@ -23,7 +35,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* ✅ Google Analytics Tag */}
+        <link rel="canonical" href="https://dhanbyte.me" />
+
         <script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-CSRTEPL9GN"
@@ -39,7 +52,6 @@ export default function RootLayout({
           }}
         />
 
-        {/* ✅ Google Tag Manager */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -52,26 +64,27 @@ export default function RootLayout({
           }}
         />
 
-        {/* ✅ Favicon */}
         <link
           rel="icon"
           type="image/png"
           href="https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"
         />
-        <title>Free PDF, Image, Audio Tools | dhanbyte.me</title>
+
+        <title>MediaTools Pro – Free Online PDF, Image & Audio Tools</title>
         <meta
           name="description"
-          content="Convert PDF, Compress images, Generate text — all tools in one place at dhanbyte.me."
+          content="All-in-one online toolset: PDF to JPG, Image Compressor, QR Generator, Voice Cleaner, and more – at dhanbyte.me"
         />
-
-        {/* ✅ OG Image (Fallback) */}
+        <meta
+          name="keywords"
+          content="free pdf tools, image compressor, qr code generator, online tools, voice cleaner, text to image ai, pdf to jpg, compress image online, dhanbyte tools"
+        />
         <meta
           property="og:image"
           content="https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"
         />
       </head>
       <body className={inter.className}>
-        {/* ✅ GTM noscript fallback */}
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-TJBS3J62"

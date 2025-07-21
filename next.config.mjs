@@ -12,7 +12,7 @@ const config = {
             value: 'multi-tool-website.vercel.app',
           },
         ],
-        destination: 'https://dhanbyte.me',
+        destination: 'https://dhanbyte.me:path*',
         permanent: true,
       },
     ];
