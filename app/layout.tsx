@@ -4,13 +4,29 @@ import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@/components/analytics";
+import StructuredData from "@/components/structured-data";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "MediaTools Pro – Free Online PDF, Image & Audio Tools",
   description:
-    "Compress images, convert PDFs, scan documents, clean audio, and more. dhanbyte.me offers free, fast, and secure tools all in one place.",
+    "Free online tools for PDF compression, image optimization, QR code generation, typing tests, text summarization, password generation, and more. Fast, secure, and easy to use.",
+  keywords: "free online tools, pdf compressor, image compressor, qr code generator, typing test, text summarizer, password generator, color picker, code formatter, gradient generator, ai tools, developer tools, design tools, utility tools, security tools",
+  authors: [{ name: "dhanbyte", url: "https://dhanbyte.me" }],
+  creator: "dhanbyte",
+  publisher: "MediaTools Pro",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   openGraph: {
     title: "MediaTools Pro – All-in-One Online Tools",
     description:
@@ -26,6 +42,19 @@ export const metadata: Metadata = {
       },
     ],
     type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MediaTools Pro – Free Online Tools",
+    description: "Free online tools for PDF, image, text, and more. Fast, secure, and easy to use.",
+    images: ["https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"],
+  },
+  alternates: {
+    canonical: "https://dhanbyte.me",
+  },
+  verification: {
+    google: "your-google-verification-code",
   },
 };
 
@@ -69,6 +98,7 @@ export default function RootLayout({
           ></iframe>
         </noscript>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
+          <StructuredData />
           <Analytics />
           {children}
           <Toaster />
