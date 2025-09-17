@@ -459,6 +459,7 @@ export default function HomePage() {
 
   const handleSuggestionClick = (tool: typeof allTools[0]) => {
     setShowSuggestions(false);
+    setSearchQuery('');
     router.push(tool.href);
   };
 
@@ -466,7 +467,11 @@ export default function HomePage() {
     e.preventDefault();
     if (searchSuggestions.length > 0) {
       setShowSuggestions(false);
+      setSearchQuery('');
       router.push(searchSuggestions[0].href);
+    } else if (searchQuery.trim()) {
+      // If no exact match, go to dashboard with search
+      router.push('/dashboard');
     }
   };
 
@@ -544,6 +549,7 @@ export default function HomePage() {
             <div className="flex flex-col gap-8 sm:items-center animate-fade-in-up delay-300">
               <div className="relative max-w-lg mx-auto w-full group">
                 {/* Enhanced Search Container */}
+                <div className="relative">
                 <form onSubmit={handleSearchSubmit} className="relative">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-xl blur-xl animate-search-glow" />
                   <div className="relative bg-background/80 backdrop-blur-sm rounded-xl border-2 border-primary/20 shadow-2xl">
@@ -554,11 +560,12 @@ export default function HomePage() {
                       value={searchQuery}
                       onChange={(e) => handleSearch(e.target.value)}
                       onFocus={() => setShowSuggestions(searchSuggestions.length > 0)}
-                      onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
                       className="pl-12 pr-4 py-4 text-base bg-transparent border-0 rounded-xl focus:ring-0 focus:outline-none placeholder:transition-all placeholder:duration-500"
                     />
                   </div>
                 </form>
+                </div>
                 
                 {/* Live Search Suggestions */}
                 {showSuggestions && searchSuggestions.length > 0 && (
@@ -571,6 +578,7 @@ export default function HomePage() {
                         {searchSuggestions.map((tool, index) => (
                           <button
                             key={index}
+                            onMouseDown={(e) => e.preventDefault()}
                             onClick={() => handleSuggestionClick(tool)}
                             className="w-full p-3 text-left hover:bg-primary/10 transition-colors border-b border-primary/5 last:border-b-0 group"
                           >
@@ -605,6 +613,7 @@ export default function HomePage() {
                         {['pdf compress', 'qr generator', 'typing test', 'image compress', 'password generator'].map((term) => (
                           <button
                             key={term}
+                            onMouseDown={(e) => e.preventDefault()}
                             onClick={() => handleSearch(term)}
                             className="px-2 py-1 text-xs bg-primary/10 hover:bg-primary/20 rounded-md transition-colors"
                           >
@@ -619,7 +628,7 @@ export default function HomePage() {
               
               {/* Buttons - Move down when suggestions are visible */}
               <div className={`flex flex-col gap-4 sm:flex-row sm:justify-center transition-all duration-300 ${
-                showSuggestions && searchSuggestions.length > 0 ? 'mt-80' : 'mt-0'
+                showSuggestions && searchSuggestions.length > 0 ? 'mt-80 opacity-50' : 'mt-0 opacity-100'
               }`}>
                 <Link href="/dashboard">
                   <Button size="lg" className="text-lg px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group relative overflow-hidden">

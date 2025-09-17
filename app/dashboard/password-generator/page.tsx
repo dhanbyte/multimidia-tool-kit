@@ -8,6 +8,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Copy, RefreshCw, Shield } from 'lucide-react';
 import { toast } from 'sonner';
+import { ShareButton } from '@/components/share-button';
+import { ResultShare } from '@/components/result-share';
 
 export default function PasswordGenerator() {
   const [password, setPassword] = useState('');
@@ -96,7 +98,7 @@ export default function PasswordGenerator() {
               <Checkbox
                 id="uppercase"
                 checked={includeUppercase}
-                onCheckedChange={setIncludeUppercase}
+                onCheckedChange={(checked) => setIncludeUppercase(checked === true)}
               />
               <label htmlFor="uppercase" className="text-sm">
                 Uppercase (A-Z)
@@ -106,7 +108,7 @@ export default function PasswordGenerator() {
               <Checkbox
                 id="lowercase"
                 checked={includeLowercase}
-                onCheckedChange={setIncludeLowercase}
+                onCheckedChange={(checked) => setIncludeLowercase(checked === true)}
               />
               <label htmlFor="lowercase" className="text-sm">
                 Lowercase (a-z)
@@ -116,7 +118,7 @@ export default function PasswordGenerator() {
               <Checkbox
                 id="numbers"
                 checked={includeNumbers}
-                onCheckedChange={setIncludeNumbers}
+                onCheckedChange={(checked) => setIncludeNumbers(checked === true)}
               />
               <label htmlFor="numbers" className="text-sm">
                 Numbers (0-9)
@@ -126,7 +128,7 @@ export default function PasswordGenerator() {
               <Checkbox
                 id="symbols"
                 checked={includeSymbols}
-                onCheckedChange={setIncludeSymbols}
+                onCheckedChange={(checked) => setIncludeSymbols(checked === true)}
               />
               <label htmlFor="symbols" className="text-sm">
                 Symbols (!@#$...)
@@ -143,9 +145,17 @@ export default function PasswordGenerator() {
             <div className="space-y-2 p-4 bg-muted rounded-lg">
               <div className="flex justify-between items-center">
                 <label className="text-sm font-medium">Generated Password</label>
-                <span className={`text-sm font-medium ${getStrengthColor()}`}>
-                  {getStrengthText()}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-sm font-medium ${getStrengthColor()}`}>
+                    {getStrengthText()}
+                  </span>
+                  <ResultShare 
+                    title="Generated Password"
+                    result={password}
+                    resultType="password"
+                    toolName="password-generator"
+                  />
+                </div>
               </div>
               <div className="flex gap-2">
                 <Input value={password} readOnly className="font-mono" />

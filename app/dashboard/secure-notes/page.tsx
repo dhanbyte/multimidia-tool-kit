@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Lock, Save, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { ShareButton } from '@/components/share-button';
+import { ResultShare } from '@/components/result-share';
 
 interface Note {
   id: string;
@@ -142,7 +144,15 @@ export default function SecureNotes() {
       {selectedNote && (
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle>{selectedNote.title}</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>{selectedNote.title}</CardTitle>
+              <ResultShare 
+                title="Secure Note"
+                result={selectedNote}
+                resultType="note"
+                toolName="secure-notes"
+              />
+            </div>
           </CardHeader>
           <CardContent>
             <Textarea value={selectedNote.content} readOnly rows={10} />

@@ -25,6 +25,8 @@ import {
   FileText,
   Info,
 } from "lucide-react"
+import { ShareButton } from '@/components/share-button'
+import { ResultShare } from '@/components/result-share'
 
 
 
@@ -243,9 +245,17 @@ export default function QRGeneratorPages() {
                   <p className="text-sm text-muted-foreground">Size: {size}x{size} pixels</p>
                   <p className="text-sm text-muted-foreground">Type: {currentType?.label}</p>
                 </div>
-                <Button onClick={downloadQR} className="w-full">
-                  <Download className="mr-2 h-4 w-4" /> Download QR Code
-                </Button>
+                <div className="flex gap-2 w-full">
+                  <Button onClick={downloadQR} className="flex-1">
+                    <Download className="mr-2 h-4 w-4" /> Download
+                  </Button>
+                  <ResultShare 
+                    title="QR Code"
+                    result={qrCode}
+                    resultType="qr"
+                    toolName="qr-generator"
+                  />
+                </div>
                 <Alert>
                   <CheckCircle className="h-4 w-4" />
                   <AlertDescription>QR code generated successfully!</AlertDescription>
