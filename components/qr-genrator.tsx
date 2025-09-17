@@ -1,4 +1,3 @@
-// app/dashboard/qr-generator/page.tsx
 "use client"
 
 import { useState } from "react"
@@ -11,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
+import QRCode from "qrcode"
 import {
   QrCode,
   Download,
@@ -25,9 +25,6 @@ import {
   FileText,
   Info,
 } from "lucide-react"
-
-// app/dashboard/qr-generator/page.tsx
-import type { Metadata } from "next"
 
 
 
@@ -61,37 +58,60 @@ export default function QRGeneratorPages() {
     setQrCode("")
 
     try {
-      const response = await fetch("/api/qr-generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, size: Number.parseInt(size), type: qrType }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to generate QR code.")
+      let qrText = text
+      
+      // Format text based on type
+      if (qrType === "email" && !text.startsWith("mailto:")) {
+        qrText = `mailto:${text}`
+      } else if (qrType === "phone" && !text.startsWith("tel:")) {
+        qrText = `tel:${text}`
+      } else if (qrType === "url" && !text.startsWith("http")) {
+        qrText = `https://${text}`
       }
 
-      setQrCode(data.qrCode)
+      const qrCodeDataURL = await QRCode.toDataURL(qrText, {
+        width: Number.parseInt(size),
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      })
+
+      setQrCode(qrCodeDataURL)
       toast({ title: "Success!", description: "QR code generated successfully." })
     } catch (err: any) {
-      console.error("Frontend QR generation error:", err)
-      setError(err.message)
-      toast({ title: "Error", description: err.message, variant: "destructive" })
+      console.error("QR generation error:", err)
+      setError("Failed to generate QR code")
+      toast({ title: "Error", description: "Failed to generate QR code", variant: "destructive" })
     } finally {
       setLoading(false)
     }
   }
 
-  const handleDemo = () => {
+  const handleDemo = async () => {
     setLoading(true)
     setError("")
-    setTimeout(() => {
+    setText("https://example.com")
+    
+    try {
+      const qrCodeDataURL = await QRCode.toDataURL("https://example.com", {
+        width: Number.parseInt(size),
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      })
+      
+      setQrCode(qrCodeDataURL)
+      toast({ title: "Demo Complete!", description: "Demo QR code generated successfully." })
+    } catch (err) {
       setQrCode(`/placeholder.svg?height=${size}&width=${size}`)
+      toast({ title: "Demo Complete!", description: "This is a demo QR code." })
+    } finally {
       setLoading(false)
-      toast({ title: "Demo Complete!", description: "This is a demo QR code. Enter real content for actual QR codes." })
-    }, 1000)
+    }
   }
 
   const downloadQR = () => {

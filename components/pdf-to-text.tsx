@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
 import { useToast } from "@/hooks/use-toast"
+import * as pdfjsLib from "pdfjs-dist"
 import {
   FileText,
   Upload,
@@ -24,8 +25,6 @@ import {
   Search,
 } from "lucide-react"
 
-import { Metadata } from "next"
-
 
 
 export default function PDFToTextPages() {
@@ -38,6 +37,12 @@ export default function PDFToTextPages() {
   const [fileInfo, setFileInfo] = useState<any>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs'
+    }
+  }, [])
 
   const handleFileSelect = (selectedFile: File | null) => {
     if (!selectedFile) return
@@ -99,48 +104,42 @@ export default function PDFToTextPages() {
     setExtractedText("")
     setProgress(0)
 
-    // Simulate progress
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) {
-          clearInterval(progressInterval)
-          return 90
-        }
-        return prev + 8
-      })
-    }, 300)
-
     try {
-      const formData = new FormData()
-      formData.append("file", file)
-
-      const response = await fetch("/api/pdf-to-text", {
-        method: "POST",
-        body: formData,
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to extract text from PDF")
+      const arrayBuffer = await file.arrayBuffer()
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+      
+      let fullText = ""
+      const totalPages = pdf.numPages
+      
+      for (let i = 1; i <= totalPages; i++) {
+        setProgress(Math.round((i / totalPages) * 90))
+        
+        const page = await pdf.getPage(i)
+        const textContent = await page.getTextContent()
+        
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(" ")
+        
+        fullText += `Page ${i}:\n${pageText}\n\n`
       }
-
+      
       setProgress(100)
-      setExtractedText(data.data.text)
+      setExtractedText(fullText.trim())
       toast({
         title: "Success!",
         description: "Text extracted from PDF successfully",
       })
     } catch (err: any) {
-      setError(err.message)
+      console.error("PDF extraction error:", err)
+      setError("Failed to extract text from PDF")
       toast({
         title: "Error",
-        description: err.message,
+        description: "Failed to extract text from PDF",
         variant: "destructive",
       })
     } finally {
       setLoading(false)
-      clearInterval(progressInterval)
     }
   }
 
@@ -169,20 +168,7 @@ export default function PDFToTextPages() {
     }, 250)
 
     setTimeout(() => {
-      setExtractedText(`Sample Document Title
-
-This is a sample text extracted from a PDF document. This demonstrates how the PDF to text conversion works.
-
-Key Features:
-• Accurate text extraction
-• Preserves formatting where possible
-• Handles multiple pages
-• Supports various PDF types
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
-
-Conclusion:
-This tool can extract text from any PDF document quickly and accurately. Perfect for digitizing documents, creating searchable content, or converting PDFs to editable text.`)
+      setExtractedText(`Sample Document Title\n\nThis is a sample text extracted from a PDF document. This demonstrates how the PDF to text conversion works.\n\nKey Features:\n• Accurate text extraction\n• Preserves formatting where possible\n• Handles multiple pages\n• Supports various PDF types\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.\n\nConclusion:\nThis tool can extract text from any PDF document quickly and accurately. Perfect for digitizing documents, creating searchable content, or converting PDFs to editable text.`)
       setLoading(false)
       toast({
         title: "Demo Complete!",

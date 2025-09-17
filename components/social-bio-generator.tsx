@@ -26,8 +26,17 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils"; // Assuming you have a utility for class names
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"; // For copy tooltip
 
-// Import useSpeechRecognition and SpeechRecognition for voice input
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+// Import useSpeechRecognition and SpeechRecognition for voice input (optional)
+let SpeechRecognition: any = null;
+let useSpeechRecognition: any = null;
+
+try {
+  const speechModule = require('react-speech-recognition');
+  SpeechRecognition = speechModule.default;
+  useSpeechRecognition = speechModule.useSpeechRecognition;
+} catch (e) {
+  // Speech recognition not available
+}
 
 // app/dashboard/social-bio-generator/page.tsx
 
@@ -82,13 +91,20 @@ export default function SocialBioGeneratorPage() {
 
   const { toast } = useToast();
 
-  // Speech recognition hooks
+  // Speech recognition hooks (with fallback)
+  const speechRecognition = useSpeechRecognition ? useSpeechRecognition() : {
+    transcript: '',
+    listening: false,
+    resetTranscript: () => {},
+    browserSupportsSpeechRecognition: false,
+  };
+  
   const {
     transcript,
     listening,
     resetTranscript,
     browserSupportsSpeechRecognition,
-  } = useSpeechRecognition();
+  } = speechRecognition;
 
   // Update keywords when transcript changes
   useEffect(() => {
@@ -99,11 +115,13 @@ export default function SocialBioGeneratorPage() {
 
   // Handle voice input start/stop
   const handleVoiceInputToggle = () => {
+    if (!SpeechRecognition) return;
+    
     if (listening) {
       SpeechRecognition.stopListening();
     } else {
-      resetTranscript(); // Clear previous transcript
-      SpeechRecognition.startListening({ continuous: false, language: 'en-IN' }); // Using Indian English
+      resetTranscript();
+      SpeechRecognition.startListening({ continuous: false, language: 'en-IN' });
     }
   };
 
@@ -411,9 +429,4 @@ export default function SocialBioGeneratorPage() {
   );
 }
 
-// Label component (Assuming you have this in your shadcn setup or create it)
-const Label = ({ htmlFor, children, className }: { htmlFor?: string; children: React.ReactNode; className?: string }) => (
-    <label htmlFor={htmlFor} className={cn("text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className)}>
-      {children}
-    </label>
-  );
+import { Label } from "@/components/ui/label"

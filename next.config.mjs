@@ -1,7 +1,19 @@
-// next.config.mjs
-
 /** @type {import('next').NextConfig} */
 const config = {
+  experimental: {
+    esmExternals: 'loose'
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    return config;
+  },
   async redirects() {
     return [
       {
@@ -17,7 +29,6 @@ const config = {
       },
     ];
   },
-
   async rewrites() {
     return [
       {

@@ -7,13 +7,26 @@ export async function GET() {
   const routes = [
     "/", // Homepage
     "/dashboard/image-compressor",
-    "/dashboard/social-media-bio-generator",
+    "/dashboard/social-bio-generator",
     "/dashboard/text-to-image",
     "/dashboard/image-hosting",
     "/dashboard/pdf-to-jpg",
     "/dashboard/pdf-to-text",
+    "/dashboard/pdf-to-word",
+    "/dashboard/merge-pdf",
     "/dashboard/qr-generator",
-    "/dashboard/voice-cleaner",
+    "/dashboard/image-resizer",
+    "/dashboard/image-cropper",
+    "/dashboard/word-counter",
+    "/dashboard/case-converter",
+    "/dashboard/url-shortener",
+    "/dashboard/password-generator",
+    "/dashboard/color-palette",
+    "/dashboard/base64-converter",
+    "/dashboard/json-formatter",
+    "/dashboard/hash-generator",
+    "/dashboard/unit-converter",
+    "/dashboard/lorem-generator",
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>` +

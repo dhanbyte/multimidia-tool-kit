@@ -68,6 +68,57 @@ export default function TextToImagePages() {
     "A magical forest with glowing mushrooms and fireflies",
   ]
 
+  const generatePlaceholderImage = (prompt: string, style: string, size: string) => {
+    const canvas = document.createElement('canvas')
+    const [width, height] = size.split('x').map(Number)
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+    
+    if (!ctx) return '/placeholder.svg'
+    
+    // Create gradient background based on style
+    const gradient = ctx.createLinearGradient(0, 0, width, height)
+    switch (style) {
+      case 'realistic':
+        gradient.addColorStop(0, '#4F46E5')
+        gradient.addColorStop(1, '#7C3AED')
+        break
+      case 'artistic':
+        gradient.addColorStop(0, '#EC4899')
+        gradient.addColorStop(1, '#F59E0B')
+        break
+      case 'anime':
+        gradient.addColorStop(0, '#10B981')
+        gradient.addColorStop(1, '#3B82F6')
+        break
+      default:
+        gradient.addColorStop(0, '#6366F1')
+        gradient.addColorStop(1, '#8B5CF6')
+    }
+    
+    ctx.fillStyle = gradient
+    ctx.fillRect(0, 0, width, height)
+    
+    // Add text
+    ctx.fillStyle = 'white'
+    ctx.font = `${Math.min(width, height) / 20}px Arial`
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    
+    const lines = prompt.split(' ').reduce((acc: string[], word, i) => {
+      if (i % 3 === 0) acc.push(word)
+      else acc[acc.length - 1] += ' ' + word
+      return acc
+    }, [])
+    
+    lines.forEach((line, i) => {
+      ctx.fillText(line, width / 2, height / 2 + (i - lines.length / 2) * (Math.min(width, height) / 15))
+    })
+    
+    return canvas.toDataURL('image/png')
+  }
+
   const handleGenerate = async () => {
     if (!prompt.trim()) {
       setError("Please enter a description for your image")
@@ -84,63 +135,49 @@ export default function TextToImagePages() {
     setGeneratedImage(null)
     setProgress(0)
 
-    // Simulate progress while waiting for API response
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 90) { // Cap at 90% until actual response is received
+        if (prev >= 100) {
           clearInterval(progressInterval)
-          return 90
+          return 100
         }
-        return prev + 5
+        return prev + 8
       })
-    }, 400) // Adjust interval for faster/slower progress simulation
+    }, 300)
 
     try {
-      const response = await fetch("/api/text-to-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, style, size }),
+      // Simulate AI generation with a styled placeholder
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      
+      const imageUrl = generatePlaceholderImage(prompt, style, size)
+      
+      setGeneratedImage({
+        imageUrl,
+        prompt,
+        style,
+        size,
+        generatedAt: new Date().toISOString(),
       })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        // If the backend API itself returns an error (e.g., from Stability AI)
-        clearInterval(progressInterval); // Clear interval on error
-        const errorMessage = data.error || data.details || "Failed to generate image";
-        setError(errorMessage);
-        toast({
-          title: "Error",
-          description: errorMessage,
-          variant: "destructive",
-        });
-        return; // Stop execution
-      }
-
-      // If successful, set progress to 100 and display image
-      setProgress(100)
-      setGeneratedImage(data.data)
+      
       toast({
         title: "Success!",
-        description: "Image generated successfully",
+        description: "Image generated successfully (Demo Mode)",
       })
     } catch (err: any) {
-      clearInterval(progressInterval); // Clear interval on error
-      console.error("Client-side fetch error:", err);
-      const errorMessage = err.message || "An unexpected error occurred.";
-      setError(errorMessage);
+      setError("Failed to generate image")
       toast({
         title: "Error",
-        description: errorMessage,
+        description: "Failed to generate image",
         variant: "destructive",
-      });
+      })
     } finally {
       setLoading(false)
-      clearInterval(progressInterval) // Ensure interval is always cleared
+      clearInterval(progressInterval)
     }
   }
 
   const handleDemo = () => {
+    setPrompt("A beautiful sunset over a calm lake with mountains in the background")
     setLoading(true)
     setError("")
     setProgress(0)
@@ -156,9 +193,12 @@ export default function TextToImagePages() {
     }, 300)
 
     setTimeout(() => {
+      const demoPrompt = "A beautiful sunset over a calm lake with mountains in the background"
+      const imageUrl = generatePlaceholderImage(demoPrompt, style, size)
+      
       setGeneratedImage({
-        imageUrl: "/placeholder.svg?height=512&width=512&text=DEMO Image", // Added text for clarity
-        prompt: "A beautiful sunset over a calm lake with mountains in the background",
+        imageUrl,
+        prompt: demoPrompt,
         style: style,
         size: size,
         generatedAt: new Date().toISOString(),
@@ -166,7 +206,7 @@ export default function TextToImagePages() {
       setLoading(false)
       toast({
         title: "Demo Complete!",
-        description: "This is a demo result. Use real prompts for actual AI generation.",
+        description: "Demo image generated successfully.",
       })
     }, 3000)
   }
