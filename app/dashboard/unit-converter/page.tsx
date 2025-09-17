@@ -113,8 +113,11 @@ export default function UnitConverter() {
       const converted = convertTemperature(value, fromUnit, toUnit);
       setResult(converted.toFixed(6).replace(/\.?0+$/, ''));
     } else {
-      const fromFactor = category.units[fromUnit as keyof typeof category.units]?.factor;
-      const toFactor = category.units[toUnit as keyof typeof category.units]?.factor;
+      const fromUnitData = (category.units as any)[fromUnit];
+      const toUnitData = (category.units as any)[toUnit];
+      
+      const fromFactor = fromUnitData?.factor;
+      const toFactor = toUnitData?.factor;
       
       if (!fromFactor || !toFactor) {
         toast.error('Invalid units selected');

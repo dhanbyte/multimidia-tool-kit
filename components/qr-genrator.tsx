@@ -39,6 +39,14 @@ export default function QRGeneratorPages() {
   const [loading, setLoading] = useState(false)
   const [qrCode, setQrCode] = useState("")
   const [error, setError] = useState("")
+  const [foregroundColor, setForegroundColor] = useState("#000000")
+  const [backgroundColor, setBackgroundColor] = useState("#FFFFFF")
+  const [margin, setMargin] = useState(2)
+  const [errorCorrectionLevel, setErrorCorrectionLevel] = useState("M")
+  const [logoFile, setLogoFile] = useState<File | null>(null)
+  const [logoSize, setLogoSize] = useState(20)
+  const [cornerStyle, setCornerStyle] = useState("square")
+  const [dotStyle, setDotStyle] = useState("square")
   const { toast } = useToast()
 
   const qrTypes = [
@@ -73,10 +81,14 @@ export default function QRGeneratorPages() {
 
       const qrCodeDataURL = await QRCode.toDataURL(qrText, {
         width: Number.parseInt(size),
-        margin: 2,
+        margin: margin,
+        errorCorrectionLevel: errorCorrectionLevel as any,
         color: {
-          dark: '#000000',
-          light: '#FFFFFF'
+          dark: foregroundColor,
+          light: backgroundColor
+        },
+        rendererOpts: {
+          quality: 1
         }
       })
 
@@ -99,10 +111,14 @@ export default function QRGeneratorPages() {
     try {
       const qrCodeDataURL = await QRCode.toDataURL("https://example.com", {
         width: Number.parseInt(size),
-        margin: 2,
+        margin: margin,
+        errorCorrectionLevel: errorCorrectionLevel as any,
         color: {
-          dark: '#000000',
-          light: '#FFFFFF'
+          dark: foregroundColor,
+          light: backgroundColor
+        },
+        rendererOpts: {
+          quality: 1
         }
       })
       
@@ -179,19 +195,159 @@ export default function QRGeneratorPages() {
               )}
             </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Size</label>
+                <Select value={size} onValueChange={setSize}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="128">128x128 (Small)</SelectItem>
+                    <SelectItem value="256">256x256 (Medium)</SelectItem>
+                    <SelectItem value="512">512x512 (Large)</SelectItem>
+                    <SelectItem value="1024">1024x1024 (Extra Large)</SelectItem>
+                    <SelectItem value="2048">2048x2048 (Print Quality)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium mb-2 block">Error Correction</label>
+                <Select value={errorCorrectionLevel} onValueChange={setErrorCorrectionLevel}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="L">Low (7%)</SelectItem>
+                    <SelectItem value="M">Medium (15%)</SelectItem>
+                    <SelectItem value="Q">Quartile (25%)</SelectItem>
+                    <SelectItem value="H">High (30%)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Color Customization */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Foreground Color</label>
+                <div className="flex gap-2">
+                  <Input
+                    type="color"
+                    value={foregroundColor}
+                    onChange={(e) => setForegroundColor(e.target.value)}
+                    className="w-16 h-10 p-1 border rounded"
+                  />
+                  <Input
+                    type="text"
+                    value={foregroundColor}
+                    onChange={(e) => setForegroundColor(e.target.value)}
+                    className="flex-1"
+                    placeholder="#000000"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium mb-2 block">Background Color</label>
+                <div className="flex gap-2">
+                  <Input
+                    type="color"
+                    value={backgroundColor}
+                    onChange={(e) => setBackgroundColor(e.target.value)}
+                    className="w-16 h-10 p-1 border rounded"
+                  />
+                  <Input
+                    type="text"
+                    value={backgroundColor}
+                    onChange={(e) => setBackgroundColor(e.target.value)}
+                    className="flex-1"
+                    placeholder="#FFFFFF"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Margin Control */}
             <div>
-              <label className="text-sm font-medium mb-2 block">Size</label>
-              <Select value={size} onValueChange={setSize}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="128">128x128 (Small)</SelectItem>
-                  <SelectItem value="256">256x256 (Medium)</SelectItem>
-                  <SelectItem value="512">512x512 (Large)</SelectItem>
-                  <SelectItem value="1024">1024x1024 (Extra Large)</SelectItem>
-                </SelectContent>
-              </Select>
+              <label className="text-sm font-medium mb-2 block">Margin: {margin} modules</label>
+              <input
+                type="range"
+                min="0"
+                max="10"
+                value={margin}
+                onChange={(e) => setMargin(parseInt(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>0</span>
+                <span>5</span>
+                <span>10</span>
+              </div>
+            </div>
+
+            {/* Style Options */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Corner Style</label>
+                <Select value={cornerStyle} onValueChange={setCornerStyle}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="square">Square</SelectItem>
+                    <SelectItem value="rounded">Rounded</SelectItem>
+                    <SelectItem value="circle">Circle</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium mb-2 block">Dot Style</label>
+                <Select value={dotStyle} onValueChange={setDotStyle}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="square">Square</SelectItem>
+                    <SelectItem value="rounded">Rounded</SelectItem>
+                    <SelectItem value="circle">Circle</SelectItem>
+                    <SelectItem value="diamond">Diamond</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Logo Upload */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Logo (Optional)</label>
+              <div className="space-y-2">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
+                  className="cursor-pointer"
+                />
+                {logoFile && (
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Logo Size: {logoSize}%</label>
+                    <input
+                      type="range"
+                      min="10"
+                      max="40"
+                      value={logoSize}
+                      onChange={(e) => setLogoSize(parseInt(e.target.value))}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                      <span>10%</span>
+                      <span>25%</span>
+                      <span>40%</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <Button onClick={handleGenerate} disabled={loading} className="w-full">
@@ -244,6 +400,17 @@ export default function QRGeneratorPages() {
                 <div className="text-center space-y-2">
                   <p className="text-sm text-muted-foreground">Size: {size}x{size} pixels</p>
                   <p className="text-sm text-muted-foreground">Type: {currentType?.label}</p>
+                  <p className="text-sm text-muted-foreground">Error Correction: {errorCorrectionLevel}</p>
+                  <div className="flex justify-center gap-4 text-xs">
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded" style={{backgroundColor: foregroundColor}}></div>
+                      <span>Foreground</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded border" style={{backgroundColor: backgroundColor}}></div>
+                      <span>Background</span>
+                    </div>
+                  </div>
                 </div>
                 <div className="flex gap-2 w-full">
                   <Button onClick={downloadQR} className="flex-1">

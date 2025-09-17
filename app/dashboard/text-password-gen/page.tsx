@@ -98,7 +98,7 @@ export default function TextPasswordGen() {
                 <Checkbox
                   id="numbers"
                   checked={includeNumbers}
-                  onCheckedChange={setIncludeNumbers}
+                  onCheckedChange={(checked) => setIncludeNumbers(checked === true)}
                 />
                 <label htmlFor="numbers" className="text-sm">Include Numbers</label>
               </div>
@@ -106,7 +106,7 @@ export default function TextPasswordGen() {
                 <Checkbox
                   id="symbols"
                   checked={includeSymbols}
-                  onCheckedChange={setIncludeSymbols}
+                  onCheckedChange={(checked) => setIncludeSymbols(checked === true)}
                 />
                 <label htmlFor="symbols" className="text-sm">Include Symbols</label>
               </div>
@@ -114,7 +114,7 @@ export default function TextPasswordGen() {
                 <Checkbox
                   id="mixedcase"
                   checked={includeMixedCase}
-                  onCheckedChange={setIncludeMixedCase}
+                  onCheckedChange={(checked) => setIncludeMixedCase(checked === true)}
                 />
                 <label htmlFor="mixedcase" className="text-sm">Mixed Case</label>
               </div>

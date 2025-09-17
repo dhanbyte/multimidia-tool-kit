@@ -93,12 +93,7 @@ export function ShareButton({ title, text = '', url, data }: ShareButtonProps) {
           <Mail className="h-4 w-4 mr-2" />
           Email
         </DropdownMenuItem>
-        {navigator.share && (
-          <DropdownMenuItem onClick={nativeShare}>
-            <Share2 className="h-4 w-4 mr-2" />
-            More Options
-          </DropdownMenuItem>
-        )}
+
       </DropdownMenuContent>
     </DropdownMenu>
   );

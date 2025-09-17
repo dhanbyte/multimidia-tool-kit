@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Extract } from 'lucide-react';
+import { FileText } from 'lucide-react';
 
 export default function TextExtractor() {
   const [inputText, setInputText] = useState('');
@@ -42,7 +42,7 @@ export default function TextExtractor() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Extract className="h-5 w-5" />
+            <FileText className="h-5 w-5" />
             Extract Data from Text
           </CardTitle>
         </CardHeader>
