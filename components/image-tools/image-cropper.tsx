@@ -805,7 +805,7 @@ export default function ImageCropper() {
                 <h3 className="font-medium text-center">Original Image</h3>
                 <div className="border rounded-lg p-4 bg-muted/20">
                   <img
-                    src={preview}
+                    src={preview || ''}
                     alt="Original"
                     className="w-full max-h-64 object-contain rounded"
                   />

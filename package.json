@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
-    "@radix-ui/react-accordion": "latest",
+    "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "latest",
     "@radix-ui/react-aspect-ratio": "latest",
     "@radix-ui/react-avatar": "latest",
@@ -68,7 +68,7 @@
     "react-resizable-panels": "^2.1.7",
     "react-speech-recognition": "^4.0.1",
     "recharts": "2.15.0",
-    "sonner": "^1.7.1",
+    "sonner": "^1.7.4",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^9.0.1",

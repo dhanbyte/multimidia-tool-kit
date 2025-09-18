@@ -501,8 +501,9 @@ export default function HomePage() {
             </div>
             <div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                MediaTools Pro
+                MultiTool
               </h1>
+              <p className="text-xs text-muted-foreground">by Dhanbyte</p>
             </div>
           </Link>
           <nav className="hidden md:flex items-center space-x-6">
@@ -548,18 +549,18 @@ export default function HomePage() {
               <Star className="mr-2 h-4 w-4 fill-current animate-spin-slow" />
               Trusted by 500K+ users worldwide
             </Badge>
-            <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-6xl md:text-7xl animate-fade-in-up">
-              <span className="animate-text-shimmer">All-in-One</span>{" "}
+            <h1 className="mb-4 text-2xl font-bold tracking-tight sm:text-4xl md:text-5xl animate-fade-in-up">
+              <span className="animate-text-shimmer">MultiTool</span>{" "}
               <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient">
-                Media Toolkit
+                by Dhanbyte
               </span>
             </h1>
-            <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground sm:text-xl leading-relaxed animate-fade-in-up delay-200">
+            <p className="mx-auto mb-6 max-w-2xl text-sm text-muted-foreground sm:text-base leading-relaxed animate-fade-in-up delay-200">
               <span className="animate-typewriter inline-block">
-                Generate QR codes, convert files, compress images, and more - all in one powerful platform.
+                100+ free online tools - PDF, image, text, developer tools & more.
               </span>
-              <br />
-              <span className="animate-fade-in delay-1000">Fast, secure, and completely free to use.</span>
+              <br className="hidden sm:block" />
+              <span className="animate-fade-in delay-1000">By Dhananjay - Full Stack Developer. Fast, secure, no signup!</span>
             </p>
             <div className="flex flex-col gap-8 sm:items-center animate-fade-in-up delay-300">
               <div className="relative max-w-lg mx-auto w-full group">
@@ -706,40 +707,43 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
           {filteredTools.map((tool, index) => (
             <Link key={index} href={tool.href} className="block">
               <Card
-                className="group relative overflow-hidden border-2 bg-gradient-to-br from-background to-muted/20 shadow-lg transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 hover:border-primary/20 animate-fade-in-up cursor-pointer h-full"
-                style={{ animationDelay: `${index * 50}ms` }}
+                className="group relative overflow-hidden border bg-gradient-to-br from-background to-muted/20 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary/20 animate-fade-in-up cursor-pointer h-full"
+                style={{ animationDelay: `${index * 30}ms` }}
               >
                 <div
-                  className={`absolute inset-0 bg-gradient-to-br ${tool.color} opacity-0 transition-opacity duration-500 group-hover:opacity-10`}
+                  className={`absolute inset-0 bg-gradient-to-br ${tool.color} opacity-0 transition-opacity duration-300 group-hover:opacity-5`}
                 />
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
-                <CardHeader className="relative">
-                  <div className="flex items-center space-x-3">
+                <CardHeader className="relative p-3 sm:p-4">
+                  <div className="flex flex-col items-center text-center space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3 sm:text-left">
                     <div
-                      className={`flex h-12 w-12 items-center justify-center rounded-xl ${tool.bgColor} transition-all duration-300 group-hover:scale-110 group-hover:rotate-3`}
+                      className={`flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg ${tool.bgColor} transition-all duration-300 group-hover:scale-110`}
                     >
-                      <tool.icon className={`h-6 w-6 ${tool.iconColor} transition-all duration-300 group-hover:scale-110`} />
+                      <tool.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${tool.iconColor} transition-all duration-300`} />
                     </div>
-                    <div className="flex-1">
-                      <CardTitle className="text-lg flex items-center gap-2 group-hover:text-primary transition-colors">
-                        {tool.name}
-                        {tool.popular && <Badge variant="secondary" className="text-xs animate-pulse">Popular</Badge>}
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-xs sm:text-sm font-medium leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                        {tool.name.length > 25 ? tool.name.substring(0, 25) + '...' : tool.name}
+                        {tool.popular && <Badge variant="secondary" className="text-xs ml-1 hidden sm:inline-flex">Hot</Badge>}
                       </CardTitle>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="relative">
-                  <CardDescription className="mb-4 text-muted-foreground group-hover:text-foreground/80 transition-colors">{tool.description}</CardDescription>
+                <CardContent className="relative p-3 pt-0 sm:p-4 sm:pt-0">
+                  <CardDescription className="text-xs sm:text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors line-clamp-2 mb-3">
+                    {tool.description.length > 60 ? tool.description.substring(0, 60) + '...' : tool.description}
+                  </CardDescription>
                   <Button
                     variant="outline"
-                    className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 bg-transparent hover:scale-105"
+                    size="sm"
+                    className="w-full text-xs group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 bg-transparent"
                   >
-                    Try Now
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-2" />
+                    <span className="hidden sm:inline">Try Now</span>
+                    <span className="sm:hidden">Try</span>
+                    <ArrowRight className="ml-1 h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" />
                   </Button>
                 </CardContent>
               </Card>
@@ -768,7 +772,7 @@ export default function HomePage() {
         </div>
         <div className="container relative">
           <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4 animate-fade-in-up">Why Choose MediaTools Pro?</h2>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4 animate-fade-in-up">Why Choose MultiTool by Dhanbyte?</h2>
             <p className="text-lg text-muted-foreground animate-fade-in-up delay-100">
               Built with cutting-edge technology to provide the best user experience
             </p>
@@ -794,7 +798,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-2xl text-center relative">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4 animate-fade-in-up">Ready to Get Started?</h2>
           <p className="text-lg text-muted-foreground mb-8 animate-fade-in-up delay-100">
-            Join thousands of users who trust MediaTools Pro for their daily media needs
+            Join thousands of users who trust MultiTool by Dhanbyte for their daily productivity needs
           </p>
           <Link href="/dashboard">
             <Button size="lg" className="text-lg px-8 py-6 animate-fade-in-up delay-200 hover:scale-105 transition-all duration-300 group">
@@ -814,10 +818,10 @@ export default function HomePage() {
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
                   <Download className="h-4 w-4 text-white" />
                 </div>
-                <span className="font-semibold text-lg">MediaTools Pro</span>
+                <span className="font-semibold text-lg">MultiTool by Dhanbyte</span>
               </div>
               <p className="text-muted-foreground mb-4 max-w-md">
-                Your one-stop solution for all media tools. Fast, secure, and completely free to use.
+                Your ultimate toolkit with 100+ free online tools. Created by Dhananjay (Dhanbyte) - Full Stack Developer & Video Editor.
               </p>
             </div>
             <div>
@@ -850,7 +854,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="border-t pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">© 2024 MediaTools Pro by dhanbyte. All rights reserved.</p>
+            <p className="text-sm text-muted-foreground">© 2024 MultiTool by Dhananjay (Dhanbyte) - Full Stack Developer & Video Editor. All rights reserved.</p>
             <div className="flex items-center space-x-4">
               <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                 Privacy Policy

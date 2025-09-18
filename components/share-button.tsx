@@ -1,100 +1,106 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react'
+import { Button } from "@/components/ui/button"
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
   DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
-import { Share2, Copy, Twitter, Facebook, Linkedin, Mail } from 'lucide-react';
-import { toast } from 'sonner';
+} from "@/components/ui/dropdown-menu"
+import { Share2, Copy, MessageCircle, Send, Link2 } from "lucide-react"
+import { toast } from "sonner"
 
 interface ShareButtonProps {
-  title: string;
-  text?: string;
-  url?: string;
-  data?: any;
+  title: string
+  description?: string
+  url?: string
+  result?: string
 }
 
-export function ShareButton({ title, text = '', url, data }: ShareButtonProps) {
-  const shareUrl = url || window.location.href;
-  const shareText = text || `Check out this ${title} tool!`;
+export function ShareButton({ title, description, url, result }: ShareButtonProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  
+  const currentUrl = url || (typeof window !== 'undefined' ? window.location.href : '')
+  const shareText = result 
+    ? `Check out my result from ${title}:\n\n${result}\n\nTry it yourself at ${currentUrl}`
+    : `Check out this amazing tool: ${title}${description ? ` - ${description}` : ''}\n\n${currentUrl}`
 
-  const copyToClipboard = () => {
-    const content = data ? JSON.stringify(data, null, 2) : shareUrl;
-    navigator.clipboard.writeText(content);
-    toast.success('Copied to clipboard!');
-  };
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(shareText)
+      toast.success('Copied to clipboard!')
+      setIsOpen(false)
+    } catch (err) {
+      toast.error('Failed to copy')
+    }
+  }
 
-  const shareToTwitter = () => {
-    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
-    window.open(twitterUrl, '_blank');
-  };
+  const shareWhatsApp = () => {
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`
+    window.open(whatsappUrl, '_blank')
+    setIsOpen(false)
+  }
 
-  const shareToFacebook = () => {
-    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
-    window.open(facebookUrl, '_blank');
-  };
+  const shareTelegram = () => {
+    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(shareText)}`
+    window.open(telegramUrl, '_blank')
+    setIsOpen(false)
+  }
 
-  const shareToLinkedIn = () => {
-    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
-    window.open(linkedinUrl, '_blank');
-  };
+  const shareTwitter = () => {
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`
+    window.open(twitterUrl, '_blank')
+    setIsOpen(false)
+  }
 
-  const shareViaEmail = () => {
-    const emailUrl = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(shareText + '\n\n' + shareUrl)}`;
-    window.open(emailUrl);
-  };
-
-  const nativeShare = async () => {
-    if (navigator.share) {
+  const shareNative = async () => {
+    if (typeof navigator !== 'undefined' && 'share' in navigator) {
       try {
         await navigator.share({
-          title,
+          title: title,
           text: shareText,
-          url: shareUrl,
-        });
-      } catch (error) {
-        console.log('Share cancelled');
+          url: currentUrl
+        })
+        setIsOpen(false)
+      } catch (err) {
+        // User cancelled or error occurred
       }
-    } else {
-      copyToClipboard();
     }
-  };
+  }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Share2 className="h-4 w-4 mr-2" />
-          Share
+        <Button variant="outline" size="sm" className="gap-2">
+          <Share2 className="h-4 w-4" />
+          <span className="hidden sm:inline">Share</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem onClick={copyToClipboard}>
-          <Copy className="h-4 w-4 mr-2" />
+        <DropdownMenuItem onClick={copyToClipboard} className="gap-2">
+          <Copy className="h-4 w-4" />
           Copy Link
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={shareToTwitter}>
-          <Twitter className="h-4 w-4 mr-2" />
+        <DropdownMenuItem onClick={shareWhatsApp} className="gap-2">
+          <MessageCircle className="h-4 w-4" />
+          WhatsApp
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={shareTelegram} className="gap-2">
+          <Send className="h-4 w-4" />
+          Telegram
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={shareTwitter} className="gap-2">
+          <Link2 className="h-4 w-4" />
           Twitter
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={shareToFacebook}>
-          <Facebook className="h-4 w-4 mr-2" />
-          Facebook
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={shareToLinkedIn}>
-          <Linkedin className="h-4 w-4 mr-2" />
-          LinkedIn
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={shareViaEmail}>
-          <Mail className="h-4 w-4 mr-2" />
-          Email
-        </DropdownMenuItem>
-
+        {typeof navigator !== 'undefined' && 'share' in navigator && (
+          <DropdownMenuItem onClick={shareNative} className="gap-2">
+            <Share2 className="h-4 w-4" />
+            More Options
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

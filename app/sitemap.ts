@@ -4,19 +4,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://dhanbyte.me'
   
   const pages = [
-    // Main pages
+    // Main pages - MultiTool by Dhanbyte
     { url: '', priority: 1.0, changeFrequency: 'daily' as const },
-    { url: '/about', priority: 0.6, changeFrequency: 'monthly' as const },
-    { url: '/help', priority: 0.6, changeFrequency: 'monthly' as const },
-    { url: '/contact', priority: 0.6, changeFrequency: 'monthly' as const },
-    { url: '/dashboard', priority: 0.9, changeFrequency: 'weekly' as const },
+    { url: '/about', priority: 0.7, changeFrequency: 'monthly' as const },
+    { url: '/help', priority: 0.7, changeFrequency: 'monthly' as const },
+    { url: '/contact', priority: 0.7, changeFrequency: 'monthly' as const },
+    { url: '/dashboard', priority: 0.9, changeFrequency: 'daily' as const },
     
-    // Popular Tools (High Priority)
-    { url: '/dashboard/typing-master', priority: 0.9, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/qr-generator', priority: 0.9, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/password-generator', priority: 0.9, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/image-compressor', priority: 0.9, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/pdf-compress', priority: 0.9, changeFrequency: 'weekly' as const },
+    // Most Popular Tools (Highest Priority)
+    { url: '/dashboard/qr-generator', priority: 1.0, changeFrequency: 'daily' as const },
+    { url: '/dashboard/image-compressor', priority: 0.95, changeFrequency: 'daily' as const },
+    { url: '/dashboard/pdf-compress', priority: 0.95, changeFrequency: 'daily' as const },
+    { url: '/dashboard/typing-master', priority: 0.9, changeFrequency: 'daily' as const },
+    { url: '/dashboard/password-generator', priority: 0.9, changeFrequency: 'daily' as const },
+    { url: '/dashboard/text-translator', priority: 0.9, changeFrequency: 'daily' as const },
+    { url: '/dashboard/color-picker', priority: 0.9, changeFrequency: 'daily' as const },
+    { url: '/dashboard/stopwatch', priority: 0.85, changeFrequency: 'weekly' as const },
+    { url: '/dashboard/expense-tracker', priority: 0.85, changeFrequency: 'weekly' as const },
+    { url: '/dashboard/todo-list', priority: 0.85, changeFrequency: 'weekly' as const },
+    { url: '/dashboard/url-shortener', priority: 0.85, changeFrequency: 'weekly' as const },
+    { url: '/dashboard/ip-lookup', priority: 0.85, changeFrequency: 'weekly' as const },
+    { url: '/dashboard/encryption-tool', priority: 0.85, changeFrequency: 'weekly' as const },
     
 
     
@@ -130,7 +138,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '/dashboard/random-generator', priority: 0.8, changeFrequency: 'weekly' as const },
     { url: '/dashboard/wifi-qr', priority: 0.8, changeFrequency: 'weekly' as const },
     { url: '/dashboard/expense-tracker', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/stopwatch', priority: 0.8, changeFrequency: 'weekly' as const },
+    { url: '/dashboard/word-counter', priority: 0.8, changeFrequency: 'weekly' as const },
+    { url: '/dashboard/markdown-editor', priority: 0.8, changeFrequency: 'weekly' as const },
+    { url: '/dashboard/json-formatter', priority: 0.8, changeFrequency: 'weekly' as const },
+    { url: '/dashboard/code-formatter', priority: 0.8, changeFrequency: 'weekly' as const },
+    { url: '/dashboard/hash-generator', priority: 0.8, changeFrequency: 'weekly' as const },
+    { url: '/dashboard/base64-converter', priority: 0.8, changeFrequency: 'weekly' as const },
+    { url: '/dashboard/timestamp-converter', priority: 0.8, changeFrequency: 'weekly' as const },
+    { url: '/dashboard/random-generator', priority: 0.8, changeFrequency: 'weekly' as const },
+    { url: '/dashboard/wifi-qr', priority: 0.8, changeFrequency: 'weekly' as const },
     { url: '/dashboard/todo-list', priority: 0.8, changeFrequency: 'weekly' as const },
     { url: '/dashboard/unit-converter', priority: 0.8, changeFrequency: 'weekly' as const },
     { url: '/dashboard/social-bio-generator', priority: 0.8, changeFrequency: 'weekly' as const }

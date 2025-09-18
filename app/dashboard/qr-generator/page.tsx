@@ -1,7 +1,8 @@
 
 import dynamic from 'next/dynamic';
-import { Loader2 } from 'lucide-react';
+import { Loader2, QrCode } from 'lucide-react';
 import { Metadata } from "next"
+import { MobileToolLayout } from '@/components/mobile-tool-layout'
 export const metadata: Metadata = {
   title: "QR Code Generator - MultiTool by Dhanbyte",
   description: "Generate custom QR codes instantly for free. Easy to use, fast download, no login required.",
@@ -58,14 +59,12 @@ const QRGeneratorPages = dynamic(() => import("../../../components/qr-genrator")
 
 export default function QRGeneratorPage() {
  return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
-      <h1 className="text-3xl md:text-4xl font-bold mb-4">Free QR Code Generator</h1>
-      <p className="text-muted-foreground mb-8 text-base">
-        Instantly generate custom QR codes for URLs, text, contact info, and more. Fast, free, and no sign-up required.
-      </p>
-
-
+    <MobileToolLayout
+      title="QR Code Generator"
+      description="Generate custom QR codes for URLs, text, contact info, and more. Fast, free, and no sign-up required."
+      icon={<QrCode className="h-6 w-6 text-blue-600" />}
+    >
       <QRGeneratorPages />
-    </div>
+    </MobileToolLayout>
   );
 }

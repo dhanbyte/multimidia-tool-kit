@@ -188,7 +188,7 @@ export default function ImageResizer() {
         setLoading(false)
       }, 'image/jpeg', 0.9)
     }
-    img.src = preview
+    img.src = preview || ''
   }
 
   const categories = [...new Set(presetSizes.map(p => p.category))]

@@ -8,7 +8,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Copy, RefreshCw, Shield } from 'lucide-react';
 import { toast } from 'sonner';
-import { ShareButton } from '@/components/share-button';
 import { ResultShare } from '@/components/result-share';
 
 export default function PasswordGenerator() {
@@ -207,7 +206,7 @@ export default function PasswordGenerator() {
                 onCheckedChange={(checked) => setExcludeAmbiguous(checked === true)}
               />
               <label htmlFor="excludeAmbiguous" className="text-sm">
-                Exclude Ambiguous ({'{}'}, [], (), /, \, &lt;, &gt;)
+                Exclude Ambiguous (brackets, slashes)
               </label>
             </div>
             
@@ -321,6 +320,183 @@ export default function PasswordGenerator() {
           )}
         </CardContent>
       </Card>
+      
+      {/* Comprehensive Usage Guide */}
+      <div className="mt-8 space-y-6">
+        <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800">
+          <CardHeader>
+            <CardTitle className="text-blue-800 dark:text-blue-200 flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Password Generator - Complete Usage Guide
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Quick Start */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h3 className="font-semibold text-green-700 dark:text-green-300">
+                  🔐 How to Generate Strong Passwords
+                </h3>
+                <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+                  <ol className="list-decimal list-inside space-y-2 text-sm">
+                    <li><strong>Set Length:</strong> Choose 12+ characters for strong security</li>
+                    <li><strong>Select Types:</strong> Enable uppercase, lowercase, numbers, symbols</li>
+                    <li><strong>Advanced Options:</strong> Exclude similar/ambiguous characters if needed</li>
+                    <li><strong>Generate:</strong> Click "Generate Password" button</li>
+                    <li><strong>Copy & Save:</strong> Copy password and store it securely</li>
+                  </ol>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="font-semibold text-orange-700 dark:text-orange-300">
+                  🛡️ Password Security Tips
+                </h3>
+                <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+                  <ul className="list-disc list-inside space-y-2 text-sm">
+                    <li><strong>Length Matters:</strong> Longer passwords are exponentially stronger</li>
+                    <li><strong>Mix Characters:</strong> Use all character types for maximum security</li>
+                    <li><strong>Unique Passwords:</strong> Never reuse passwords across accounts</li>
+                    <li><strong>Store Safely:</strong> Use a password manager to store passwords</li>
+                    <li><strong>Regular Updates:</strong> Change passwords periodically</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            {/* Password Strength Guide */}
+            <div>
+              <h3 className="font-semibold mb-4 text-purple-700 dark:text-purple-300">
+                📊 Password Strength Levels
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-red-50 dark:bg-red-950 p-4 rounded-lg border border-red-200 dark:border-red-800">
+                  <h4 className="font-medium text-red-600 mb-2">❌ Weak (4-7 chars)</h4>
+                  <ul className="text-xs space-y-1 text-red-700 dark:text-red-300">
+                    <li>• Easy to crack in minutes</li>
+                    <li>• Vulnerable to brute force</li>
+                    <li>• Not recommended for any use</li>
+                    <li>• Example: "pass123"</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-yellow-50 dark:bg-yellow-950 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                  <h4 className="font-medium text-yellow-600 mb-2">⚠️ Medium (8-11 chars)</h4>
+                  <ul className="text-xs space-y-1 text-yellow-700 dark:text-yellow-300">
+                    <li>• Takes days/weeks to crack</li>
+                    <li>• Acceptable for low-risk accounts</li>
+                    <li>• Should include mixed characters</li>
+                    <li>• Example: "MyPass123!"</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                  <h4 className="font-medium text-green-600 mb-2">✅ Strong (12+ chars)</h4>
+                  <ul className="text-xs space-y-1 text-green-700 dark:text-green-300">
+                    <li>• Takes years/centuries to crack</li>
+                    <li>• Recommended for all accounts</li>
+                    <li>• Uses all character types</li>
+                    <li>• Example: "Kp9#mX2$vL8@qR5!"</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            {/* Advanced Features */}
+            <div>
+              <h3 className="font-semibold mb-4 text-indigo-700 dark:text-indigo-300">
+                ⚙️ Advanced Features Explained
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+                  <h4 className="font-medium mb-2">🔤 Character Options</h4>
+                  <ul className="text-sm space-y-1">
+                    <li><strong>Uppercase:</strong> A-Z (adds 26 characters)</li>
+                    <li><strong>Lowercase:</strong> a-z (adds 26 characters)</li>
+                    <li><strong>Numbers:</strong> 0-9 (adds 10 characters)</li>
+                    <li><strong>Symbols:</strong> !@#$... (adds 30+ characters)</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+                  <h4 className="font-medium mb-2">🎯 Exclusion Options</h4>
+                  <ul className="text-sm space-y-1">
+                    <li><strong>Similar:</strong> Excludes i,l,1,L,o,0,O</li>
+                    <li><strong>Ambiguous:</strong> Excludes brackets and slashes</li>
+                    <li><strong>No Repeats:</strong> Each character used once</li>
+                    <li><strong>Custom Symbols:</strong> Define your own symbols</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            {/* Use Cases */}
+            <div>
+              <h3 className="font-semibold mb-4 text-cyan-700 dark:text-cyan-300">
+                💼 Common Use Cases
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+                  <h4 className="font-medium mb-2">🏦 Banking & Finance</h4>
+                  <ul className="text-sm space-y-1">
+                    <li>• 16+ character length</li>
+                    <li>• All character types</li>
+                    <li>• No similar characters</li>
+                    <li>• Change every 3 months</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+                  <h4 className="font-medium mb-2">💼 Work Accounts</h4>
+                  <ul className="text-sm space-y-1">
+                    <li>• 12-14 character length</li>
+                    <li>• Mixed case + numbers</li>
+                    <li>• Avoid ambiguous chars</li>
+                    <li>• Follow company policy</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+                  <h4 className="font-medium mb-2">🎮 Personal Accounts</h4>
+                  <ul className="text-sm space-y-1">
+                    <li>• 10-12 character length</li>
+                    <li>• Easy to type symbols</li>
+                    <li>• Memorable but secure</li>
+                    <li>• Unique for each service</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            {/* Security Best Practices */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                <h4 className="font-medium text-green-800 dark:text-green-200 mb-3">✅ Do This</h4>
+                <ul className="text-sm space-y-2 text-green-700 dark:text-green-300">
+                  <li>• Use unique passwords for every account</li>
+                  <li>• Store passwords in a password manager</li>
+                  <li>• Enable two-factor authentication</li>
+                  <li>• Generate new passwords regularly</li>
+                  <li>• Use maximum length allowed</li>
+                  <li>• Test password strength before using</li>
+                </ul>
+              </div>
+              
+              <div className="bg-red-50 dark:bg-red-950 p-4 rounded-lg border border-red-200 dark:border-red-800">
+                <h4 className="font-medium text-red-800 dark:text-red-200 mb-3">❌ Don't Do This</h4>
+                <ul className="text-sm space-y-2 text-red-700 dark:text-red-300">
+                  <li>• Don't reuse passwords across sites</li>
+                  <li>• Don't use personal information</li>
+                  <li>• Don't share passwords with others</li>
+                  <li>• Don't write passwords on paper</li>
+                  <li>• Don't use dictionary words</li>
+                  <li>• Don't use predictable patterns</li>
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

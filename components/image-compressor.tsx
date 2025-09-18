@@ -144,7 +144,7 @@ export default function ImageCompressorPages() {
         const compressedFileBlob = await imageCompression(file, options);
         
         // Additional canvas compression for extreme cases
-        let finalBlob = compressedFileBlob;
+        let finalBlob: Blob = compressedFileBlob;
         if (compressionLevel === 'extreme' && compressedFileBlob.size > file.size * 0.2) {
           finalBlob = await canvasCompress(compressedFileBlob, 0.3);
         }

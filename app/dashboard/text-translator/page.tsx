@@ -404,21 +404,239 @@ export default function TextTranslator() {
         </CardContent>
       </Card>
       
-      {/* Features */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-        <div className="p-4 bg-muted rounded-lg">
-          <h3 className="font-medium mb-2">🌍 80+ Languages</h3>
-          <p className="text-muted-foreground">Support for all major world languages including Hindi, Arabic, Chinese, and regional languages.</p>
-        </div>
-        <div className="p-4 bg-muted rounded-lg">
-          <h3 className="font-medium mb-2">🔍 Smart Search</h3>
-          <p className="text-muted-foreground">Easily find languages by name, native script, or region with intelligent search.</p>
-        </div>
-        <div className="p-4 bg-muted rounded-lg">
-          <h3 className="font-medium mb-2">🎯 Auto Detection</h3>
-          <p className="text-muted-foreground">Automatically detect the source language for quick and easy translation.</p>
-        </div>
-      </div>
+      {/* Comprehensive Usage Guide */}
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Complete Text Translator Guide</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="p-4 bg-muted rounded-lg">
+              <h3 className="font-medium mb-2">🌍 80+ Languages</h3>
+              <p className="text-muted-foreground">Support for all major world languages including Hindi, Arabic, Chinese, and regional languages.</p>
+            </div>
+            <div className="p-4 bg-muted rounded-lg">
+              <h3 className="font-medium mb-2">🔍 Smart Search</h3>
+              <p className="text-muted-foreground">Easily find languages by name, native script, or region with intelligent search.</p>
+            </div>
+            <div className="p-4 bg-muted rounded-lg">
+              <h3 className="font-medium mb-2">🎯 Auto Detection</h3>
+              <p className="text-muted-foreground">Automatically detect the source language for quick and easy translation.</p>
+            </div>
+          </div>
+          
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-xl font-semibold mb-4">🚀 How to Use Text Translator</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-2 text-blue-600">📝 Quick Start Guide</h4>
+                  <ol className="list-decimal list-inside space-y-2 text-sm">
+                    <li><strong>Select Source Language:</strong> Choose the language of your text or use "Auto Detect"</li>
+                    <li><strong>Choose Target Language:</strong> Select the language you want to translate to</li>
+                    <li><strong>Enter Text:</strong> Type or paste your text in the left panel</li>
+                    <li><strong>Translate:</strong> Click "Translate Text" to get your translation</li>
+                    <li><strong>Use Results:</strong> Copy, download, or listen to the translation</li>
+                  </ol>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold mb-2 text-green-600">✨ Advanced Features</h4>
+                  <ul className="list-disc list-inside space-y-2 text-sm">
+                    <li><strong>Language Search:</strong> Type to quickly find any language</li>
+                    <li><strong>Swap Languages:</strong> Click the swap button to reverse translation</li>
+                    <li><strong>Text-to-Speech:</strong> Listen to pronunciation in both languages</li>
+                    <li><strong>Word Count:</strong> Track the length of your text</li>
+                    <li><strong>Download:</strong> Save translations as text files</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-xl font-semibold mb-4">🌍 Supported Languages</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-3 text-purple-600">🇮🇳 Indian Languages</h4>
+                  <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+                    <ul className="list-disc list-inside space-y-1 text-sm">
+                      <li><strong>Hindi:</strong> हिन्दी (Most popular)</li>
+                      <li><strong>Bengali:</strong> বাংলা (200M+ speakers)</li>
+                      <li><strong>Telugu:</strong> తెలుగు (South India)</li>
+                      <li><strong>Marathi:</strong> मराठी (Maharashtra)</li>
+                      <li><strong>Tamil:</strong> தமிழ் (Tamil Nadu)</li>
+                      <li><strong>Gujarati:</strong> ગુજરાતી (Gujarat)</li>
+                      <li><strong>Kannada:</strong> ಕನ್ನಡ (Karnataka)</li>
+                      <li><strong>Malayalam:</strong> മലയാളം (Kerala)</li>
+                      <li><strong>Punjabi:</strong> ਪੰਜਾਬੀ (Punjab)</li>
+                      <li><strong>Urdu:</strong> اردو (Pakistan/India)</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold mb-3 text-orange-600">🌏 Major World Languages</h4>
+                  <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+                    <ul className="list-disc list-inside space-y-1 text-sm">
+                      <li><strong>English:</strong> Global lingua franca</li>
+                      <li><strong>Chinese:</strong> 中文 (1.3B+ speakers)</li>
+                      <li><strong>Spanish:</strong> Español (500M+ speakers)</li>
+                      <li><strong>Arabic:</strong> العربية (400M+ speakers)</li>
+                      <li><strong>French:</strong> Français (280M+ speakers)</li>
+                      <li><strong>Russian:</strong> Русский (260M+ speakers)</li>
+                      <li><strong>Portuguese:</strong> Português (260M+ speakers)</li>
+                      <li><strong>Japanese:</strong> 日本語 (125M+ speakers)</li>
+                      <li><strong>German:</strong> Deutsch (100M+ speakers)</li>
+                      <li><strong>Korean:</strong> 한국어 (75M+ speakers)</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold mb-3 text-cyan-600">🌍 Regional Languages</h4>
+                  <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+                    <ul className="list-disc list-inside space-y-1 text-sm">
+                      <li><strong>Thai:</strong> ไทย (Thailand)</li>
+                      <li><strong>Vietnamese:</strong> Tiếng Việt (Vietnam)</li>
+                      <li><strong>Indonesian:</strong> Bahasa Indonesia</li>
+                      <li><strong>Turkish:</strong> Türkçe (Turkey)</li>
+                      <li><strong>Polish:</strong> Polski (Poland)</li>
+                      <li><strong>Dutch:</strong> Nederlands (Netherlands)</li>
+                      <li><strong>Swedish:</strong> Svenska (Sweden)</li>
+                      <li><strong>Hebrew:</strong> עברית (Israel)</li>
+                      <li><strong>Persian:</strong> فارسی (Iran)</li>
+                      <li><strong>Swahili:</strong> Kiswahili (East Africa)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-xl font-semibold mb-4">💡 Pro Tips & Best Practices</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                  <h4 className="font-medium text-green-800 dark:text-green-200 mb-3">✅ Best Practices</h4>
+                  <ul className="text-sm space-y-2 text-green-700 dark:text-green-300">
+                    <li>• <strong>Use Auto Detect:</strong> Let the system identify the source language</li>
+                    <li>• <strong>Check Context:</strong> Review translations for context accuracy</li>
+                    <li>• <strong>Short Sentences:</strong> Break long text into shorter segments</li>
+                    <li>• <strong>Proper Nouns:</strong> Be careful with names and places</li>
+                    <li>• <strong>Listen to Pronunciation:</strong> Use text-to-speech for learning</li>
+                    <li>• <strong>Save Important Translations:</strong> Download or copy key translations</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-red-50 dark:bg-red-950 p-4 rounded-lg border border-red-200 dark:border-red-800">
+                  <h4 className="font-medium text-red-800 dark:text-red-200 mb-3">❌ Common Mistakes</h4>
+                  <ul className="text-sm space-y-2 text-red-700 dark:text-red-300">
+                    <li>• <strong>Literal Translation:</strong> Don't expect word-for-word accuracy</li>
+                    <li>• <strong>Idioms & Slang:</strong> These may not translate well</li>
+                    <li>• <strong>Technical Terms:</strong> Verify specialized vocabulary</li>
+                    <li>• <strong>Cultural Context:</strong> Some concepts don't have direct equivalents</li>
+                    <li>• <strong>Grammar Differences:</strong> Sentence structure varies by language</li>
+                    <li>• <strong>Formal vs Informal:</strong> Consider the appropriate tone</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-xl font-semibold mb-4">🎯 Use Cases & Applications</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+                  <h5 className="font-medium mb-2">🎓 Education & Learning</h5>
+                  <ul className="text-sm space-y-1">
+                    <li>• Language learning assistance</li>
+                    <li>• Homework and assignments</li>
+                    <li>• Research paper translation</li>
+                    <li>• Study foreign literature</li>
+                    <li>• Understand academic content</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+                  <h5 className="font-medium mb-2">💼 Business & Professional</h5>
+                  <ul className="text-sm space-y-1">
+                    <li>• International communication</li>
+                    <li>• Document translation</li>
+                    <li>• Email correspondence</li>
+                    <li>• Marketing content</li>
+                    <li>• Client presentations</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+                  <h5 className="font-medium mb-2">✈️ Travel & Personal</h5>
+                  <ul className="text-sm space-y-1">
+                    <li>• Travel planning and booking</li>
+                    <li>• Menu and sign translation</li>
+                    <li>• Social media posts</li>
+                    <li>• Chat with foreign friends</li>
+                    <li>• Understanding news articles</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-xl font-semibold mb-4">🔧 Features Explained</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-3 text-indigo-600">🤖 Auto Language Detection</h4>
+                  <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+                    <p className="text-sm mb-3">Automatically identifies the source language using pattern recognition:</p>
+                    <ul className="list-disc list-inside space-y-1 text-sm">
+                      <li><strong>Script Detection:</strong> Recognizes writing systems (Latin, Arabic, Chinese, etc.)</li>
+                      <li><strong>Character Patterns:</strong> Identifies language-specific characters</li>
+                      <li><strong>Smart Fallback:</strong> Defaults to English if uncertain</li>
+                      <li><strong>Real-time Analysis:</strong> Updates as you type</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold mb-3 text-pink-600">🔊 Text-to-Speech</h4>
+                  <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+                    <p className="text-sm mb-3">Listen to pronunciation in both source and target languages:</p>
+                    <ul className="list-disc list-inside space-y-1 text-sm">
+                      <li><strong>Native Pronunciation:</strong> Hear how words should sound</li>
+                      <li><strong>Learning Aid:</strong> Perfect for language learning</li>
+                      <li><strong>Accessibility:</strong> Helpful for visually impaired users</li>
+                      <li><strong>Browser-based:</strong> Works without additional software</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-blue-50 dark:bg-blue-950 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
+              <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-3">📝 Important Notes</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-blue-700 dark:text-blue-300 mb-2"><strong>Translation Quality:</strong></p>
+                  <ul className="list-disc list-inside space-y-1 text-blue-600 dark:text-blue-400">
+                    <li>This is a demo version with simulated translations</li>
+                    <li>Real implementation would use Google Translate API</li>
+                    <li>Always verify important translations with native speakers</li>
+                    <li>Consider cultural context and local variations</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <p className="text-blue-700 dark:text-blue-300 mb-2"><strong>Privacy & Security:</strong></p>
+                  <ul className="list-disc list-inside space-y-1 text-blue-600 dark:text-blue-400">
+                    <li>All processing happens locally in your browser</li>
+                    <li>No text is sent to external servers in demo mode</li>
+                    <li>Your translations are not stored or logged</li>
+                    <li>Safe for confidential and sensitive content</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

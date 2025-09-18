@@ -27,6 +27,7 @@ import {
 } from "lucide-react"
 import { ShareButton } from '@/components/share-button'
 import { ResultShare } from '@/components/result-share'
+import { MobileCard } from '@/components/mobile-tool-layout'
 
 
 
@@ -146,18 +147,8 @@ export default function QRGeneratorPages() {
   const currentType = qrTypes.find((type) => type.value === qrType)
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center space-x-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/20">
-          <QrCode className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold">QR Code Generator</h1>
-          <p className="text-muted-foreground">Generate custom QR codes for any text, URL, or data</p>
-        </div>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
@@ -350,14 +341,18 @@ export default function QRGeneratorPages() {
               </div>
             </div>
 
-            <Button onClick={handleGenerate} disabled={loading} className="w-full">
+            <Button onClick={handleGenerate} disabled={loading} className="w-full h-9 sm:h-10 text-xs sm:text-sm">
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...
+                  <Loader2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" /> 
+                  <span className="hidden sm:inline">Generating...</span>
+                  <span className="sm:hidden">Wait...</span>
                 </>
               ) : (
                 <>
-                  <QrCode className="mr-2 h-4 w-4" /> Generate QR Code
+                  <QrCode className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" /> 
+                  <span className="hidden sm:inline">Generate QR Code</span>
+                  <span className="sm:hidden">Generate</span>
                 </>
               )}
             </Button>
@@ -413,14 +408,15 @@ export default function QRGeneratorPages() {
                   </div>
                 </div>
                 <div className="flex gap-2 w-full">
-                  <Button onClick={downloadQR} className="flex-1">
-                    <Download className="mr-2 h-4 w-4" /> Download
+                  <Button onClick={downloadQR} className="flex-1 h-9 sm:h-10 text-xs sm:text-sm">
+                    <Download className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" /> 
+                    <span className="hidden sm:inline">Download</span>
+                    <span className="sm:hidden">Save</span>
                   </Button>
-                  <ResultShare 
-                    title="QR Code"
-                    result={qrCode}
-                    resultType="qr"
-                    toolName="qr-generator"
+                  <ShareButton 
+                    title="QR Code Generator"
+                    description="Generate custom QR codes instantly"
+                    result={`I just created a QR code using MultiTool! ${text ? `Content: ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}` : ''}`}
                   />
                 </div>
                 <Alert>

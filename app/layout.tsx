@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "sonner";
 import { Analytics } from "@/components/analytics";
 import StructuredData from "@/components/structured-data";
 import ErrorBoundary from "@/components/error-boundary";
@@ -10,13 +11,13 @@ import ErrorBoundary from "@/components/error-boundary";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "MediaTools Pro – Free Online PDF, Image & Audio Tools",
+  title: "MultiTool - All-in-One Online Tools by Dhanbyte | Free PDF, Image & Text Tools",
   description:
-    "Free online tools for PDF compression, image optimization, QR code generation, typing tests, text summarization, password generation, and more. Fast, secure, and easy to use.",
-  keywords: "free online tools, pdf compressor, image compressor, qr code generator, typing test, text summarizer, password generator, color picker, code formatter, gradient generator, ai tools, developer tools, design tools, utility tools, security tools",
-  authors: [{ name: "dhanbyte", url: "https://dhanbyte.me" }],
-  creator: "dhanbyte",
-  publisher: "MediaTools Pro",
+    "MultiTool by Dhanbyte - Your ultimate collection of 100+ free online tools. PDF converter, image compressor, QR generator, password tools, text utilities, developer tools & more. No signup required!",
+  keywords: "MultiTool, Dhanbyte tools, free online tools, pdf converter, image compressor, qr code generator, password generator, text tools, developer tools, encryption tools, typing test, stopwatch, expense tracker, url shortener, ip lookup, all in one tools",
+  authors: [{ name: "Dhananjay (Dhanbyte)", url: "https://dhanbyte.me" }],
+  creator: "Dhananjay - Full Stack Developer",
+  publisher: "MultiTool by Dhanbyte",
   robots: {
     index: true,
     follow: true,
@@ -29,17 +30,17 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "MediaTools Pro – All-in-One Online Tools",
+    title: "MultiTool - 100+ Free Online Tools by Dhanbyte",
     description:
-      "Try our free tools like PDF to JPG, QR Generator, Image Compressor & AI-based utilities at dhanbyte.me. 100% free and online.",
+      "Discover MultiTool by Dhanbyte - Your one-stop destination for 100+ free online tools. PDF converters, image tools, text utilities, developer tools, security tools & more. Fast, secure, no signup!",
     url: "https://dhanbyte.me",
-    siteName: "MediaTools Pro",
+    siteName: "MultiTool by Dhanbyte",
     images: [
       {
         url: "https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819",
         width: 1200,
         height: 630,
-        alt: "MediaTools Pro by dhanbyte",
+        alt: "MultiTool - All-in-One Online Tools by Dhanbyte",
       },
     ],
     type: "website",
@@ -47,15 +48,15 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "MediaTools Pro – Free Online Tools",
-    description: "Free online tools for PDF, image, text, and more. Fast, secure, and easy to use.",
+    title: "MultiTool by Dhanbyte - 100+ Free Online Tools",
+    description: "Your ultimate toolkit! 100+ free online tools for PDF, images, text, development, security & more. Created by Dhananjay (Dhanbyte).",
     images: ["https://ik.imagekit.io/b5qewhvhb/New%20Folder/ChatGPT%20Image%20Jul%2020,%202025,%2011_38_49%20AM.png?updatedAt=1752991986819"],
   },
   alternates: {
     canonical: "https://dhanbyte.me",
   },
   verification: {
-    google: "your-google-verification-code",
+    google: "google-site-verification-code-here",
   },
 };
 
@@ -74,8 +75,18 @@ export default function RootLayout({
         ></script>
         <script
           async
-          src="https://www.googletagmanager.com/gtag/js?id=G-CSRTEPL9GN"
+          src="https://www.googletagmanager.com/gtag/js?id=G-LE6FGHJQ8G"
         ></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-LE6FGHJQ8G');
+            `,
+          }}
+        />
         <link rel="canonical" href="https://dhanbyte.me" />
 
         <link
@@ -86,8 +97,11 @@ export default function RootLayout({
 
         <meta
           name="keywords"
-          content="free pdf tools, image compressor, qr code generator, online tools, voice cleaner, text to image ai, pdf to jpg, compress image online, dhanbyte tools"
+          content="MultiTool, Dhanbyte, Dhananjay, free online tools, pdf converter, image compressor, qr code generator, password generator, text tools, developer tools, encryption tools, typing master, stopwatch, expense tracker, url shortener, ip lookup, all in one toolkit"
         />
+        <meta name="author" content="Dhananjay (Dhanbyte) - Full Stack Developer & Video Editor" />
+        <meta name="application-name" content="MultiTool by Dhanbyte" />
+        <meta name="theme-color" content="#3b82f6" />
       </head>
       <body className={inter.className}>
         <noscript>
@@ -104,6 +118,7 @@ export default function RootLayout({
             <Analytics />
             {children}
             <Toaster />
+            <SonnerToaster position="top-right" />
           </ThemeProvider>
         </ErrorBoundary>
       </body>

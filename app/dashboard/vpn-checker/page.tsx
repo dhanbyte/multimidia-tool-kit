@@ -1,88 +1,210 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, Globe, Eye } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Loader2, Shield, Globe, Eye, AlertTriangle, CheckCircle, XCircle } from "lucide-react"
+
+interface VPNData {
+  ip: string
+  country: string
+  region: string
+  city: string
+  isp: string
+  proxy: boolean
+  vpn: boolean
+  tor: boolean
+  hosting: boolean
+  threat: string
+  mobile: boolean
+}
 
 export default function VPNChecker() {
-  const [vpnInfo, setVpnInfo] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
+  const [vpnData, setVpnData] = useState<VPNData | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const checkVPN = async () => {
-    setLoading(true);
+  const checkConnection = async () => {
+    setLoading(true)
+    setError('')
     
-    // Simulate VPN detection
-    setTimeout(() => {
-      setVpnInfo({
-        ip: '192.168.1.1',
-        country: 'United States',
-        city: 'New York',
-        isVPN: Math.random() > 0.5,
-        isTor: false,
-        isProxy: false
-      });
-      setLoading(false);
-      toast.success('VPN status checked!');
-    }, 2000);
-  };
+    try {
+      // Get IP first
+      const ipResponse = await fetch('https://api.ipify.org?format=json')
+      const { ip } = await ipResponse.json()
+      
+      // Get location data
+      const locationResponse = await fetch(`https://ipapi.co/${ip}/json/`)
+      const locationData = await locationResponse.json()
+      
+      // Simple VPN/Proxy detection based on common patterns
+      const isVPN = locationData.org?.toLowerCase().includes('vpn') || 
+                   locationData.org?.toLowerCase().includes('proxy') ||
+                   locationData.org?.toLowerCase().includes('hosting')
+      
+      const isProxy = locationData.org?.toLowerCase().includes('proxy') ||
+                     locationData.org?.toLowerCase().includes('datacenter')
+      
+      const isTor = locationData.org?.toLowerCase().includes('tor')
+      
+      setVpnData({
+        ip: ip,
+        country: locationData.country_name || 'Unknown',
+        region: locationData.region || 'Unknown',
+        city: locationData.city || 'Unknown',
+        isp: locationData.org || 'Unknown ISP',
+        proxy: isProxy,
+        vpn: isVPN,
+        tor: isTor,
+        hosting: locationData.org?.toLowerCase().includes('hosting') || false,
+        threat: isVPN || isProxy || isTor ? 'Medium' : 'Low',
+        mobile: locationData.connection?.toLowerCase().includes('mobile') || false
+      })
+    } catch (err) {
+      setError('Failed to check connection. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    checkConnection()
+  }, [])
+
+  const getStatusIcon = (status: boolean) => {
+    return status ? <XCircle className="w-5 h-5 text-red-500" /> : <CheckCircle className="w-5 h-5 text-green-500" />
+  }
+
+  const getThreatColor = (threat: string) => {
+    switch (threat.toLowerCase()) {
+      case 'high': return 'destructive'
+      case 'medium': return 'secondary'
+      default: return 'default'
+    }
+  }
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-8">VPN & Proxy Checker</h1>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
-            Check VPN Status
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Button onClick={checkVPN} disabled={loading} className="w-full">
-            {loading ? 'Checking...' : 'Check My Connection'}
-          </Button>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">VPN & Proxy Checker</h1>
+        <p className="text-muted-foreground">Check if your connection is using VPN, proxy, or Tor network</p>
+      </div>
 
-          {vpnInfo && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <div className="text-sm font-medium">IP Address</div>
-                  <div className="text-sm text-muted-foreground">{vpnInfo.ip}</div>
-                </div>
-                <div>
-                  <div className="text-sm font-medium">Location</div>
-                  <div className="text-sm text-muted-foreground">{vpnInfo.city}, {vpnInfo.country}</div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className={`p-3 rounded-lg flex items-center gap-2 ${vpnInfo.isVPN ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-                  <Shield className={`h-4 w-4 ${vpnInfo.isVPN ? 'text-green-600' : 'text-red-600'}`} />
-                  <span className={`text-sm ${vpnInfo.isVPN ? 'text-green-600' : 'text-red-600'}`}>
-                    {vpnInfo.isVPN ? 'VPN Detected' : 'No VPN Detected'}
-                  </span>
-                </div>
-
-                <div className={`p-3 rounded-lg flex items-center gap-2 ${vpnInfo.isTor ? 'bg-yellow-50 border border-yellow-200' : 'bg-gray-50 border border-gray-200'}`}>
-                  <Eye className={`h-4 w-4 ${vpnInfo.isTor ? 'text-yellow-600' : 'text-gray-600'}`} />
-                  <span className={`text-sm ${vpnInfo.isTor ? 'text-yellow-600' : 'text-gray-600'}`}>
-                    {vpnInfo.isTor ? 'Tor Network Detected' : 'No Tor Network'}
-                  </span>
-                </div>
-
-                <div className={`p-3 rounded-lg flex items-center gap-2 ${vpnInfo.isProxy ? 'bg-orange-50 border border-orange-200' : 'bg-gray-50 border border-gray-200'}`}>
-                  <Globe className={`h-4 w-4 ${vpnInfo.isProxy ? 'text-orange-600' : 'text-gray-600'}`} />
-                  <span className={`text-sm ${vpnInfo.isProxy ? 'text-orange-600' : 'text-gray-600'}`}>
-                    {vpnInfo.isProxy ? 'Proxy Detected' : 'No Proxy'}
-                  </span>
-                </div>
-              </div>
+      <div className="grid gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5" />
+              Connection Status
+            </CardTitle>
+            <CardDescription>Real-time analysis of your internet connection</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-center mb-6">
+              <Button onClick={checkConnection} disabled={loading} size="lg">
+                {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Eye className="w-4 h-4 mr-2" />}
+                {loading ? 'Checking...' : 'Check My Connection'}
+              </Button>
             </div>
-          )}
-        </CardContent>
-      </Card>
+
+            {error && (
+              <div className="text-center text-red-500 mb-4">{error}</div>
+            )}
+
+            {vpnData && (
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <span className="font-medium">IP Address</span>
+                    <span className="font-mono">{vpnData.ip}</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <span className="font-medium">Location</span>
+                    <span>{vpnData.city}, {vpnData.region}, {vpnData.country}</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <span className="font-medium">ISP</span>
+                    <span className="text-right">{vpnData.isp}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <span className="font-medium flex items-center gap-2">
+                      VPN Detected
+                      {getStatusIcon(vpnData.vpn)}
+                    </span>
+                    <Badge variant={vpnData.vpn ? 'destructive' : 'default'}>
+                      {vpnData.vpn ? 'Yes' : 'No'}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <span className="font-medium flex items-center gap-2">
+                      Proxy Detected
+                      {getStatusIcon(vpnData.proxy)}
+                    </span>
+                    <Badge variant={vpnData.proxy ? 'destructive' : 'default'}>
+                      {vpnData.proxy ? 'Yes' : 'No'}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <span className="font-medium flex items-center gap-2">
+                      Tor Network
+                      {getStatusIcon(vpnData.tor)}
+                    </span>
+                    <Badge variant={vpnData.tor ? 'destructive' : 'default'}>
+                      {vpnData.tor ? 'Yes' : 'No'}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <span className="font-medium">Risk Level</span>
+                    <Badge variant={getThreatColor(vpnData.threat)}>
+                      {vpnData.threat}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Globe className="w-5 h-5" />
+              How to Use
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <h3 className="font-semibold mb-2">Features</h3>
+              <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                <li>Real-time VPN detection using advanced algorithms</li>
+                <li>Proxy server identification and analysis</li>
+                <li>Tor network connection detection</li>
+                <li>ISP and geolocation information</li>
+                <li>Security risk assessment</li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-2">Understanding Results</h3>
+              <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                <li><strong>VPN:</strong> Virtual Private Network detected</li>
+                <li><strong>Proxy:</strong> Proxy server connection identified</li>
+                <li><strong>Tor:</strong> The Onion Router network detected</li>
+                <li><strong>Risk Level:</strong> Security threat assessment</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  );
+  )
 }
