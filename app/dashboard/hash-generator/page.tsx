@@ -6,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Copy, Hash } from 'lucide-react';
+import { Copy, Hash, Download } from 'lucide-react';
 import { toast } from 'sonner';
+import { ResultShare } from '@/components/result-share';
 
 export default function HashGenerator() {
   const [inputText, setInputText] = useState('');
@@ -94,6 +95,30 @@ export default function HashGenerator() {
     });
   };
 
+  const downloadHashes = () => {
+    if (!hashes.sha1 && !hashes.sha256 && !hashes.sha512) {
+      toast.error('No hashes to download');
+      return;
+    }
+
+    const content = `Hash Results for: "${inputText}"
+
+SHA-1: ${hashes.sha1}
+SHA-256: ${hashes.sha256}
+SHA-512: ${hashes.sha512}
+
+Generated on: ${new Date().toLocaleString()}`;
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `hashes-${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success('Hashes downloaded!');
+  };
+
   return (
     <div className="container mx-auto p-6 max-w-4xl">
       <div className="mb-8">
@@ -135,7 +160,21 @@ export default function HashGenerator() {
 
           {(hashes.sha1 || hashes.sha256 || hashes.sha512) && (
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Generated Hashes</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Generated Hashes</h3>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={downloadHashes}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                  <ResultShare 
+                    title="Hash Results"
+                    result={`SHA-1: ${hashes.sha1}\nSHA-256: ${hashes.sha256}\nSHA-512: ${hashes.sha512}`}
+                    resultType="text"
+                    toolName="hash-generator"
+                  />
+                </div>
+              </div>
               
               <div className="space-y-3">
                 <div className="space-y-2">

@@ -5,7 +5,16 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/api/', '/admin/', '/_next/']
+      disallow: [
+        '/api/',
+        '/admin/',
+        '/_next/',
+        '/*?*',
+        '/dashboard/*?*',
+        '/*.backup',
+        '/temp/',
+        '/test/'
+      ]
     },
     sitemap: 'https://dhanbyte.me/sitemap.xml',
     host: 'https://dhanbyte.me'

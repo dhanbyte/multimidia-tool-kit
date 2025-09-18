@@ -37,36 +37,59 @@ export function ResultShare({ title, result, resultType, toolName }: ResultShare
   const copyResult = () => {
     let textToCopy = '';
     
-    switch (resultType) {
-      case 'text':
-        textToCopy = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
-        break;
-      case 'password':
-        textToCopy = result;
-        break;
-      case 'note':
-        textToCopy = `${result.title}\n\n${result.content}`;
-        break;
-      case 'qr':
-        textToCopy = `QR Code generated for: ${result}`;
-        break;
-      default:
-        textToCopy = JSON.stringify(result, null, 2);
+    // For PDF to Word, just share a simple message about the tool
+    if (toolName === 'PDF to Word Converter') {
+      textToCopy = `Check out this amazing PDF to Word Converter tool! Convert your PDF files to editable Word documents instantly. Try it now: ${window.location.origin}/dashboard/pdf-to-word`;
+    } else {
+      // Keep original logic for other tools
+      switch (resultType) {
+        case 'text':
+          textToCopy = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
+          break;
+        case 'password':
+          textToCopy = result;
+          break;
+        case 'note':
+          textToCopy = `${result.title}\n\n${result.content}`;
+          break;
+        case 'qr':
+          textToCopy = `QR Code generated for: ${result}`;
+          break;
+        default:
+          textToCopy = JSON.stringify(result, null, 2);
+      }
     }
     
     navigator.clipboard.writeText(textToCopy);
-    toast.success('Result copied to clipboard!');
+    toast.success('Text copied to clipboard!');
   };
 
   const copyShareLink = () => {
-    const shareLink = generateShareableLink();
+    let shareLink = '';
+    
+    // For PDF to Word, share the tool page instead of result
+    if (toolName === 'PDF to Word Converter') {
+      shareLink = `${window.location.origin}/dashboard/pdf-to-word`;
+    } else {
+      shareLink = generateShareableLink();
+    }
+    
     navigator.clipboard.writeText(shareLink);
     toast.success('Share link copied!');
   };
 
   const shareToSocial = (platform: string) => {
-    const shareText = `Check out my ${title} result from ${toolName}!`;
-    const shareLink = generateShareableLink();
+    let shareText = '';
+    let shareLink = '';
+    
+    // For PDF to Word, share the tool page instead of result
+    if (toolName === 'PDF to Word Converter') {
+      shareText = `Check out this amazing PDF to Word Converter! Convert your PDF files to editable Word documents instantly.`;
+      shareLink = `${window.location.origin}/dashboard/pdf-to-word`;
+    } else {
+      shareText = `Check out my ${title} result from ${toolName}!`;
+      shareLink = generateShareableLink();
+    }
     
     let url = '';
     switch (platform) {
@@ -144,8 +167,18 @@ export function ResultShare({ title, result, resultType, toolName }: ResultShare
         <div className="space-y-4">
           {/* Result Preview */}
           <div className="p-4 bg-muted rounded-lg">
-            <h4 className="font-medium mb-2">Result Preview:</h4>
-            {resultType === 'image' || resultType === 'qr' ? (
+            <h4 className="font-medium mb-2">Share Preview:</h4>
+            {toolName === 'PDF to Word Converter' ? (
+              <div className="text-sm p-3 bg-background rounded border">
+                <p className="font-medium text-blue-600">🔄 PDF to Word Converter</p>
+                <p className="text-muted-foreground mt-1">
+                  Convert your PDF files to editable Word documents instantly. Fast, secure, and completely free!
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  📄 Supports text-based PDFs • ⚡ Instant conversion • 💾 Download as .doc
+                </p>
+              </div>
+            ) : resultType === 'image' || resultType === 'qr' ? (
               <img src={result} alt="Result" className="max-w-full h-32 object-contain mx-auto" />
             ) : (
               <pre className="text-sm overflow-auto max-h-32">

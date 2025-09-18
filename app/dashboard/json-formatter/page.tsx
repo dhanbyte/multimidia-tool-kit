@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Copy, FileText, CheckCircle, XCircle } from 'lucide-react';
+import { Copy, FileText, CheckCircle, XCircle, Download } from 'lucide-react';
 import { toast } from 'sonner';
+import { ResultShare } from '@/components/result-share';
 
 export default function JSONFormatter() {
   const [inputJson, setInputJson] = useState('');
@@ -103,6 +104,22 @@ export default function JSONFormatter() {
     setInputJson(JSON.stringify(sampleJson));
   };
 
+  const downloadJSON = () => {
+    if (!formattedJson) {
+      toast.error('No formatted JSON to download');
+      return;
+    }
+
+    const blob = new Blob([formattedJson], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `formatted-json-${Date.now()}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success('JSON downloaded!');
+  };
+
   return (
     <div className="container mx-auto p-6 max-w-6xl">
       <div className="mb-8">
@@ -186,14 +203,26 @@ export default function JSONFormatter() {
                 Formatted Output
               </span>
               {formattedJson && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => copyToClipboard(formattedJson)}
-                >
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copy
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => copyToClipboard(formattedJson)}
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={downloadJSON}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                  <ResultShare 
+                    title="Formatted JSON"
+                    result={formattedJson}
+                    resultType="text"
+                    toolName="json-formatter"
+                  />
+                </div>
               )}
             </CardTitle>
             <CardDescription>

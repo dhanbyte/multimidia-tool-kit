@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Copy, FileText } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Copy, FileText, RefreshCw, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function LoremGenerator() {
@@ -14,6 +15,7 @@ export default function LoremGenerator() {
   const [paragraphCount, setParagraphCount] = useState(3);
   const [wordCount, setWordCount] = useState(50);
   const [sentenceCount, setSentenceCount] = useState(5);
+  const [startWithLorem, setStartWithLorem] = useState(true);
 
   const loremWords = [
     'lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit',
@@ -43,11 +45,15 @@ export default function LoremGenerator() {
     return sentence.charAt(0).toUpperCase() + sentence.slice(1) + '.';
   };
 
-  const generateParagraph = () => {
+  const generateParagraph = (isFirst = false) => {
     const sentences = [];
     const sentenceCount = Math.floor(Math.random() * 4) + 3; // 3-6 sentences per paragraph
     for (let i = 0; i < sentenceCount; i++) {
-      sentences.push(generateSentence());
+      if (isFirst && i === 0 && startWithLorem) {
+        sentences.push('Lorem ipsum dolor sit amet, consectetur adipiscing elit.');
+      } else {
+        sentences.push(generateSentence());
+      }
     }
     return sentences.join(' ');
   };
@@ -60,7 +66,7 @@ export default function LoremGenerator() {
 
     const paragraphs = [];
     for (let i = 0; i < paragraphCount; i++) {
-      paragraphs.push(generateParagraph());
+      paragraphs.push(generateParagraph(i === 0));
     }
     setGeneratedText(paragraphs.join('\n\n'));
     toast.success(`Generated ${paragraphCount} paragraph(s)!`);
@@ -101,6 +107,43 @@ export default function LoremGenerator() {
     setGeneratedText('');
   };
 
+  const downloadText = () => {
+    if (!generatedText) return;
+    const blob = new Blob([generatedText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'lorem-ipsum.txt';
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success('Text file downloaded!');
+  };
+
+  const quickGenerate = (type: 'short' | 'medium' | 'long') => {
+    switch (type) {
+      case 'short':
+        setParagraphCount(2);
+        generateParagraphs();
+        break;
+      case 'medium':
+        setParagraphCount(5);
+        generateParagraphs();
+        break;
+      case 'long':
+        setParagraphCount(10);
+        generateParagraphs();
+        break;
+    }
+  };
+
+  const getWordCount = (text: string) => {
+    return text.trim().split(/\s+/).length;
+  };
+
+  const getCharacterCount = (text: string) => {
+    return text.length;
+  };
+
   return (
     <div className="container mx-auto p-6 max-w-4xl">
       <div className="mb-8">
@@ -120,7 +163,23 @@ export default function LoremGenerator() {
             Choose the type and amount of placeholder text to generate
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
+          {/* Quick Generate Options */}
+          <div className="space-y-3">
+            <h3 className="font-medium">Quick Generate</h3>
+            <div className="flex gap-2 flex-wrap">
+              <Button variant="outline" size="sm" onClick={() => quickGenerate('short')}>
+                Short (2 paragraphs)
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => quickGenerate('medium')}>
+                Medium (5 paragraphs)
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => quickGenerate('long')}>
+                Long (10 paragraphs)
+              </Button>
+            </div>
+          </div>
+
           <Tabs defaultValue="paragraphs">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="paragraphs">Paragraphs</TabsTrigger>
@@ -129,20 +188,36 @@ export default function LoremGenerator() {
             </TabsList>
             
             <TabsContent value="paragraphs" className="space-y-4">
-              <div className="flex gap-4 items-end">
-                <div className="space-y-2 flex-1">
-                  <label className="text-sm font-medium">Number of Paragraphs</label>
-                  <Input
-                    type="number"
-                    min="1"
-                    max="50"
-                    value={paragraphCount}
-                    onChange={(e) => setParagraphCount(parseInt(e.target.value) || 1)}
-                  />
+              <div className="space-y-4">
+                <div className="flex gap-4 items-end">
+                  <div className="space-y-2 flex-1">
+                    <label className="text-sm font-medium">Number of Paragraphs</label>
+                    <Input
+                      type="number"
+                      min="1"
+                      max="50"
+                      value={paragraphCount}
+                      onChange={(e) => setParagraphCount(parseInt(e.target.value) || 1)}
+                    />
+                  </div>
+                  <Button onClick={generateParagraphs}>
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Generate
+                  </Button>
                 </div>
-                <Button onClick={generateParagraphs}>
-                  Generate Paragraphs
-                </Button>
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="start-lorem"
+                    checked={startWithLorem}
+                    onChange={(e) => setStartWithLorem(e.target.checked)}
+                    className="rounded"
+                  />
+                  <label htmlFor="start-lorem" className="text-sm">
+                    Start with "Lorem ipsum dolor sit amet..."
+                  </label>
+                </div>
               </div>
             </TabsContent>
             
@@ -159,7 +234,8 @@ export default function LoremGenerator() {
                   />
                 </div>
                 <Button onClick={generateWordList}>
-                  Generate Words
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Generate
                 </Button>
               </div>
             </TabsContent>
@@ -177,7 +253,8 @@ export default function LoremGenerator() {
                   />
                 </div>
                 <Button onClick={generateSentences}>
-                  Generate Sentences
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Generate
                 </Button>
               </div>
             </TabsContent>
@@ -189,11 +266,25 @@ export default function LoremGenerator() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              Generated Text
+              <div className="flex items-center gap-3">
+                Generated Text
+                <div className="flex gap-2">
+                  <Badge variant="secondary">
+                    {getWordCount(generatedText)} words
+                  </Badge>
+                  <Badge variant="secondary">
+                    {getCharacterCount(generatedText)} characters
+                  </Badge>
+                </div>
+              </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={copyToClipboard}>
                   <Copy className="h-4 w-4 mr-2" />
                   Copy
+                </Button>
+                <Button variant="outline" size="sm" onClick={downloadText}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
                 </Button>
                 <Button variant="outline" size="sm" onClick={clearText}>
                   Clear
@@ -206,7 +297,8 @@ export default function LoremGenerator() {
               value={generatedText}
               readOnly
               rows={15}
-              className="resize-none"
+              className="resize-none font-mono text-sm"
+              placeholder="Generated text will appear here..."
             />
           </CardContent>
         </Card>

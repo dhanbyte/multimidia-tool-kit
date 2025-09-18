@@ -86,8 +86,30 @@ export default function TypingMaster() {
   const [showKeyboard, setShowKeyboard] = useState(true);
   const [timeLimit, setTimeLimit] = useState(0); // 0 = no limit
   const [timeElapsed, setTimeElapsed] = useState(0);
+  const [caseMode, setCaseMode] = useState('original'); // original, lowercase, uppercase, mixed
+  const [customText, setCustomText] = useState('');
+  const [useCustomText, setUseCustomText] = useState(false);
 
-  const currentText = textCategories[selectedCategory as keyof typeof textCategories].texts[selectedTextIndex];
+  const getProcessedText = () => {
+    let text = useCustomText && customText.trim() 
+      ? customText.trim() 
+      : textCategories[selectedCategory as keyof typeof textCategories].texts[selectedTextIndex];
+    
+    switch (caseMode) {
+      case 'lowercase':
+        return text.toLowerCase();
+      case 'uppercase':
+        return text.toUpperCase();
+      case 'mixed':
+        return text.split('').map((char, index) => 
+          index % 2 === 0 ? char.toLowerCase() : char.toUpperCase()
+        ).join('');
+      default:
+        return text;
+    }
+  };
+  
+  const currentText = getProcessedText();
 
   // Timer effect
   useEffect(() => {
@@ -347,16 +369,32 @@ export default function TypingMaster() {
                   <RotateCcw className="h-4 w-4 mr-2" />
                   Reset
                 </Button>
-                <Button onClick={nextText} variant="outline">
-                  Next Text
+                {!useCustomText && (
+                  <Button onClick={nextText} variant="outline">
+                    Next Text
+                  </Button>
+                )}
+                <Button 
+                  onClick={() => {
+                    setCaseMode(caseMode === 'original' ? 'lowercase' : 
+                              caseMode === 'lowercase' ? 'uppercase' : 
+                              caseMode === 'uppercase' ? 'mixed' : 'original');
+                    reset();
+                  }} 
+                  variant="outline"
+                  size="sm"
+                >
+                  Case: {caseMode === 'original' ? 'Original' : 
+                         caseMode === 'lowercase' ? 'Lower' : 
+                         caseMode === 'uppercase' ? 'Upper' : 'Mixed'}
                 </Button>
                 {isCompleted && (
                   <Button onClick={() => {
                     reset();
-                    nextText();
+                    if (!useCustomText) nextText();
                   }} className="bg-green-600 hover:bg-green-700">
                     <Trophy className="h-4 w-4 mr-2" />
-                    Try Next
+                    {useCustomText ? 'Try Again' : 'Try Next'}
                   </Button>
                 )}
               </div>
@@ -418,6 +456,65 @@ export default function TypingMaster() {
                       <SelectItem value="600">10 Minutes</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Case Mode</label>
+                  <Select value={caseMode} onValueChange={(value) => { setCaseMode(value); reset(); }}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="original">Original Case</SelectItem>
+                      <SelectItem value="lowercase">Lowercase</SelectItem>
+                      <SelectItem value="uppercase">UPPERCASE</SelectItem>
+                      <SelectItem value="mixed">MiXeD cAsE</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="use-custom"
+                    checked={useCustomText}
+                    onChange={(e) => {
+                      setUseCustomText(e.target.checked);
+                      reset();
+                    }}
+                    className="rounded"
+                  />
+                  <label htmlFor="use-custom" className="text-sm font-medium">
+                    Use Custom Text
+                  </label>
+                </div>
+                
+                {useCustomText && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Custom Text</label>
+                    <textarea
+                      value={customText}
+                      onChange={(e) => {
+                        setCustomText(e.target.value);
+                        reset();
+                      }}
+                      placeholder="Enter your custom text here..."
+                      className="w-full h-32 p-3 border rounded-lg resize-none"
+                      maxLength={1000}
+                    />
+                    <div className="text-xs text-muted-foreground">
+                      {customText.length}/1000 characters
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="p-4 bg-muted rounded-lg">
+                <h3 className="font-medium mb-2">Preview</h3>
+                <div className={`font-mono ${getFontSizeClass()} p-2 bg-background rounded border`}>
+                  {currentText.substring(0, 100)}{currentText.length > 100 ? '...' : ''}
                 </div>
               </div>
             </CardContent>

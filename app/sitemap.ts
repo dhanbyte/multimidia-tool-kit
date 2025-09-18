@@ -18,12 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '/dashboard/image-compressor', priority: 0.9, changeFrequency: 'weekly' as const },
     { url: '/dashboard/pdf-compress', priority: 0.9, changeFrequency: 'weekly' as const },
     
-    // PDF Tools (Nested)
-    { url: '/dashboard/pdf-tools/pdf-compress', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/pdf-tools/pdf-to-jpg', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/pdf-tools/pdf-split', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/pdf-tools/pdf-merge', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/pdf-tools/pdf-rotate', priority: 0.8, changeFrequency: 'weekly' as const },
+
     
     // PDF Tools (Individual)
     { url: '/dashboard/pdf-to-jpg', priority: 0.8, changeFrequency: 'weekly' as const },
@@ -38,12 +33,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '/dashboard/pdf-signature', priority: 0.8, changeFrequency: 'weekly' as const },
     { url: '/dashboard/pdf-ocr', priority: 0.8, changeFrequency: 'weekly' as const },
     
-    // Image Tools (Nested)
-    { url: '/dashboard/image-tools/image-compressor', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/image-tools/image-format-converter', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/image-tools/background-remover', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/image-tools/image-watermark', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/image-tools/image-filter', priority: 0.8, changeFrequency: 'weekly' as const },
+
     
     // Image Tools (Individual)
     { url: '/dashboard/image-format-converter', priority: 0.8, changeFrequency: 'weekly' as const },
@@ -55,12 +45,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '/dashboard/image-cropper', priority: 0.8, changeFrequency: 'weekly' as const },
     { url: '/dashboard/image-hosting', priority: 0.8, changeFrequency: 'weekly' as const },
     
-    // Text Tools (Nested)
-    { url: '/dashboard/text-tools/text-summarizer', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/text-tools/markdown-editor', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/text-tools/text-translator', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/text-tools/word-counter', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/text-tools/text-diff-checker', priority: 0.8, changeFrequency: 'weekly' as const },
+
     
     // Text Tools (Individual)
     { url: '/dashboard/text-summarizer', priority: 0.8, changeFrequency: 'weekly' as const },
@@ -80,12 +65,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '/dashboard/lorem-generator', priority: 0.8, changeFrequency: 'weekly' as const },
     { url: '/dashboard/lorem-code', priority: 0.8, changeFrequency: 'weekly' as const },
     
-    // Security Tools (Nested)
-    { url: '/dashboard/security-tools/password-generator', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/security-tools/hash-generator', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/security-tools/password-strength-checker', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/security-tools/encryption-tool', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/security-tools/network-scanner', priority: 0.8, changeFrequency: 'weekly' as const },
+
     
     // Security Tools (Individual)
     { url: '/dashboard/hash-generator', priority: 0.8, changeFrequency: 'weekly' as const },
@@ -100,13 +80,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '/dashboard/ssl-checker', priority: 0.8, changeFrequency: 'weekly' as const },
     { url: '/dashboard/vpn-checker', priority: 0.8, changeFrequency: 'weekly' as const },
     
-    // Developer Tools (Nested)
-    { url: '/dashboard/developer-tools/color-picker', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/developer-tools/code-formatter', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/developer-tools/json-formatter', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/developer-tools/css-minifier', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/developer-tools/html-validator', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/developer-tools/api-tester', priority: 0.8, changeFrequency: 'weekly' as const },
+
     
     // Developer Tools (Individual)
     { url: '/dashboard/color-picker', priority: 0.8, changeFrequency: 'weekly' as const },
@@ -124,11 +98,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '/dashboard/git-ignore', priority: 0.8, changeFrequency: 'weekly' as const },
     { url: '/dashboard/ip-lookup', priority: 0.8, changeFrequency: 'weekly' as const },
     
-    // Design Tools (Nested)
-    { url: '/dashboard/design-tools/gradient-generator', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/design-tools/logo-maker', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/design-tools/favicon-generator', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/design-tools/color-contrast-checker', priority: 0.8, changeFrequency: 'weekly' as const },
+
     
     // Design Tools (Individual)
     { url: '/dashboard/color-palette', priority: 0.8, changeFrequency: 'weekly' as const },
@@ -142,11 +112,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '/dashboard/banner-maker', priority: 0.8, changeFrequency: 'weekly' as const },
     { url: '/dashboard/font-pairing', priority: 0.8, changeFrequency: 'weekly' as const },
     
-    // AI Tools (Nested)
-    { url: '/dashboard/ai-tools/ai-content-writer', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/ai-tools/ai-code-generator', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/ai-tools/ai-chatbot', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/ai-tools/ai-image-enhancer', priority: 0.8, changeFrequency: 'weekly' as const },
+
     
     // AI Tools (Individual)
     { url: '/dashboard/ai-content-writer', priority: 0.8, changeFrequency: 'weekly' as const },
@@ -157,13 +123,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '/dashboard/ai-name-generator', priority: 0.8, changeFrequency: 'weekly' as const },
     { url: '/dashboard/ai-story-generator', priority: 0.8, changeFrequency: 'weekly' as const },
     
-    // Utility Tools (Nested)
-    { url: '/dashboard/utility-tools/timestamp-converter', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/utility-tools/random-generator', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/utility-tools/wifi-qr', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/utility-tools/expense-tracker', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/utility-tools/stopwatch', priority: 0.8, changeFrequency: 'weekly' as const },
-    { url: '/dashboard/utility-tools/todo-list', priority: 0.8, changeFrequency: 'weekly' as const },
+
     
     // Utility Tools (Individual)
     { url: '/dashboard/timestamp-converter', priority: 0.8, changeFrequency: 'weekly' as const },

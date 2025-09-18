@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@/components/analytics";
 import StructuredData from "@/components/structured-data";
+import ErrorBoundary from "@/components/error-boundary";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -64,7 +65,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script
           async
@@ -97,12 +98,14 @@ export default function RootLayout({
             style={{ display: "none", visibility: "hidden" }}
           ></iframe>
         </noscript>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
-          <StructuredData />
-          <Analytics />
-          {children}
-          <Toaster />
-        </ThemeProvider>
+        <ErrorBoundary>
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
+            <StructuredData />
+            <Analytics />
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

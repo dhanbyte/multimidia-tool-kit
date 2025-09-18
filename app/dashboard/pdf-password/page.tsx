@@ -5,13 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Download, Lock, Unlock } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Upload, Download, Lock, Unlock, Shield, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
+import { PDFDocument } from 'pdf-lib';
 
 export default function PDFPassword() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [password, setPassword] = useState('');
-  const [processedFile, setProcessedFile] = useState<string | null>(null);
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [processing, setProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState('protect');
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,7 +27,7 @@ export default function PDFPassword() {
     }
   };
 
-  const protectPDF = () => {
+  const protectPDF = async () => {
     if (!selectedFile) {
       toast.error('Please select a PDF file');
       return;
@@ -35,11 +38,56 @@ export default function PDFPassword() {
       return;
     }
 
-    setProcessedFile(selectedFile.name.replace('.pdf', '_protected.pdf'));
-    toast.success('PDF password protected!');
+    if (password !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 4) {
+      toast.error('Password must be at least 4 characters long');
+      return;
+    }
+
+    setProcessing(true);
+    try {
+      const pdfBytes = await selectedFile.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(pdfBytes);
+      
+      // Encrypt the PDF with user password
+      const encryptedPdfBytes = await pdfDoc.save({
+        userPassword: password,
+        ownerPassword: password + '_owner',
+        permissions: {
+          printing: 'highResolution',
+          modifying: false,
+          copying: false,
+          annotating: false,
+          fillingForms: false,
+          contentAccessibility: true,
+          documentAssembly: false
+        }
+      });
+
+      const blob = new Blob([encryptedPdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = selectedFile.name.replace('.pdf', '_protected.pdf');
+      link.click();
+      URL.revokeObjectURL(url);
+
+      toast.success('PDF successfully password protected!');
+      setPassword('');
+      setConfirmPassword('');
+    } catch (error) {
+      console.error('Error protecting PDF:', error);
+      toast.error('Failed to protect PDF. Please try again.');
+    } finally {
+      setProcessing(false);
+    }
   };
 
-  const removePDFPassword = () => {
+  const removePDFPassword = async () => {
     if (!selectedFile) {
       toast.error('Please select a PDF file');
       return;
@@ -50,25 +98,49 @@ export default function PDFPassword() {
       return;
     }
 
-    setProcessedFile(selectedFile.name.replace('.pdf', '_unlocked.pdf'));
-    toast.success('PDF password removed!');
-  };
+    setProcessing(true);
+    try {
+      const pdfBytes = await selectedFile.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(pdfBytes, { password });
+      
+      // Save without password protection
+      const unprotectedPdfBytes = await pdfDoc.save();
 
-  const downloadProcessed = () => {
-    if (processedFile) {
-      toast.success(`Downloading ${processedFile}`);
+      const blob = new Blob([unprotectedPdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = selectedFile.name.replace('.pdf', '_unlocked.pdf');
+      link.click();
+      URL.revokeObjectURL(url);
+
+      toast.success('PDF password successfully removed!');
+      setPassword('');
+    } catch (error) {
+      console.error('Error removing PDF password:', error);
+      if (error instanceof Error && error.message.includes('password')) {
+        toast.error('Incorrect password. Please try again.');
+      } else {
+        toast.error('Failed to remove password. Please check if the PDF is password protected.');
+      }
+    } finally {
+      setProcessing(false);
     }
   };
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-8">PDF Password</h1>
+      <h1 className="text-3xl font-bold mb-8">PDF Password Protection</h1>
       
       <Card>
         <CardHeader>
-          <CardTitle>PDF Password Protection</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            Secure Your PDF Files
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
+          {/* File Upload */}
           <div className="border-2 border-dashed rounded-lg p-6 text-center">
             <input
               type="file"
@@ -79,70 +151,103 @@ export default function PDFPassword() {
             />
             <label htmlFor="file-input" className="cursor-pointer">
               <Upload className="h-8 w-8 mx-auto mb-2" />
-              <p>{selectedFile ? selectedFile.name : 'Upload PDF file'}</p>
+              <p className="text-sm">{selectedFile ? selectedFile.name : 'Upload PDF file'}</p>
             </label>
           </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
+          {/* Security Notice */}
+          <Alert>
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Your files are processed locally in your browser. No data is sent to any server.
+            </AlertDescription>
+          </Alert>
+
+          <Tabs value={activeTab} onValueChange={(value) => { setActiveTab(value); setPassword(''); setConfirmPassword(''); }}>
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="protect">Protect PDF</TabsTrigger>
-              <TabsTrigger value="remove">Remove Password</TabsTrigger>
+              <TabsTrigger value="protect" className="flex items-center gap-2">
+                <Lock className="h-4 w-4" />
+                Protect PDF
+              </TabsTrigger>
+              <TabsTrigger value="remove" className="flex items-center gap-2">
+                <Unlock className="h-4 w-4" />
+                Remove Password
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="protect" className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Set Password</label>
-                <Input
-                  type="password"
-                  placeholder="Enter password to protect PDF..."
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Set Password</label>
+                  <Input
+                    type="password"
+                    placeholder="Enter password (minimum 4 characters)..."
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Confirm Password</label>
+                  <Input
+                    type="password"
+                    placeholder="Confirm your password..."
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+                
+                <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                  <h4 className="font-medium text-sm mb-2">Security Features:</h4>
+                  <ul className="text-xs space-y-1 text-muted-foreground">
+                    <li>• Prevents unauthorized copying</li>
+                    <li>• Disables content modification</li>
+                    <li>• Restricts form filling</li>
+                    <li>• Allows high-resolution printing</li>
+                  </ul>
+                </div>
               </div>
               
-              <Button onClick={protectPDF} className="w-full">
+              <Button 
+                onClick={protectPDF} 
+                className="w-full" 
+                disabled={processing || !selectedFile || !password || !confirmPassword}
+              >
                 <Lock className="h-4 w-4 mr-2" />
-                Protect PDF with Password
+                {processing ? 'Protecting PDF...' : 'Protect PDF with Password'}
               </Button>
             </TabsContent>
             
             <TabsContent value="remove" className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Current Password</label>
-                <Input
-                  type="password"
-                  placeholder="Enter current PDF password..."
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Current Password</label>
+                  <Input
+                    type="password"
+                    placeholder="Enter current PDF password..."
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+                
+                <div className="p-3 bg-amber-50 dark:bg-amber-950 rounded-lg">
+                  <p className="text-xs text-muted-foreground">
+                    <strong>Note:</strong> Removing password protection will make the PDF accessible to anyone. 
+                    Make sure you want to remove security before proceeding.
+                  </p>
+                </div>
               </div>
               
-              <Button onClick={removePDFPassword} className="w-full">
+              <Button 
+                onClick={removePDFPassword} 
+                className="w-full" 
+                disabled={processing || !selectedFile || !password}
+              >
                 <Unlock className="h-4 w-4 mr-2" />
-                Remove PDF Password
+                {processing ? 'Removing Password...' : 'Remove PDF Password'}
               </Button>
             </TabsContent>
           </Tabs>
-
-          {processedFile && (
-            <div className="space-y-4 p-4 bg-muted rounded-lg">
-              <div className="flex items-center gap-2">
-                {activeTab === 'protect' ? (
-                  <Lock className="h-4 w-4 text-green-600" />
-                ) : (
-                  <Unlock className="h-4 w-4 text-blue-600" />
-                )}
-                <span className="font-medium">
-                  PDF {activeTab === 'protect' ? 'Protected' : 'Unlocked'}
-                </span>
-              </div>
-              
-              <Button onClick={downloadProcessed} className="w-full">
-                <Download className="h-4 w-4 mr-2" />
-                Download {activeTab === 'protect' ? 'Protected' : 'Unlocked'} PDF
-              </Button>
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>

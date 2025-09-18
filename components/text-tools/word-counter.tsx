@@ -4,7 +4,10 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { FileText, Hash, Clock, Eye } from "lucide-react"
+import { FileText, Hash, Clock, Eye, Download } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
+import { ResultShare } from "@/components/result-share"
 
 export default function WordCounter() {
   const [text, setText] = useState("")
@@ -39,14 +42,67 @@ export default function WordCounter() {
     calculateStats()
   }, [text])
 
+  const downloadReport = () => {
+    if (!text.trim()) {
+      toast.error('No text to analyze');
+      return;
+    }
+
+    const report = `Text Analysis Report
+
+Text: "${text.substring(0, 100)}${text.length > 100 ? '...' : ''}"
+
+Statistics:
+- Words: ${stats.words}
+- Characters: ${stats.characters}
+- Characters (no spaces): ${stats.charactersNoSpaces}
+- Sentences: ${stats.sentences}
+- Paragraphs: ${stats.paragraphs}
+- Reading time: ${stats.readingTime} minutes
+
+Additional Stats:
+- Average words per sentence: ${stats.sentences > 0 ? Math.round(stats.words / stats.sentences) : 0}
+- Average characters per word: ${stats.words > 0 ? Math.round(stats.charactersNoSpaces / stats.words) : 0}
+- Longest word: ${text.trim() ? Math.max(...text.split(/\s+/).map(word => word.replace(/[^\w]/g, '').length)) : 0} characters
+
+Generated on: ${new Date().toLocaleString()}`;
+    
+    const blob = new Blob([report], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `text-analysis-${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success('Report downloaded!');
+  };
+
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <FileText className="h-5 w-5" />
-          Word Counter & Text Analyzer
-        </CardTitle>
-        <CardDescription>Count words, characters, and analyze your text</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Word Counter & Text Analyzer
+            </CardTitle>
+            <CardDescription>Count words, characters, and analyze your text</CardDescription>
+          </div>
+          {text.trim() && (
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={downloadReport}>
+                <Download className="h-4 w-4 mr-2" />
+                Download Report
+              </Button>
+              <ResultShare 
+                title="Text Analysis"
+                result={`Words: ${stats.words}, Characters: ${stats.characters}, Reading time: ${stats.readingTime} min`}
+                resultType="text"
+                toolName="word-counter"
+              />
+            </div>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <Textarea

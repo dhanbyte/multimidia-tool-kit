@@ -90,6 +90,25 @@ export default function ImageCompressorPages() {
   }, [files, compressedFiles]);
 
 
+  const [compressionLevel, setCompressionLevel] = useState<'light' | 'medium' | 'heavy' | 'extreme'>('heavy');
+  const [customQuality, setCustomQuality] = useState(0.6);
+  const [maxWidth, setMaxWidth] = useState(1920);
+
+  const getCompressionOptions = () => {
+    switch (compressionLevel) {
+      case 'light':
+        return { maxSizeMB: 2, quality: 0.8, maxWidthOrHeight: 1920 };
+      case 'medium':
+        return { maxSizeMB: 1, quality: 0.7, maxWidthOrHeight: 1600 };
+      case 'heavy':
+        return { maxSizeMB: 0.5, quality: 0.6, maxWidthOrHeight: 1200 };
+      case 'extreme':
+        return { maxSizeMB: 0.2, quality: 0.4, maxWidthOrHeight: 800 };
+      default:
+        return { maxSizeMB: 0.5, quality: customQuality, maxWidthOrHeight: maxWidth };
+    }
+  };
+
   const handleCompress = async () => {
     if (files.length === 0) {
       toast({
@@ -101,30 +120,41 @@ export default function ImageCompressorPages() {
     }
 
     setIsCompressing(true);
-    setCompressedFiles([]); // Clear previous compressed files
+    setCompressedFiles([]);
     setProgress(0);
 
     const compressed: CompressedFile[] = [];
     let completed = 0;
+    const compressionOptions = getCompressionOptions();
 
     for (const file of files) {
       try {
         const options = {
-          maxSizeMB: 1,
-          maxWidthOrHeight: 1920,
+          maxSizeMB: compressionOptions.maxSizeMB,
+          maxWidthOrHeight: compressionOptions.maxWidthOrHeight,
           useWebWorker: true,
+          fileType: 'image/jpeg', // Force JPEG for better compression
+          initialQuality: compressionOptions.quality,
+          alwaysKeepResolution: false,
           onProgress: (p: number) => {
             setProgress(Math.round(((completed + (p / 100)) / files.length) * 100));
           },
         };
 
         const compressedFileBlob = await imageCompression(file, options);
-        const compressedFileWithPreview = Object.assign(compressedFileBlob, {
-          preview: URL.createObjectURL(compressedFileBlob),
-          compressedSize: compressedFileBlob.size,
+        
+        // Additional canvas compression for extreme cases
+        let finalBlob = compressedFileBlob;
+        if (compressionLevel === 'extreme' && compressedFileBlob.size > file.size * 0.2) {
+          finalBlob = await canvasCompress(compressedFileBlob, 0.3);
+        }
+        
+        const compressedFileWithPreview = Object.assign(finalBlob, {
+          preview: URL.createObjectURL(finalBlob),
+          compressedSize: finalBlob.size,
           originalSize: file.size,
-          name: file.name, // Ensure original name is carried over
-          id: `${file.name}-${file.size}-${Date.now()}`, // Unique ID
+          name: file.name.replace(/\.[^/.]+$/, '.jpg'), // Change extension to jpg
+          id: `${file.name}-${file.size}-${Date.now()}`,
         });
         compressed.push(compressedFileWithPreview as CompressedFile);
         completed++;
@@ -145,18 +175,35 @@ export default function ImageCompressorPages() {
     setProgress(100);
 
     if (compressed.length > 0) {
+      const totalSavings = compressed.reduce((acc, file) => {
+        return acc + ((file.originalSize - file.compressedSize) / file.originalSize) * 100;
+      }, 0) / compressed.length;
+      
       toast({
-        title: "Compression Complete",
-        description: `${compressed.length} image(s) compressed successfully!`,
-        variant: "default",
-      });
-    } else {
-      toast({
-        title: "No Images Compressed",
-        description: "Please ensure you've uploaded valid image files.",
-        variant: "default",
+        title: "Compression Complete!",
+        description: `${compressed.length} image(s) compressed. Average savings: ${totalSavings.toFixed(1)}%`,
       });
     }
+  };
+
+  const canvasCompress = async (blob: Blob, quality: number): Promise<Blob> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d')!;
+        
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        ctx.drawImage(img, 0, 0);
+        
+        canvas.toBlob((result) => {
+          resolve(result || blob);
+        }, 'image/jpeg', quality);
+      };
+      img.src = URL.createObjectURL(blob);
+    });
   };
 
   const handleDownloadAll = async () => {
@@ -280,6 +327,52 @@ export default function ImageCompressorPages() {
 
           {files.length > 0 && (
             <div className="mt-8">
+              {/* Compression Settings */}
+              <div className="mb-6 p-4 border rounded-lg bg-muted/20">
+                <h3 className="text-lg font-semibold mb-4">Compression Settings</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Compression Level</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { key: 'light', label: 'Light (20-40%)', desc: 'High quality' },
+                        { key: 'medium', label: 'Medium (40-60%)', desc: 'Balanced' },
+                        { key: 'heavy', label: 'Heavy (60-80%)', desc: 'Small size' },
+                        { key: 'extreme', label: 'Extreme (80%+)', desc: 'Tiny size' }
+                      ].map((level) => (
+                        <Button
+                          key={level.key}
+                          variant={compressionLevel === level.key ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setCompressionLevel(level.key as any)}
+                          className="h-auto p-2 flex flex-col items-center text-xs"
+                        >
+                          <span className="font-medium">{level.label}</span>
+                          <span className="text-xs opacity-70">{level.desc}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Expected Savings</label>
+                    <div className="p-3 bg-background rounded border">
+                      <div className="text-2xl font-bold text-green-600">
+                        {compressionLevel === 'light' && '20-40%'}
+                        {compressionLevel === 'medium' && '40-60%'}
+                        {compressionLevel === 'heavy' && '60-80%'}
+                        {compressionLevel === 'extreme' && '80%+'}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {compressionLevel === 'light' && 'Minimal quality loss'}
+                        {compressionLevel === 'medium' && 'Good balance'}
+                        {compressionLevel === 'heavy' && 'Noticeable but acceptable'}
+                        {compressionLevel === 'extreme' && 'Maximum compression'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
               <h3 className="text-lg font-semibold mb-4">Selected Images ({files.length})</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {files.map((file, index) => {

@@ -148,6 +148,30 @@ export default function PdfToJpgConverterClient() { // कंपोनेंट 
     }
   };
 
+  const downloadSinglePage = (canvas: HTMLCanvasElement, pageNumber: number) => {
+    if (!canvas || !selectedFile) return;
+    
+    try {
+      const dataUrl = canvas.toDataURL("image/jpeg", quality);
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `${selectedFile.name.replace(/\.pdf$/, '')}_page_${pageNumber}.jpg`;
+      link.click();
+      
+      toast({
+        title: "Downloaded!",
+        description: `Page ${pageNumber} downloaded as JPG.`,
+      });
+    } catch (error) {
+      console.error("Error downloading single page:", error);
+      toast({
+        title: "Download Failed",
+        description: "Failed to download the page. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const convertPdfToJpg = async () => {
     if (!selectedFile || pdfPages.length === 0 || selectedPages.length === 0) {
       toast({
@@ -249,20 +273,33 @@ export default function PdfToJpgConverterClient() { // कंपोनेंट 
       <CardContent className="space-y-6">
         {/* File Upload/Drop Zone */}
         {!selectedFile ? (
-          <div
-            className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-gray-300 rounded-lg text-center bg-gray-50 dark:bg-gray-800 hover:border-blue-500 transition-colors cursor-pointer"
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <FileUp className="w-16 h-16 text-gray-400 mb-4" />
-            <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">Drag & Drop your PDF here</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">or click to browse</p>
-            <Input
+          <div className="space-y-4">
+            <div
+              className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-gray-300 rounded-lg text-center bg-gray-50 dark:bg-gray-800 hover:border-blue-500 transition-colors cursor-pointer"
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <FileUp className="w-16 h-16 text-gray-400 mb-4" />
+              <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">Drag & Drop your PDF here</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">or click anywhere to browse</p>
+              <Button 
+                variant="default" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                <FileUp className="w-4 h-4 mr-2" />
+                Select PDF File
+              </Button>
+            </div>
+            <input
               type="file"
-              accept="application/pdf"
+              accept="application/pdf,.pdf"
               onChange={(e) => handleFileChange(e.target.files ? e.target.files[0] : null)}
-              className="hidden"
+              style={{ display: 'none' }}
               ref={fileInputRef}
             />
           </div>
@@ -412,51 +449,94 @@ export default function PdfToJpgConverterClient() { // कंपोनेंट 
 
             {/* All Pages Preview (if toggled) */}
             {showAllPagesPreview && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[600px] overflow-y-auto p-4 border rounded-md bg-gray-50 dark:bg-gray-800">
-                    {pdfPages.map((canvas, index) => (
-                        <div
-                            key={index}
-                            className={cn(
-                                "relative border-2 rounded-md overflow-hidden cursor-pointer",
-                                selectedPages.includes(index + 1) ? "border-blue-500 shadow-lg" : "border-gray-200 dark:border-gray-700"
-                            )}
-                            onClick={() => handlePageSelection(index + 1)}
-                        >
-                            <img
-                                src={canvas.toDataURL("image/jpeg", 0.6)} // Even lower quality for thumbnails
-                                alt={`Page ${index + 1} thumbnail`}
-                                className="w-full h-auto object-contain"
-                            />
-                            <div className="absolute top-1 left-1 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                                {index + 1}
-                            </div>
-                            {selectedPages.includes(index + 1) && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-blue-500 bg-opacity-30">
-                                    <CheckCircle className="h-10 w-10 text-white" />
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">All Pages Preview</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[800px] overflow-y-auto p-4 border rounded-md bg-gray-50 dark:bg-gray-800">
+                        {pdfPages.map((canvas, index) => (
+                            <Card key={index} className={cn(
+                                "relative overflow-hidden transition-all duration-200",
+                                selectedPages.includes(index + 1) ? "ring-2 ring-blue-500 shadow-lg" : "hover:shadow-md"
+                            )}>
+                                <CardHeader className="pb-2">
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="text-sm font-medium">Page {index + 1}</CardTitle>
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                size="sm"
+                                                variant={selectedPages.includes(index + 1) ? "default" : "outline"}
+                                                onClick={() => handlePageSelection(index + 1)}
+                                                className="h-7 px-2"
+                                            >
+                                                {selectedPages.includes(index + 1) ? (
+                                                    <CheckCircle className="h-3 w-3" />
+                                                ) : (
+                                                    "Select"
+                                                )}
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={() => downloadSinglePage(canvas, index + 1)}
+                                                className="h-7 px-2"
+                                            >
+                                                <Download className="h-3 w-3" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="p-2">
+                                    <div className="border rounded-md overflow-hidden bg-white">
+                                        <img
+                                            src={canvas.toDataURL("image/jpeg", 0.7)}
+                                            alt={`Page ${index + 1} preview`}
+                                            className="w-full h-auto object-contain cursor-pointer hover:scale-105 transition-transform duration-200"
+                                            onClick={() => handlePageSelection(index + 1)}
+                                        />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
                 </div>
             )}
 
 
-            <Button
-              onClick={convertPdfToJpg}
-              disabled={isConverting || pdfPages.length === 0 || selectedPages.length === 0}
-              className="w-full py-3 text-lg font-semibold bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-lg shadow-md transition-all duration-200"
-            >
-              {isConverting ? (
-                <div className="flex items-center justify-center">
-                  <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                  <span>Converting... ({conversionProgress}%)</span>
+            {/* Download Options */}
+            <div className="space-y-3">
+                <div className="flex flex-col sm:flex-row gap-3">
+                    <Button
+                        onClick={convertPdfToJpg}
+                        disabled={isConverting || pdfPages.length === 0 || selectedPages.length === 0}
+                        className="flex-1 py-3 text-lg font-semibold bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-lg shadow-md transition-all duration-200"
+                    >
+                        {isConverting ? (
+                            <div className="flex items-center justify-center">
+                                <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                                <span>Converting... ({conversionProgress}%)</span>
+                            </div>
+                        ) : (
+                            <>
+                                <Download className="w-6 h-6 mr-2" /> Download Selected as ZIP ({selectedPages.length})
+                            </>
+                        )}
+                    </Button>
+                    {selectedPages.length === 1 && (
+                        <Button
+                            onClick={() => downloadSinglePage(pdfPages[selectedPages[0] - 1], selectedPages[0])}
+                            disabled={isConverting}
+                            variant="outline"
+                            className="py-3 px-6 text-lg font-semibold"
+                        >
+                            <Download className="w-5 h-5 mr-2" /> Download Single JPG
+                        </Button>
+                    )}
                 </div>
-              ) : (
-                <>
-                  <Download className="w-6 h-6 mr-2" /> Convert & Download JPGs
-                </>
-              )}
-            </Button>
+                {selectedPages.length > 1 && (
+                    <div className="text-center text-sm text-muted-foreground">
+                        💡 Tip: Select only one page to download as single JPG, or download all selected as ZIP
+                    </div>
+                )}
+            </div>
             {isConverting && conversionStatus && (
               <p className="text-center text-sm text-muted-foreground mt-2">{conversionStatus}</p>
             )}

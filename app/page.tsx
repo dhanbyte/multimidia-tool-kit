@@ -412,6 +412,7 @@ const stats = [
 
 export default function HomePage() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredTools, setFilteredTools] = useState(allTools.slice(0, 24));
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
@@ -428,11 +429,25 @@ export default function HomePage() {
   ];
   
   useEffect(() => {
+    setMounted(true);
     const interval = setInterval(() => {
       setCurrentTextIndex((prev) => (prev + 1) % animatedTexts.length);
     }, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+        <div className="container py-20 text-center">
+          <div className="animate-pulse">
+            <div className="h-8 bg-muted rounded w-64 mx-auto mb-4"></div>
+            <div className="h-4 bg-muted rounded w-96 mx-auto"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
