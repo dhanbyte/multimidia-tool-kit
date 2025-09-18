@@ -133,12 +133,23 @@ const tools = [
 ]
 
 export default function DashboardPage() {
+  const categories = [
+    { name: "PDF Tools", icon: FileText, color: "text-red-600" },
+    { name: "Image Tools", icon: LucideImage, color: "text-blue-600" },
+    { name: "Text Tools", icon: Type, color: "text-green-600" },
+    { name: "Utility", icon: Calculator, color: "text-purple-600" },
+    { name: "Security", icon: Shield, color: "text-orange-600" },
+    { name: "Developer", icon: FileText, color: "text-cyan-600" },
+    { name: "Design", icon: Palette, color: "text-pink-600" },
+    { name: "AI Tools", icon: Sparkles, color: "text-violet-600" },
+  ]
+
   return (
     <div className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-6">
       {/* Welcome Section */}
       <div className="flex flex-col space-y-1 sm:space-y-2">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">MultiTool by Dhanbyte</h1>
-        <p className="text-sm sm:text-base text-muted-foreground">100+ free online tools for all your needs</p>
+        <p className="text-sm sm:text-base text-muted-foreground">100+ free online tools organized by category</p>
       </div>
 
       {/* Popular Tools */}
@@ -177,71 +188,74 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* All Tools */}
-      <Card>
-        <CardHeader className="pb-3 sm:pb-4">
-          <CardTitle className="text-base sm:text-lg flex items-center">
-            <Zap className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-            All Tools
-          </CardTitle>
-          <CardDescription className="text-xs sm:text-sm">Browse all available tools</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-3 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8">
-            {tools.map((tool, index) => (
-              <Link key={index} href={tool.href}>
-                <Card className="group relative cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-1">
-                  {tool.popular && (
-                    <div className="absolute top-1 right-1">
-                      <Badge variant="secondary" className="text-xs px-1 py-0 h-4">
-                        <Star className="h-2 w-2" />
-                      </Badge>
-                    </div>
-                  )}
-                  <CardContent className="p-2 sm:p-3">
-                    <div className="flex flex-col items-center text-center space-y-1">
-                      <div className={`flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-lg ${tool.bgColor}`}>
-                        <tool.icon className={`h-3 w-3 sm:h-4 sm:w-4 ${tool.iconColor}`} />
-                      </div>
-                      <h3 className="font-medium text-xs leading-tight line-clamp-2">
-                        {tool.name.length > 12 ? tool.name.substring(0, 12) + '...' : tool.name}
-                      </h3>
-                      <p className="text-xs text-muted-foreground line-clamp-1 hidden sm:block">
-                        {tool.description.length > 20 ? tool.description.substring(0, 20) + '...' : tool.description}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Tools by Category */}
+      {categories.map((category) => {
+        const categoryTools = tools.filter(tool => tool.category === category.name)
+        if (categoryTools.length === 0) return null
+        
+        return (
+          <Card key={category.name}>
+            <CardHeader className="pb-3 sm:pb-4">
+              <CardTitle className="text-base sm:text-lg flex items-center">
+                <category.icon className={`mr-2 h-4 w-4 sm:h-5 sm:w-5 ${category.color}`} />
+                {category.name} ({categoryTools.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8">
+                {categoryTools.map((tool, index) => (
+                  <Link key={index} href={tool.href}>
+                    <Card className="group relative cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-1">
+                      {tool.popular && (
+                        <div className="absolute top-1 right-1">
+                          <Badge variant="secondary" className="text-xs px-1 py-0 h-4">
+                            <Star className="h-2 w-2" />
+                          </Badge>
+                        </div>
+                      )}
+                      <CardContent className="p-2 sm:p-3">
+                        <div className="flex flex-col items-center text-center space-y-1">
+                          <div className={`flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-lg ${tool.bgColor}`}>
+                            <tool.icon className={`h-3 w-3 sm:h-4 sm:w-4 ${tool.iconColor}`} />
+                          </div>
+                          <h3 className="font-medium text-xs leading-tight line-clamp-2">
+                            {tool.name.length > 12 ? tool.name.substring(0, 12) + '...' : tool.name}
+                          </h3>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )
+      })}
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <Card>
           <CardContent className="p-3 sm:p-4 text-center">
-            <div className="text-lg sm:text-2xl font-bold text-blue-600">100+</div>
+            <div className="text-lg sm:text-2xl font-bold text-blue-600">{tools.length}</div>
             <div className="text-xs sm:text-sm text-muted-foreground">Tools</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3 sm:p-4 text-center">
-            <div className="text-lg sm:text-2xl font-bold text-green-600">500K+</div>
-            <div className="text-xs sm:text-sm text-muted-foreground">Users</div>
+            <div className="text-lg sm:text-2xl font-bold text-green-600">{categories.length}</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">Categories</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3 sm:p-4 text-center">
-            <div className="text-lg sm:text-2xl font-bold text-purple-600">10M+</div>
-            <div className="text-xs sm:text-sm text-muted-foreground">Files</div>
+            <div className="text-lg sm:text-2xl font-bold text-purple-600">{tools.filter(t => t.popular).length}</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">Popular</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3 sm:p-4 text-center">
-            <div className="text-lg sm:text-2xl font-bold text-orange-600">99.9%</div>
-            <div className="text-xs sm:text-sm text-muted-foreground">Uptime</div>
+            <div className="text-lg sm:text-2xl font-bold text-orange-600">Free</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">Always</div>
           </CardContent>
         </Card>
       </div>
