@@ -24,9 +24,18 @@ import {
   Hash,
   Palette,
   FileText,
-  FileImage
+  FileImage,
+  Menu,
+  X
 } from "lucide-react"
+
+declare global {
+  interface Window {
+    adsbygoogle: any[];
+  }
+}
 import { ThemeToggle } from "@/components/theme-toggle"
+import { BannerAd, SquareAd } from "@/components/GoogleAds"
 
 const allTools = [
   // Popular Tools
@@ -413,27 +422,87 @@ const stats = [
 export default function HomePage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredTools, setFilteredTools] = useState(allTools.slice(0, 24));
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [searchSuggestions, setSearchSuggestions] = useState<typeof allTools>([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  const animatedTexts = [
-    "Search tools... (e.g., 'typing test', 'pdf compress')",
-    "Try 'qr code generator free' for QR tools",
-    "Search 'image compressor' for photo tools",
-    "Find 'password generator' for security",
-    "Look for 'ai content writer' for AI tools",
-    "Search 'color picker' for design tools"
+  const categories = [
+    {
+      name: "PDF Tools",
+      icon: FileText,
+      color: "from-red-500 to-pink-500",
+      bgColor: "bg-red-50 dark:bg-red-950/20",
+      iconColor: "text-red-600 dark:text-red-400",
+      tools: allTools.filter(tool => tool.keywords?.some(k => k.includes('pdf')))
+    },
+    {
+      name: "Image Tools", 
+      icon: LucideImage,
+      color: "from-blue-500 to-cyan-500",
+      bgColor: "bg-blue-50 dark:bg-blue-950/20",
+      iconColor: "text-blue-600 dark:text-blue-400",
+      tools: allTools.filter(tool => tool.keywords?.some(k => k.includes('image') || k.includes('photo') || k.includes('background')))
+    },
+    {
+      name: "Text Tools",
+      icon: FileType,
+      color: "from-green-500 to-emerald-500",
+      bgColor: "bg-green-50 dark:bg-green-950/20",
+      iconColor: "text-green-600 dark:text-green-400",
+      tools: allTools.filter(tool => tool.keywords?.some(k => k.includes('text') || k.includes('word') || k.includes('typing')))
+    },
+    {
+      name: "Security Tools",
+      icon: Shield,
+      color: "from-orange-500 to-red-500",
+      bgColor: "bg-orange-50 dark:bg-orange-950/20",
+      iconColor: "text-orange-600 dark:text-orange-400",
+      tools: allTools.filter(tool => tool.keywords?.some(k => k.includes('password') || k.includes('security') || k.includes('encrypt')))
+    },
+    {
+      name: "Developer Tools",
+      icon: Hash,
+      color: "from-purple-500 to-violet-500",
+      bgColor: "bg-purple-50 dark:bg-purple-950/20",
+      iconColor: "text-purple-600 dark:text-purple-400",
+      tools: allTools.filter(tool => tool.keywords?.some(k => k.includes('code') || k.includes('json') || k.includes('css') || k.includes('html')))
+    },
+    {
+      name: "Design Tools",
+      icon: Palette,
+      color: "from-pink-500 to-rose-500",
+      bgColor: "bg-pink-50 dark:bg-pink-950/20",
+      iconColor: "text-pink-600 dark:text-pink-400",
+      tools: allTools.filter(tool => tool.keywords?.some(k => k.includes('color') || k.includes('gradient') || k.includes('logo') || k.includes('design')))
+    },
+    {
+      name: "AI Tools",
+      icon: Star,
+      color: "from-indigo-500 to-purple-500",
+      bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
+      iconColor: "text-indigo-600 dark:text-indigo-400",
+      tools: allTools.filter(tool => tool.keywords?.some(k => k.includes('ai')))
+    },
+    {
+      name: "Utility Tools",
+      icon: Zap,
+      color: "from-cyan-500 to-blue-500",
+      bgColor: "bg-cyan-50 dark:bg-cyan-950/20",
+      iconColor: "text-cyan-600 dark:text-cyan-400",
+      tools: allTools.filter(tool => tool.keywords?.some(k => k.includes('qr') || k.includes('wifi') || k.includes('random') || k.includes('converter')))
+    }
   ];
   
   useEffect(() => {
     setMounted(true);
-    const interval = setInterval(() => {
-      setCurrentTextIndex((prev) => (prev + 1) % animatedTexts.length);
-    }, 3000);
-    return () => clearInterval(interval);
+    // Initialize AdSense
+    if (typeof window !== 'undefined') {
+      try {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      } catch (error) {
+        console.error('AdSense error:', error);
+      }
+    }
   }, []);
 
   if (!mounted) {
@@ -449,83 +518,110 @@ export default function HomePage() {
     );
   }
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    if (!query.trim()) {
-      setFilteredTools(allTools.slice(0, 24));
-      setShowSuggestions(false);
-      setSearchSuggestions([]);
-      return;
-    }
 
-    const filtered = allTools.filter(tool => 
-      tool.name.toLowerCase().includes(query.toLowerCase()) ||
-      tool.description.toLowerCase().includes(query.toLowerCase()) ||
-      tool.keywords?.some(keyword => keyword.toLowerCase().includes(query.toLowerCase()))
-    );
-    
-    setFilteredTools(filtered);
-    
-    // Show top 5 suggestions
-    const suggestions = filtered.slice(0, 5);
-    setSearchSuggestions(suggestions);
-    setShowSuggestions(suggestions.length > 0 && query.length > 0);
-  };
-
-  const handleSuggestionClick = (tool: typeof allTools[0]) => {
-    setShowSuggestions(false);
-    setSearchQuery('');
-    router.push(tool.href);
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchSuggestions.length > 0) {
-      setShowSuggestions(false);
-      setSearchQuery('');
-      router.push(searchSuggestions[0].href);
-    } else if (searchQuery.trim()) {
-      // If no exact match, go to dashboard with search
-      router.push('/dashboard');
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 animate-pulse">
-              <Download className="h-6 w-6 text-white" />
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
+            <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
+              <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 animate-pulse">
+                <Download className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
+              </div>
+              <div className="hidden sm:block">
+                <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  MultiTool
+                </h1>
+                <p className="text-xs text-muted-foreground">by Dhanbyte</p>
+              </div>
+            </Link>
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-4 lg:space-x-6">
+              <Link href="/blog" className="text-sm font-medium hover:text-primary transition-colors">
+                Blog
+              </Link>
+              <Link href="/about" className="text-sm font-medium hover:text-primary transition-colors">
+                About
+              </Link>
+              <Link href="/help" className="text-sm font-medium hover:text-primary transition-colors">
+                Help
+              </Link>
+              <Link href="/contact" className="text-sm font-medium hover:text-primary transition-colors">
+                Contact
+              </Link>
+            </nav>
+            
+            {/* Desktop Actions */}
+            <div className="hidden md:flex items-center space-x-4">
+              <ThemeToggle />
+              <Link href="/dashboard">
+                <Button size="sm" className="hover:scale-105 transition-transform">
+                  Get Started
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </div>
-            <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                MultiTool
-              </h1>
-              <p className="text-xs text-muted-foreground">by Dhanbyte</p>
-            </div>
-          </Link>
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link href="/about" className="text-sm font-medium hover:text-primary transition-colors">
-              About
-            </Link>
-            <Link href="/help" className="text-sm font-medium hover:text-primary transition-colors">
-              Help
-            </Link>
-            <Link href="/contact" className="text-sm font-medium hover:text-primary transition-colors">
-              Contact
-            </Link>
-          </nav>
-          <div className="flex items-center space-x-4">
-            <ThemeToggle />
-            <Link href="/dashboard">
-              <Button className="hover:scale-105 transition-transform">
-                Get Started
-                <ArrowRight className="ml-2 h-4 w-4" />
+            
+            {/* Mobile Menu Button */}
+            <div className="flex md:hidden items-center space-x-2">
+              <ThemeToggle />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2"
+              >
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
-            </Link>
+            </div>
           </div>
+          
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t bg-background/95 backdrop-blur">
+              <div className="px-2 pt-2 pb-3 space-y-1">
+                <Link
+                  href="/blog"
+                  className="block px-3 py-2 text-sm font-medium hover:text-primary transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Blog
+                </Link>
+                <Link
+                  href="/about"
+                  className="block px-3 py-2 text-sm font-medium hover:text-primary transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  About
+                </Link>
+                <Link
+                  href="/help"
+                  className="block px-3 py-2 text-sm font-medium hover:text-primary transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Help
+                </Link>
+                <Link
+                  href="/contact"
+                  className="block px-3 py-2 text-sm font-medium hover:text-primary transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Contact
+                </Link>
+                <div className="px-3 py-2">
+                  <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full">
+                      Get Started
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
@@ -533,259 +629,173 @@ export default function HomePage() {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20" />
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400/10 rounded-full blur-3xl animate-float" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl animate-float-delayed" />
-          <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-pink-400/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute top-10 sm:top-20 left-5 sm:left-10 w-32 sm:w-72 h-32 sm:h-72 bg-blue-400/10 rounded-full blur-2xl sm:blur-3xl animate-float" />
+          <div className="absolute bottom-10 sm:bottom-20 right-5 sm:right-10 w-48 sm:w-96 h-48 sm:h-96 bg-purple-400/10 rounded-full blur-2xl sm:blur-3xl animate-float-delayed" />
+          <div className="absolute top-1/2 left-1/2 w-32 sm:w-64 h-32 sm:h-64 bg-pink-400/10 rounded-full blur-2xl sm:blur-3xl animate-pulse" />
           
-          {/* Floating Particles */}
-          <div className="absolute top-32 left-1/4 w-4 h-4 bg-blue-400/20 rounded-full animate-particle-float" />
-          <div className="absolute top-40 right-1/3 w-3 h-3 bg-purple-400/20 rounded-full animate-particle-float delay-1000" />
-          <div className="absolute bottom-32 left-1/3 w-5 h-5 bg-pink-400/20 rounded-full animate-particle-float delay-2000" />
-          <div className="absolute bottom-40 right-1/4 w-2 h-2 bg-indigo-400/20 rounded-full animate-particle-float delay-1500" />
+          {/* Floating Particles - Hidden on mobile */}
+          <div className="hidden sm:block absolute top-32 left-1/4 w-4 h-4 bg-blue-400/20 rounded-full animate-particle-float" />
+          <div className="hidden sm:block absolute top-40 right-1/3 w-3 h-3 bg-purple-400/20 rounded-full animate-particle-float delay-1000" />
+          <div className="hidden sm:block absolute bottom-32 left-1/3 w-5 h-5 bg-pink-400/20 rounded-full animate-particle-float delay-2000" />
+          <div className="hidden sm:block absolute bottom-40 right-1/4 w-2 h-2 bg-indigo-400/20 rounded-full animate-particle-float delay-1500" />
         </div>
-        <div className="container relative py-20 md:py-32">
+        <div className="container mx-auto px-3 sm:px-6 lg:px-8 relative py-8 sm:py-16 md:py-24">
           <div className="mx-auto max-w-4xl text-center">
-            <Badge variant="secondary" className="mb-6 px-4 py-2 animate-fade-in">
-              <Star className="mr-2 h-4 w-4 fill-current animate-spin-slow" />
-              Trusted by 500K+ users worldwide
+            <Badge variant="secondary" className="mb-3 sm:mb-6 px-2 sm:px-4 py-1 sm:py-2 animate-fade-in text-xs">
+              <Star className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 fill-current animate-spin-slow" />
+              Trusted by 500K+ users
             </Badge>
-            <h1 className="mb-4 text-2xl font-bold tracking-tight sm:text-4xl md:text-5xl animate-fade-in-up">
+            <h1 className="mb-3 sm:mb-4 text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight animate-fade-in-up leading-tight">
               <span className="animate-text-shimmer">MultiTool</span>{" "}
               <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient">
                 by Dhanbyte
               </span>
             </h1>
-            <p className="mx-auto mb-6 max-w-2xl text-sm text-muted-foreground sm:text-base leading-relaxed animate-fade-in-up delay-200">
-              <span className="animate-typewriter inline-block">
-                100+ free online tools - PDF, image, text, developer tools & more.
-              </span>
+            <p className="mx-auto mb-4 sm:mb-8 max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed animate-fade-in-up delay-200 px-2 sm:px-0">
+              100+ free online tools - PDF, image, text, developer tools & more.
               <br className="hidden sm:block" />
-              <span className="animate-fade-in delay-1000">By Dhananjay - Full Stack Developer. Fast, secure, no signup!</span>
+              <span className="animate-fade-in delay-1000 text-xs sm:text-sm opacity-80">By Dhananjay - Full Stack Developer. Fast, secure, no signup!</span>
             </p>
-            <div className="flex flex-col gap-8 sm:items-center animate-fade-in-up delay-300">
-              <div className="relative max-w-lg mx-auto w-full group">
-                {/* Enhanced Search Container */}
-                <div className="relative">
-                <form onSubmit={handleSearchSubmit} className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-xl blur-xl animate-search-glow" />
-                  <div className="relative bg-background/80 backdrop-blur-sm rounded-xl border-2 border-primary/20 shadow-2xl">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5 group-focus-within:text-primary transition-all duration-300 group-focus-within:scale-110" />
-                    <Input
-                      type="text"
-                      placeholder={animatedTexts[currentTextIndex]}
-                      value={searchQuery}
-                      onChange={(e) => handleSearch(e.target.value)}
-                      onFocus={() => setShowSuggestions(searchSuggestions.length > 0)}
-                      onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
-                      className="pl-12 pr-4 py-4 text-base bg-transparent border-0 rounded-xl focus:ring-0 focus:outline-none placeholder:transition-all placeholder:duration-500"
-                    />
-                  </div>
-                </form>
-                </div>
-                
-                {/* Live Search Suggestions */}
-                {showSuggestions && searchSuggestions.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-2 z-[9999] animate-fade-in">
-                    <div className="bg-background/98 backdrop-blur-md border border-primary/20 rounded-lg shadow-2xl overflow-hidden">
-                      <div className="p-3 border-b border-primary/10">
-                        <div className="text-xs text-muted-foreground">Found {searchSuggestions.length} matching tools:</div>
-                      </div>
-                      <div className="max-h-64 overflow-y-auto">
-                        {searchSuggestions.map((tool, index) => (
-                          <button
-                            key={index}
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => handleSuggestionClick(tool)}
-                            className="w-full p-3 text-left hover:bg-primary/10 transition-colors border-b border-primary/5 last:border-b-0 group"
-                          >
-                            <div className="flex items-center space-x-3">
-                              <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${tool.bgColor} group-hover:scale-110 transition-transform`}>
-                                <tool.icon className={`h-4 w-4 ${tool.iconColor}`} />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium text-sm truncate group-hover:text-primary transition-colors">{tool.name}</div>
-                                <div className="text-xs text-muted-foreground truncate">{tool.description}</div>
-                              </div>
-                              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                      <div className="p-2 bg-muted/30 border-t border-primary/10">
-                        <div className="text-xs text-muted-foreground text-center">
-                          Press Enter to go to first result or click any tool above
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Popular Search Terms (when no search query) */}
-                {!searchQuery && (
-                  <div className="absolute top-full left-0 right-0 mt-2 z-[9998] opacity-0 group-focus-within:opacity-100 transition-opacity duration-300">
-                    <div className="bg-background/98 backdrop-blur-md border border-primary/20 rounded-lg shadow-2xl p-3">
-                      <div className="text-xs text-muted-foreground mb-2">Popular searches:</div>
-                      <div className="flex flex-wrap gap-2">
-                        {['pdf compress', 'qr generator', 'typing test', 'image compress', 'password generator'].map((term) => (
-                          <button
-                            key={term}
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => handleSearch(term)}
-                            className="px-2 py-1 text-xs bg-primary/10 hover:bg-primary/20 rounded-md transition-colors"
-                          >
-                            {term}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Buttons - Move down when suggestions are visible */}
-              <div className={`flex flex-col gap-4 sm:flex-row sm:justify-center transition-all duration-300 ${
-                showSuggestions && searchSuggestions.length > 0 ? 'mt-80 opacity-50' : 'mt-0 opacity-100'
-              }`}>
-                <Link href="/dashboard">
-                  <Button size="lg" className="text-lg px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <Zap className="mr-2 h-5 w-5 group-hover:animate-pulse relative z-10" />
-                    <span className="relative z-10">Start Using Tools</span>
-                  </Button>
-                </Link>
-                <Link href="/about">
-                  <Button variant="outline" size="lg" className="text-lg px-8 py-4 rounded-xl border-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-950/20 dark:hover:to-purple-950/20 transition-all duration-300 hover:scale-105 hover:border-primary/50">
-                    Learn More
-                  </Button>
-                </Link>
-              </div>
+            <div className="flex flex-col gap-2 sm:gap-4 sm:flex-row sm:justify-center animate-fade-in-up delay-300 px-3 sm:px-0">
+              <Link href="/dashboard" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto text-sm sm:text-lg px-4 sm:px-8 py-2.5 sm:py-4 rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <Zap className="mr-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:animate-pulse relative z-10" />
+                  <span className="relative z-10">Start Using Tools</span>
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="border-y bg-muted/30 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent" />
-        <div className="container py-16 relative">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center group animate-fade-in-up" style={{ animationDelay: `${index * 100}ms` }}>
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/20 group-hover:shadow-lg">
-                  <stat.icon className="h-8 w-8 text-primary transition-all duration-300 group-hover:scale-110" />
-                </div>
-                <div className="text-3xl font-bold group-hover:text-primary transition-colors animate-counter">{stat.value}</div>
-                <div className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors">{stat.label}</div>
-              </div>
-            ))}
+
+
+      {/* Google Ads - Top Banner */}
+      <section className="bg-muted/20 border-y">
+        <div className="container mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-4">
+          <div className="flex justify-center">
+            <BannerAd />
           </div>
         </div>
       </section>
 
-      {/* Tools Grid */}
-      <section className="container py-24">
-        <div className="mx-auto max-w-2xl text-center mb-16">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4 animate-fade-in-up">
-            Powerful Tools at Your{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Fingertips
-            </span>
-          </h2>
-          <p className="text-lg text-muted-foreground leading-relaxed animate-fade-in-up delay-100">
-            Choose from our comprehensive suite of media tools designed to make your life easier
-          </p>
-        </div>
-
-        {searchQuery && (
-          <div className="mb-6 text-center animate-fade-in">
-            <p className="text-muted-foreground">
-              {filteredTools.length > 0 
-                ? `Found ${filteredTools.length} tool${filteredTools.length === 1 ? '' : 's'} for "${searchQuery}"`
-                : `No tools found for "${searchQuery}". Try different keywords.`
-              }
-            </p>
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
-          {filteredTools.map((tool, index) => (
-            <Link key={index} href={tool.href} className="block">
-              <Card
-                className="group relative overflow-hidden border bg-gradient-to-br from-background to-muted/20 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary/20 animate-fade-in-up cursor-pointer h-full"
-                style={{ animationDelay: `${index * 30}ms` }}
-              >
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${tool.color} opacity-0 transition-opacity duration-300 group-hover:opacity-5`}
-                />
-                <CardHeader className="relative p-3 sm:p-4">
-                  <div className="flex flex-col items-center text-center space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3 sm:text-left">
-                    <div
-                      className={`flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg ${tool.bgColor} transition-all duration-300 group-hover:scale-110`}
-                    >
-                      <tool.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${tool.iconColor} transition-all duration-300`} />
+      {/* Tools by Category */}
+      <section className="container mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <div className="space-y-8 sm:space-y-12">
+          {categories.map((category, categoryIndex) => (
+            category.tools.length > 0 && (
+              <div key={category.name} className="animate-fade-in-up" style={{ animationDelay: `${categoryIndex * 100}ms` }}>
+                <div className="animate-fade-in-up" style={{ animationDelay: `${categoryIndex * 100}ms` }}>
+                  {/* Category Header */}
+                  <div className="flex items-center justify-between mb-4 sm:mb-6">
+                    <div className="flex items-center space-x-2 sm:space-x-4">
+                      <div className={`flex h-8 w-8 sm:h-12 sm:w-12 items-center justify-center rounded-lg sm:rounded-xl ${category.bgColor}`}>
+                        <category.icon className={`h-4 w-4 sm:h-6 sm:w-6 ${category.iconColor}`} />
+                      </div>
+                      <div>
+                        <h3 className="text-lg sm:text-2xl font-bold">{category.name}</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground">{category.tools.length} tools</p>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-xs sm:text-sm font-medium leading-tight group-hover:text-primary transition-colors line-clamp-2">
-                        {tool.name.length > 25 ? tool.name.substring(0, 25) + '...' : tool.name}
-                        {tool.popular && <Badge variant="secondary" className="text-xs ml-1 hidden sm:inline-flex">Hot</Badge>}
-                      </CardTitle>
+                    <Link href="/dashboard">
+                      <Button variant="outline" size="sm" className="text-xs px-2 sm:px-3 py-1 sm:py-2">
+                        <span className="hidden sm:inline">View</span>
+                        <span className="sm:hidden">All</span>
+                        <ArrowRight className="ml-1 h-3 w-3" />
+                      </Button>
+                    </Link>
+                  </div>
+
+                  {/* Tools Grid */}
+                  <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4">
+                    {category.tools.map((tool, toolIndex) => (
+                      <Link key={toolIndex} href={tool.href} className="block">
+                        <Card className="group relative overflow-hidden border bg-gradient-to-br from-background to-muted/20 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 hover:border-primary/20 cursor-pointer h-full">
+                          <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 transition-opacity duration-300 group-hover:opacity-5`} />
+                          <CardHeader className="relative p-3 sm:p-4">
+                            <div className="flex items-center space-x-2 sm:space-x-3">
+                              <div className={`flex h-7 w-7 sm:h-10 sm:w-10 items-center justify-center rounded-lg ${tool.bgColor} transition-all duration-300 group-hover:scale-110 flex-shrink-0`}>
+                                <tool.icon className={`h-3.5 w-3.5 sm:h-5 sm:w-5 ${tool.iconColor} transition-all duration-300`} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <CardTitle className="text-xs sm:text-sm font-medium leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                                  {tool.name}
+                                  {tool.popular && <Badge variant="secondary" className="text-xs ml-1 mt-0.5 px-1 py-0">Hot</Badge>}
+                                </CardTitle>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="relative p-3 pt-0 sm:p-4 sm:pt-0">
+                            <CardDescription className="text-xs text-muted-foreground group-hover:text-foreground/80 transition-colors line-clamp-2 mb-2 sm:mb-3">
+                              {tool.description}
+                            </CardDescription>
+                            <Button variant="outline" size="sm" className="w-full text-xs py-1.5 sm:py-2 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 bg-transparent">
+                              Try Now
+                              <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" />
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Google Ads - Between Categories */}
+                {(categoryIndex === 2 || categoryIndex === 5) && (
+                  <div className="my-8 sm:my-12">
+                    <div className="flex justify-center">
+                      <SquareAd />
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent className="relative p-3 pt-0 sm:p-4 sm:pt-0">
-                  <CardDescription className="text-xs sm:text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors line-clamp-2 mb-3">
-                    {tool.description.length > 60 ? tool.description.substring(0, 60) + '...' : tool.description}
-                  </CardDescription>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full text-xs group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 bg-transparent"
-                  >
-                    <span className="hidden sm:inline">Try Now</span>
-                    <span className="sm:hidden">Try</span>
-                    <ArrowRight className="ml-1 h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
+                )}
+
+
+              </div>
+            )
           ))}
         </div>
         
-        {/* View All Tools Button */}
-        {!searchQuery && filteredTools.length < allTools.length && (
-          <div className="text-center mt-12">
-            <Link href="/dashboard">
-              <Button size="lg" variant="outline" className="text-lg px-8 py-4 rounded-xl border-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-105">
-                View All {allTools.length} Tools
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
+        {/* Google Ads - Bottom */}
+        <div className="my-8 sm:my-12">
+          <div className="flex justify-center">
+            <BannerAd />
           </div>
-        )}
+        </div>
+        
+        {/* View All Tools Button */}
+        <div className="text-center mt-8 sm:mt-12">
+          <Link href="/dashboard">
+            <Button size="lg" className="text-sm sm:text-lg px-4 sm:px-8 py-2.5 sm:py-4 rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+              <Zap className="mr-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:animate-pulse" />
+              Explore All {allTools.length} Tools
+            </Button>
+          </Link>
+        </div>
       </section>
 
       {/* Features Section */}
-      <section className="bg-muted/30 py-24 relative overflow-hidden">
+      <section className="bg-muted/30 py-16 sm:py-24 relative overflow-hidden">
         <div className="absolute inset-0">
-          <div className="absolute top-10 right-20 w-32 h-32 bg-blue-400/5 rounded-full blur-2xl animate-float" />
-          <div className="absolute bottom-10 left-20 w-40 h-40 bg-purple-400/5 rounded-full blur-2xl animate-float-delayed" />
+          <div className="hidden sm:block absolute top-10 right-20 w-32 h-32 bg-blue-400/5 rounded-full blur-2xl animate-float" />
+          <div className="hidden sm:block absolute bottom-10 left-20 w-40 h-40 bg-purple-400/5 rounded-full blur-2xl animate-float-delayed" />
         </div>
-        <div className="container relative">
-          <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4 animate-fade-in-up">Why Choose MultiTool by Dhanbyte?</h2>
-            <p className="text-lg text-muted-foreground animate-fade-in-up delay-100">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="mx-auto max-w-2xl text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-4 animate-fade-in-up">Why Choose MultiTool by Dhanbyte?</h2>
+            <p className="text-base sm:text-lg text-muted-foreground animate-fade-in-up delay-100 px-4 sm:px-0">
               Built with cutting-edge technology to provide the best user experience
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((feature, index) => (
               <div key={index} className="text-center group animate-fade-in-up" style={{ animationDelay: `${index * 150}ms` }}>
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-lg">
-                  <feature.icon className="h-8 w-8 text-primary transition-all duration-300 group-hover:scale-110" />
+                <div className="mx-auto mb-4 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-lg">
+                  <feature.icon className="h-6 w-6 sm:h-8 sm:w-8 text-primary transition-all duration-300 group-hover:scale-110" />
                 </div>
-                <h3 className="mb-2 text-xl font-semibold group-hover:text-primary transition-colors">{feature.title}</h3>
-                <p className="text-muted-foreground group-hover:text-foreground/80 transition-colors">{feature.description}</p>
+                <h3 className="mb-2 text-lg sm:text-xl font-semibold group-hover:text-primary transition-colors">{feature.title}</h3>
+                <p className="text-sm sm:text-base text-muted-foreground group-hover:text-foreground/80 transition-colors px-2 sm:px-0">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -793,16 +803,16 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="container py-24 relative">
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 relative">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-purple-50/50 dark:from-blue-950/10 dark:to-purple-950/10 rounded-3xl" />
         <div className="mx-auto max-w-2xl text-center relative">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4 animate-fade-in-up">Ready to Get Started?</h2>
-          <p className="text-lg text-muted-foreground mb-8 animate-fade-in-up delay-100">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-4 animate-fade-in-up">Ready to Get Started?</h2>
+          <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-8 animate-fade-in-up delay-100 px-4 sm:px-0">
             Join thousands of users who trust MultiTool by Dhanbyte for their daily productivity needs
           </p>
           <Link href="/dashboard">
-            <Button size="lg" className="text-lg px-8 py-6 animate-fade-in-up delay-200 hover:scale-105 transition-all duration-300 group">
-              <Zap className="mr-2 h-5 w-5 group-hover:animate-pulse" />
+            <Button size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 animate-fade-in-up delay-200 hover:scale-105 transition-all duration-300 group w-full sm:w-auto">
+              <Zap className="mr-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:animate-pulse" />
               Access All Tools Free
             </Button>
           </Link>
@@ -811,55 +821,55 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="border-t bg-muted/30">
-        <div className="container py-16">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div className="md:col-span-2">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-8">
+            <div className="sm:col-span-2 lg:col-span-2">
               <div className="flex items-center space-x-2 mb-4">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
                   <Download className="h-4 w-4 text-white" />
                 </div>
-                <span className="font-semibold text-lg">MultiTool by Dhanbyte</span>
+                <span className="font-semibold text-base sm:text-lg">MultiTool by Dhanbyte</span>
               </div>
-              <p className="text-muted-foreground mb-4 max-w-md">
+              <p className="text-sm sm:text-base text-muted-foreground mb-4 max-w-md">
                 Your ultimate toolkit with 100+ free online tools. Created by Dhananjay (Dhanbyte) - Full Stack Developer & Video Editor.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Quick Links</h3>
+              <h3 className="font-semibold mb-4 text-sm sm:text-base">Quick Links</h3>
               <div className="space-y-2">
-                <Link href="/dashboard" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/dashboard" className="block text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors">
                   All Tools
                 </Link>
-                <Link href="/about" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/about" className="block text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors">
                   About Us
                 </Link>
-                <Link href="/help" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/help" className="block text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors">
                   Help Center
                 </Link>
               </div>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Support</h3>
+              <h3 className="font-semibold mb-4 text-sm sm:text-base">Support</h3>
               <div className="space-y-2">
-                <Link href="/contact" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/contact" className="block text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors">
                   Contact Us
                 </Link>
-                <Link href="/help" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/help" className="block text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors">
                   FAQ
                 </Link>
-                <a href="mailto:support@dhanbyte.me" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                <a href="mailto:support@dhanbyte.me" className="block text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors">
                   Email Support
                 </a>
               </div>
             </div>
           </div>
-          <div className="border-t pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">© 2024 MultiTool by Dhananjay (Dhanbyte) - Full Stack Developer & Video Editor. All rights reserved.</p>
+          <div className="border-t pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">© 2024 MultiTool by Dhananjay (Dhanbyte) - Full Stack Developer & Video Editor. All rights reserved.</p>
             <div className="flex items-center space-x-4">
-              <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              <Link href="/privacy" className="text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors">
                 Privacy Policy
               </Link>
-              <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              <Link href="/terms" className="text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors">
                 Terms of Service
               </Link>
             </div>

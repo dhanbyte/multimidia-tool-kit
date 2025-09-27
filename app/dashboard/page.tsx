@@ -26,6 +26,12 @@ import {
   Scissors
 } from "lucide-react"
 
+declare global {
+  interface Window {
+    adsbygoogle: any[];
+  }
+}
+
 const tools = [
   // PDF TOOLS
   { name: "PDF to Word", description: "Convert PDF files to Word documents", icon: FileText, href: "/dashboard/pdf-to-word", category: "PDF Tools", bgColor: "bg-red-50 dark:bg-red-950/20", iconColor: "text-red-600 dark:text-red-400", popular: true },
@@ -146,6 +152,16 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-6">
+      {/* Top Banner Ad */}
+      <div className="w-full py-2">
+        <ins className="adsbygoogle"
+             style={{display:'block'}}
+             data-ad-client="ca-pub-6246142348671168"
+             data-ad-slot="0123456789"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
+      
       {/* Welcome Section */}
       <div className="flex flex-col space-y-1 sm:space-y-2">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">MultiTool by Dhanbyte</h1>
@@ -162,23 +178,26 @@ export default function DashboardPage() {
           <CardDescription className="text-xs sm:text-sm">Most used tools by our community</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8">
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {tools.filter(tool => tool.popular).map((tool, index) => (
               <Link key={index} href={tool.href}>
                 <Card className="group relative cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-1">
-                  <div className="absolute top-1 right-1">
-                    <Badge variant="secondary" className="text-xs px-1 py-0 h-4">
-                      <Star className="h-2 w-2" />
+                  <div className="absolute top-2 right-2">
+                    <Badge variant="secondary" className="text-xs px-2 py-1">
+                      <Star className="h-3 w-3 mr-1" />
+                      Popular
                     </Badge>
                   </div>
-                  <CardContent className="p-2 sm:p-3">
-                    <div className="flex flex-col items-center text-center space-y-1">
-                      <div className={`flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-lg ${tool.bgColor}`}>
-                        <tool.icon className={`h-3 w-3 sm:h-4 sm:w-4 ${tool.iconColor}`} />
+                  <CardContent className="p-4">
+                    <div className="flex items-start space-x-3">
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${tool.bgColor}`}>
+                        <tool.icon className={`h-5 w-5 ${tool.iconColor}`} />
                       </div>
-                      <h3 className="font-medium text-xs leading-tight line-clamp-2">
-                        {tool.name.length > 12 ? tool.name.substring(0, 12) + '...' : tool.name}
-                      </h3>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm mb-1 line-clamp-1">{tool.name}</h3>
+                        <p className="text-xs text-muted-foreground line-clamp-2">{tool.description}</p>
+                        <Badge variant="outline" className="mt-2 text-xs">{tool.category}</Badge>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -202,25 +221,32 @@ export default function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-3 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8">
+              <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {categoryTools.map((tool, index) => (
                   <Link key={index} href={tool.href}>
                     <Card className="group relative cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-1">
                       {tool.popular && (
-                        <div className="absolute top-1 right-1">
-                          <Badge variant="secondary" className="text-xs px-1 py-0 h-4">
-                            <Star className="h-2 w-2" />
+                        <div className="absolute top-2 right-2">
+                          <Badge variant="secondary" className="text-xs px-2 py-1">
+                            <Star className="h-3 w-3 mr-1" />
+                            Popular
                           </Badge>
                         </div>
                       )}
-                      <CardContent className="p-2 sm:p-3">
-                        <div className="flex flex-col items-center text-center space-y-1">
-                          <div className={`flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-lg ${tool.bgColor}`}>
-                            <tool.icon className={`h-3 w-3 sm:h-4 sm:w-4 ${tool.iconColor}`} />
+                      <CardContent className="p-4">
+                        <div className="flex items-start space-x-3">
+                          <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${tool.bgColor}`}>
+                            <tool.icon className={`h-5 w-5 ${tool.iconColor}`} />
                           </div>
-                          <h3 className="font-medium text-xs leading-tight line-clamp-2">
-                            {tool.name.length > 12 ? tool.name.substring(0, 12) + '...' : tool.name}
-                          </h3>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-sm mb-1 line-clamp-1">{tool.name}</h3>
+                            <p className="text-xs text-muted-foreground line-clamp-2">{tool.description}</p>
+                            {tool.popular && (
+                              <Badge variant="outline" className="mt-2 text-xs bg-yellow-50 text-yellow-700 border-yellow-200">
+                                ⭐ Trending
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>

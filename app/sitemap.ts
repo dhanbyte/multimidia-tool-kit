@@ -1,9 +1,12 @@
 import { MetadataRoute } from 'next'
+import { blogPosts } from './blog/posts/blog-data'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://dhanbyte.me'
   
   const pages = [
+    // Blog pages
+    { url: '/blog', priority: 0.9, changeFrequency: 'daily' as const },
     // Main pages - MultiTool by Dhanbyte
     { url: '', priority: 1.0, changeFrequency: 'daily' as const },
     { url: '/about', priority: 0.7, changeFrequency: 'monthly' as const },
@@ -152,10 +155,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '/dashboard/social-bio-generator', priority: 0.8, changeFrequency: 'weekly' as const }
   ]
 
-  return pages.map((page) => ({
+  // Blog posts
+  const blogPages = blogPosts.map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: new Date(post.date),
+    changeFrequency: 'monthly' as const,
+    priority: post.trending ? 0.8 : 0.6,
+  }))
+
+  const staticPages = pages.map((page) => ({
     url: `${baseUrl}${page.url}`,
     lastModified: new Date(),
     changeFrequency: page.changeFrequency,
     priority: page.priority,
   }))
+
+  return [...staticPages, ...blogPages]
 }

@@ -24,6 +24,12 @@ export function MainNav({ className, ...props }: MainNavProps) {
       >
         Dashboard
       </Link>
+      <Link
+        href="/blog"
+        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+      >
+        Blog
+      </Link>
       {/* You can add more direct links here if you want them in the main nav besides the dashboard cards */}
       {/* For example, if you want "Image Compressor" directly in the top nav */}
       {/* <Link
