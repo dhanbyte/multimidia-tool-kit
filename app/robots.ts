@@ -6,19 +6,15 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin/', '/api/', '/_next/', '/private/'],
+        disallow: ['/api/', '/_next/', '/admin/'],
       },
       {
         userAgent: 'Googlebot',
         allow: '/',
         crawlDelay: 0,
-      },
-      {
-        userAgent: 'Bingbot', 
-        allow: '/',
-        crawlDelay: 1,
       }
     ],
     sitemap: 'https://dhanbyte.me/sitemap.xml',
+    host: 'https://dhanbyte.me'
   }
 }

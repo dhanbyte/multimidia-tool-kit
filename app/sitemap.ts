@@ -159,8 +159,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const blogPages = blogPosts.map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
     lastModified: new Date(post.date),
-    changeFrequency: 'monthly' as const,
-    priority: post.trending ? 0.8 : 0.6,
+    changeFrequency: 'weekly' as const,
+    priority: post.trending ? 0.9 : 0.7,
   }))
 
   const staticPages = pages.map((page) => ({

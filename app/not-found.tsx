@@ -1,60 +1,52 @@
-'use client';
-
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Home, Search, ArrowLeft } from 'lucide-react';
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Home, ArrowLeft } from 'lucide-react'
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
-            <Search className="h-8 w-8 text-red-600 dark:text-red-400" />
-          </div>
-          <CardTitle className="text-2xl">Page Not Found</CardTitle>
-          <CardDescription>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="text-center space-y-6 px-4">
+        <div className="space-y-2">
+          <h1 className="text-6xl font-bold text-muted-foreground">404</h1>
+          <h2 className="text-2xl font-semibold">Page Not Found</h2>
+          <p className="text-muted-foreground max-w-md mx-auto">
             The page you're looking for doesn't exist or has been moved.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="text-center text-sm text-muted-foreground">
-            <p>Error 404 - This page could not be found.</p>
-          </div>
-          
-          <div className="flex flex-col gap-2">
-            <Link href="/">
-              <Button className="w-full">
-                <Home className="mr-2 h-4 w-4" />
-                Go to Homepage
-              </Button>
-            </Link>
-            
-            <Link href="/dashboard">
-              <Button variant="outline" className="w-full">
-                <Search className="mr-2 h-4 w-4" />
-                Browse All Tools
-              </Button>
-            </Link>
-            
-            <Button 
-              variant="ghost" 
-              className="w-full"
-              onClick={() => window.history.back()}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
+          </p>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link href="/">
+            <Button className="w-full sm:w-auto">
+              <Home className="w-4 h-4 mr-2" />
+              Go Home
+            </Button>
+          </Link>
+          <Link href="/dashboard">
+            <Button variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
               Go Back
             </Button>
+          </Link>
+        </div>
+        
+        <div className="pt-8">
+          <h3 className="text-lg font-semibold mb-4">Popular Tools</h3>
+          <div className="grid grid-cols-2 gap-2 max-w-md mx-auto">
+            <Link href="/dashboard/qr-generator" className="text-sm text-muted-foreground hover:text-primary">
+              QR Generator
+            </Link>
+            <Link href="/dashboard/image-compressor" className="text-sm text-muted-foreground hover:text-primary">
+              Image Compressor
+            </Link>
+            <Link href="/dashboard/pdf-compress" className="text-sm text-muted-foreground hover:text-primary">
+              PDF Compressor
+            </Link>
+            <Link href="/dashboard/password-generator" className="text-sm text-muted-foreground hover:text-primary">
+              Password Generator
+            </Link>
           </div>
-          
-          <div className="text-center">
-            <p className="text-xs text-muted-foreground">
-              Need help? <Link href="/contact" className="text-primary hover:underline">Contact us</Link>
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
-  );
+  )
 }

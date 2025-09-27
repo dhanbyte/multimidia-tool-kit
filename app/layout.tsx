@@ -55,6 +55,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://dhanbyte.me",
   },
+  other: {
+    'google-site-verification': 'your-google-verification-code'
+  },
   verification: {
     google: "google-site-verification-code-here",
   },
@@ -97,6 +100,7 @@ export default function RootLayout({
           }}
         />
         <link rel="canonical" href="https://dhanbyte.me" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
 
         <link
           rel="icon"

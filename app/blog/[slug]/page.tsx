@@ -4,9 +4,10 @@ import { Metadata } from "next"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { CalendarDays, Clock, User, ArrowLeft, ExternalLink, Share2 } from "lucide-react"
+import { CalendarDays, Clock, User, ArrowLeft, ExternalLink } from "lucide-react"
 import { getBlogPostBySlug, blogPosts, getTrendingPosts } from "../posts/blog-data"
 import { BannerAd, SquareAd } from "@/components/GoogleAds"
+import ShareButtons from "@/components/ShareButtons"
 
 function getUnsplashImage(category: string) {
   const images = {
@@ -150,26 +151,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </div>
 
             {/* Share Section */}
-            <div className="mt-12 p-6 bg-muted/30 rounded-lg">
-              <h3 className="text-lg font-semibold mb-4 flex items-center">
-                <Share2 className="w-5 h-5 mr-2" />
-                Share this article
-              </h3>
-              <div className="flex gap-4">
-                <Button variant="outline" size="sm">
-                  Twitter
-                </Button>
-                <Button variant="outline" size="sm">
-                  LinkedIn
-                </Button>
-                <Button variant="outline" size="sm">
-                  Facebook
-                </Button>
-                <Button variant="outline" size="sm">
-                  Copy Link
-                </Button>
-              </div>
-            </div>
+            <ShareButtons 
+              url={`https://dhanbyte.me/blog/${post.slug}`}
+              title={post.title}
+            />
 
             {/* Tool CTA */}
             {post.toolUrl && (
